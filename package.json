@@ -1,0 +1,31 @@
+{
+  "name": "domino-tiling",
+  "version": "0.1.0",
+  "description": "This repository contains a library for solving domino tiling problems using BigInt and standard JavaScript. It provides a method to calculate the number of ways to tile a 2D grid with 2x1 and 1x2 dominoes.",
+  "keywords": [
+    "domino-tiling",
+    "dimer-coverings",
+    "A004003",
+    "BigInt",
+    "JavaScript",
+    "algorithm",
+    "combinatorics"
+  ],
+  "author": {
+    "name": "Dawid Ryłko",
+    "url": "https://dawidrylko.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dawidrylko/domino-tiling.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dawidrylko/domino-tiling/issues"
+  },
+  "homepage": "https://github.com/dawidrylko/domino-tiling#readme",
+  "scripts": {
+    "start": "node benchmarkRunner.js -n 1000",
+    "test": "node testRunner.js"
+  }
+}
