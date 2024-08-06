@@ -26,6 +26,6 @@
   "homepage": "https://github.com/dawidrylko/domino-tiling#readme",
   "scripts": {
     "start": "node benchmarkRunner.js -n 1000",
-    "test": "node testRunner.js"
+    "test": "node testRunner.js -m 7"
   }
 }
