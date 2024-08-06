@@ -54,6 +54,22 @@ node benchmarkRunner.js -n <k>
 npm test
 ```
 
+This command will run tests for the first 7 test cases by default. This default value is used for my tests and CI. Increasing this value may lead to a significantly longer test execution time.
+
+If you want to run tests for a different number of test cases, you can specify the desired number using the `-m` argument:
+
+```sh
+node testRunner.js -m <m>
+```
+
+Replace `<m>` with the number of test cases you want to run.
+
+Alternatively, if you don't specify any argument, all available test cases will be run:
+
+```sh
+node testRunner.js
+```
+
 ## 📜 License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
