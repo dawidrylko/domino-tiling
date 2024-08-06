@@ -1,8 +1,5 @@
 /**
  * Verifies the result for integer tests.
- * @param {string} expected The expected result as a base 36 string representation of an integer.
-/**
- * Verifies the result for integer tests.
  * @param {number|string} expected The expected result as a base 36 string representation of an integer.
  * @param {number|string} actual The actual result as a base 36 string representation of an integer.
  * @returns {boolean} True if the results match, false otherwise.
