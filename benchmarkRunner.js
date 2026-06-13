@@ -91,7 +91,7 @@ function executeBenchmark(options, files, testCases) {
   return allPassed;
 }
 
-function __main__() {
+function run() {
   try {
     const argsSchema = { '-n': 'numberOfExecutions' };
     const options = parseArgs(process.argv.slice(2), argsSchema);
@@ -124,4 +124,7 @@ function __main__() {
   }
 }
 
-__main__();
+// Only run when executed directly, not when imported
+if (require.main === module) {
+  run();
+}
