@@ -34,27 +34,29 @@ function renderTiling(tiling, label, offsetX, offsetY, options) {
 /**
  * Renders a sheet of tilings as a standalone SVG document.
  * @param {Domino[][]} tilings The tilings to render.
- * @param {number} firstNumber The 1-based number of the first tiling on the sheet.
+ * @param {number|BigInt} firstNumber The 1-based number of the first tiling on the sheet.
  * @param {Object} options Board dimensions.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
+ * @property {number} [options.columns] The number of tilings per sheet row (default: 10).
  * @returns {string} The SVG document.
  */
 function renderSheet(tilings, firstNumber, options) {
   const { rowCount, colCount } = options;
   const tileWidth = colCount * CELL_SIZE + PADDING;
   const tileHeight = rowCount * CELL_SIZE + LABEL_HEIGHT + PADDING;
-  const columns = Math.min(SHEET_COLUMNS, tilings.length);
-  const rows = Math.ceil(tilings.length / SHEET_COLUMNS);
+  const sheetColumns = options.columns || SHEET_COLUMNS;
+  const columns = Math.min(sheetColumns, tilings.length);
+  const rows = Math.ceil(tilings.length / sheetColumns);
   const width = columns * tileWidth + PADDING;
   const height = rows * tileHeight + PADDING;
 
   const body = tilings.map((tiling, i) =>
     renderTiling(
       tiling,
-      firstNumber + i,
-      PADDING + (i % SHEET_COLUMNS) * tileWidth,
-      PADDING + Math.floor(i / SHEET_COLUMNS) * tileHeight,
+      BigInt(firstNumber) + BigInt(i),
+      PADDING + (i % sheetColumns) * tileWidth,
+      PADDING + Math.floor(i / sheetColumns) * tileHeight,
       options,
     ),
   );
@@ -69,4 +71,6 @@ function renderSheet(tilings, firstNumber, options) {
   ].join('\n');
 }
 
-module.exports = renderSheet;
+if (typeof module !== 'undefined') {
+  module.exports = renderSheet;
+}

@@ -17,19 +17,19 @@ function generateSheetFileName(first, last, padWidth) {
  * @property {string} options.directory The output directory, created on the first write.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
- * @property {number} options.offset The number of tilings skipped before the first one.
- * @property {number} options.lastNumber The highest tiling number, used to pad file names.
- * @returns {{ first: number, last: number, file: string }[]} The written sheets.
+ * @property {BigInt} options.offset The number of tilings skipped before the first one.
+ * @property {BigInt|null} options.lastNumber The highest tiling number, used to pad file names.
+ * @returns {{ first: BigInt, last: BigInt, file: string }[]} The written sheets.
  */
 function writeSvgSheets(tilings, options) {
   const { directory, offset, lastNumber } = options;
-  const padWidth = Number.isFinite(lastNumber) ? String(lastNumber).length : 0;
+  const padWidth = lastNumber === null ? 0 : String(lastNumber).length;
   const sheets = [];
   let sheet = [];
-  let rendered = 0;
+  let rendered = BigInt(0);
 
   const flush = () => {
-    const first = offset + rendered - sheet.length + 1;
+    const first = offset + rendered - BigInt(sheet.length) + BigInt(1);
     const last = offset + rendered;
     const file = path.join(directory, generateSheetFileName(first, last, padWidth));
 
