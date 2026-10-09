@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Domino Tiling: every tiling of a 2n × 2n board and a solver benchmark | Dawid Ryłko</title>
+<title>Domino Tiling: every tiling of a 2n × 2n board | Dawid Ryłko</title>
 <meta name="description" content="Browse every domino tiling of boards up to 18×18 (all 12,988,816 tilings of a chessboard included), see the closed-form formula, sample uniformly random 20×20 tilings and compare three JavaScript solvers.">
 <meta name="author" content="Dawid Ryłko">
 <meta name="keywords" content="domino tiling, dimer coverings, OEIS A004003, chessboard, combinatorics, dynamic programming, bitmask, BigInt, JavaScript">
@@ -267,7 +267,7 @@ const short = n => {
   return `${mantissa} × 10${[...String(exponent)].map(d => SUPERSCRIPT[d]).join('')}`;
 };
 const num = n => (isLong(n) ? `<span class="num" title="${fmt(n)}">${short(n)}</span>` : fmt(n));
-const ms = t => (t === null ? '—' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
+const ms = t => (t === null ? '-' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
 const confirmedBoards = new Set();
 const pending = new Map();
 let worker = null;
@@ -496,7 +496,7 @@ $('load-table').addEventListener('click', () => {
 });
 
 $('benchmark-rows').innerHTML = DATA.benchmark
-  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '—' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
+  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '-' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
   .join('');
 
 window.addEventListener('hashchange', render);
