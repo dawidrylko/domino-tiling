@@ -71,7 +71,7 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .btn.icon { padding: 0; }
 .btn svg { width: 16px; height: 16px; }
 .btn:hover:not(:disabled) { border-color: var(--accent); }
-.btn:disabled { opacity: .35; cursor: default; }
+.btn:disabled, .field:disabled { opacity: .35; cursor: default; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .field { height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; min-width: 0; }
 .field:focus, .btn:focus-visible, .boards button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -304,11 +304,19 @@ function getWorker() {
 }
 
 function requestTilings(message, onProgress = () => {}) {
+  if (needsConfirmation(message.board)) {
+    return Promise.reject(new Error('Build the counting table first.'));
+  }
+
   return new Promise((resolve, reject) => {
     const id = ++requestId;
     pending.set(id, { resolve, reject, onProgress });
     getWorker().postMessage({ id, ...message });
   });
+}
+
+function needsConfirmation(board) {
+  return Boolean(board.confirm) && !confirmedBoards.has(board.id);
 }
 
 function pageCount(board) {
@@ -385,11 +393,13 @@ function updateControls({ board, page }) {
   $('sample-controls').hidden = pages;
 
   if (pages) {
+    const locked = needsConfirmation(board);
+    $('page-controls').querySelectorAll('button, input').forEach(control => (control.disabled = locked));
     $('page').value = fmt(page);
     $('page').style.width = `${Math.max(fmt(page).length + 3, 6)}ch`;
     $('pages').innerHTML = num(pageCount(board));
-    $('first').disabled = $('prev').disabled = page === ONE;
-    $('last').disabled = $('next').disabled = page === pageCount(board);
+    $('first').disabled = $('prev').disabled = locked || page === ONE;
+    $('last').disabled = $('next').disabled = locked || page === pageCount(board);
   }
 }
 
@@ -420,12 +430,14 @@ async function renderGallery(state) {
 
   const first = (page - ONE) * PAGE_SIZE;
   const end = first + PAGE_SIZE < BigInt(board.total) ? first + PAGE_SIZE : BigInt(board.total);
+  const locked = needsConfirmation(board);
 
   $('gallery-meta').innerHTML =
-    `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · showing ` +
-    (isLong(end) ? `<span class="range">#${fmt(first + ONE)} to #${fmt(end)}</span>` : `${fmt(first + ONE)}-${fmt(end)}`);
+    `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings` +
+    (locked ? '' : ' · showing ' +
+      (isLong(end) ? `<span class="range">#${fmt(first + ONE)} to #${fmt(end)}</span>` : `${fmt(first + ONE)}-${fmt(end)}`));
 
-  if (board.confirm && !confirmedBoards.has(board.id)) {
+  if (locked) {
     $('sheet').innerHTML = '';
     $('notice-text').textContent =
       `Numbering the tilings of the ${board.rowCount}×${board.colCount} board needs a counting table of about ${board.memory} ` +
