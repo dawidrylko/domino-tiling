@@ -4,10 +4,10 @@ const renderSheet = require('./svg');
 
 const TILINGS_PER_SHEET = 100;
 
-function generateSheetFileName(first, last, padWidth) {
+function generateSheetFileName(prefix, first, last, padWidth) {
   const pad = number => String(number).padStart(padWidth, '0');
 
-  return `tilings-${pad(first)}-${pad(last)}.svg`;
+  return `${prefix}-${pad(first)}-${pad(last)}.svg`;
 }
 
 /**
@@ -19,10 +19,11 @@ function generateSheetFileName(first, last, padWidth) {
  * @property {number} options.colCount The number of columns.
  * @property {BigInt} options.offset The number of tilings skipped before the first one.
  * @property {BigInt|null} options.lastNumber The highest tiling number, used to pad file names.
+ * @property {string} [options.filePrefix] The file name prefix (default: "tilings").
  * @returns {{ first: BigInt, last: BigInt, file: string }[]} The written sheets.
  */
 function writeSvgSheets(tilings, options) {
-  const { directory, offset, lastNumber } = options;
+  const { directory, offset, lastNumber, filePrefix = 'tilings' } = options;
   const padWidth = lastNumber === null ? 0 : String(lastNumber).length;
   const sheets = [];
   let sheet = [];
@@ -31,7 +32,7 @@ function writeSvgSheets(tilings, options) {
   const flush = () => {
     const first = offset + rendered - BigInt(sheet.length) + BigInt(1);
     const last = offset + rendered;
-    const file = path.join(directory, generateSheetFileName(first, last, padWidth));
+    const file = path.join(directory, generateSheetFileName(filePrefix, first, last, padWidth));
 
     fs.mkdirSync(directory, { recursive: true });
     fs.writeFileSync(file, renderSheet(sheet, first, options));

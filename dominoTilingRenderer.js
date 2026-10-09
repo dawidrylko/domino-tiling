@@ -11,6 +11,7 @@ const {
   canUnrank,
   createUnranker,
   unrankTiling,
+  sampleRandomTiling,
 } = require('./renderer');
 
 const DEFAULT_LIMIT = 1000;
@@ -44,13 +45,19 @@ function* unrankRange(unranker, offset, count) {
   }
 }
 
+function* sampleRandomTilings(options, count) {
+  for (let i = 0; i < count; i++) {
+    yield sampleRandomTiling(options);
+  }
+}
+
 function selectTilings(argv, options, unranker, total) {
   const index = readBigIntArg(argv, '-i');
   const random = argv.includes('--random');
 
   if (index !== null || random) {
     if (!unranker) {
-      throw new Error('-i and --random are not supported for boards this large.');
+      throw new Error('-i is not supported for boards this large; use --random instead.');
     }
 
     const rank = random ? randomBigInt(total) : index - BigInt(1);
@@ -78,12 +85,12 @@ function selectTilings(argv, options, unranker, total) {
   return { offset, count: available < limit ? available : limit };
 }
 
-function printAscii(tilings, { offset, ...options }) {
+function printAscii(tilings, { offset, labels, ...options }) {
   let rendered = BigInt(0);
 
   for (const tiling of tilings) {
+    console.log(labels ? labels[rendered] : `#${offset + rendered + BigInt(1)}`);
     rendered++;
-    console.log(`#${offset + rendered}`);
     console.log(`${renderAscii(tiling, options)}\n`);
   }
 
@@ -103,6 +110,40 @@ function saveSvgSheets(tilings, options) {
   );
 }
 
+function renderRandomSample(argv, options) {
+  const { rowCount, colCount } = options;
+
+  if ((rowCount * colCount) % 2 !== 0) {
+    console.log(`Board ${rowCount}x${colCount}: 0 tilings.`);
+    console.log('Nothing to render.');
+    process.exit(0);
+  }
+
+  const count = options.limit || 1;
+  const labels = Array.from({ length: count }, (_, i) => `random ${i + 1}`);
+  const tilings = sampleRandomTilings(options, count);
+  const renderOptions = {
+    rowCount,
+    colCount,
+    offset: BigInt(0),
+    lastNumber: null,
+    labels,
+    filePrefix: `random-${Date.now()}`,
+  };
+
+  console.log(
+    `Board ${rowCount}x${colCount}: too large to number its tilings, sampling ${count} uniformly at random.`,
+  );
+
+  if (argv.includes('--ascii')) {
+    printAscii(tilings, renderOptions);
+  } else {
+    saveSvgSheets(tilings, renderOptions);
+  }
+
+  process.exit(0);
+}
+
 function __main__() {
   try {
     const argv = process.argv.slice(2);
@@ -118,6 +159,12 @@ function __main__() {
     }
 
     const unranker = canUnrank(options) ? createUnranker(options) : null;
+
+    if (!unranker && argv.includes('--random') && readBigIntArg(argv, '-i') === null) {
+      renderRandomSample(argv, options);
+      return;
+    }
+
     const counted = unranker ? unranker.total : countTilings(options);
     const total = counted === null ? null : BigInt(counted);
 

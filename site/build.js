@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const { testCasesBigInt } = require('../test-data');
+const { createUnranker } = require('../renderer');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
 const BENCHMARK_DIRECTORY = 'benchmark';
-const BROWSER_SCRIPTS = ['renderer/svg.js', 'renderer/unrank.js'];
+const BROWSER_SCRIPTS = ['renderer/svg.js'];
+const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'site/worker.js'];
 const ASSETS = {
   'domino.svg': '.github/assets/domino.svg',
   'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
@@ -26,8 +28,20 @@ const GALLERY_BOARDS = [
   { rowCount: 8, colCount: 8 },
   { rowCount: 10, colCount: 10 },
   { rowCount: 12, colCount: 12 },
+  { rowCount: 14, colCount: 14, memory: '60 MB' },
+  { rowCount: 16, colCount: 16, memory: '250 MB' },
+  { rowCount: 18, colCount: 18, memory: '1.1 GB', confirm: true },
+  { rowCount: 20, colCount: 20, mode: 'random' },
 ];
 const DEFAULT_BOARD = '4x4';
+
+function countTilings(board) {
+  const testCase = testCasesBigInt.find(
+    t => t.rowCount === board.rowCount && t.colCount === board.colCount,
+  );
+
+  return testCase ? testCase.expectedResult : String(createUnranker(board).total);
+}
 
 function readAverageTime(fileName) {
   const file = path.join(BENCHMARK_DIRECTORY, fileName);
@@ -136,15 +150,20 @@ function __main__() {
     defaultBoard: DEFAULT_BOARD,
     boards: GALLERY_BOARDS.map(board => ({
       id: `${board.rowCount}x${board.colCount}`,
+      mode: 'pages',
       ...board,
+      total: countTilings(board),
     })),
     benchmark: buildBenchmark(),
   };
-  const scripts = BROWSER_SCRIPTS.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
+  const readScripts = files => files.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
+  const scripts = readScripts(BROWSER_SCRIPTS);
+  const workerSource = readScripts(WORKER_SCRIPTS);
   const template = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf-8');
   const html = template
     .replace('__SCRIPTS__', () => scripts)
     .replace('__DATA__', () => JSON.stringify(data))
+    .replace('__WORKER__', () => JSON.stringify(workerSource).replace(/</g, '\\u003c'))
     .replace('__JSON_LD__', () => JSON.stringify(buildJsonLd()).replace(/</g, '\\u003c'))
     .replace(/__SITE_URL__/g, SITE_URL);
 
