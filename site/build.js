@@ -83,6 +83,8 @@ function buildBenchmark() {
     const suffix = `_${rowCount}x${colCount}.txt`;
     const number = readAverageTime(`dominoTilingSolver.js${suffix}`);
     const bigint = readAverageTime(`dominoTilingSolver-BigInt.js${suffix}`);
+    const formula = readAverageTime(`dominoTilingSolver-Formula.js${suffix}`);
+    const results = [number, bigint, formula].filter(Boolean);
 
     return {
       rowCount,
@@ -90,7 +92,8 @@ function buildBenchmark() {
       tilings: tilingsBySize.get(`${rowCount}x${colCount}`) ?? null,
       number: number && number.average,
       bigint: bigint && bigint.average,
-      runs: Math.max(number ? number.runs : 0, bigint ? bigint.runs : 0),
+      formula: formula && formula.average,
+      runs: Math.max(...results.map(result => result.runs)),
     };
   });
 }
@@ -111,7 +114,7 @@ function buildJsonLd() {
         '@type': 'SoftwareSourceCode',
         name: 'Domino Tiling',
         description:
-          'JavaScript solvers that count domino tilings of 2n×2n boards (OEIS A004003) with bitmask dynamic programming, plus a renderer for every tiling.',
+          'JavaScript solvers that count domino tilings of 2n×2n boards (OEIS A004003) with bitmask dynamic programming and an exact closed-form formula, plus a renderer for every tiling.',
         codeRepository: 'https://github.com/dawidrylko/domino-tiling',
         programmingLanguage: 'JavaScript',
         runtimePlatform: 'Node.js',
