@@ -229,11 +229,14 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     <p class="note">
       Average wall-clock time of a full solver process (<code>node &lt;solver&gt; -r R -c C</code>), as stored in
       <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark">benchmark/</a>.
-      The Number and BigInt results were measured in March 2024, before the upgrade to Node.js 26; the Formula results
-      in October 2026 on Node.js 26 on a different machine, so compare them across columns only roughly. For small
-      boards most of the time is Node.js start-up.
-      The Number solver is benchmarked only up to 12×12; from 12×12 on its result exceeds 2<sup>53</sup> and is no longer exact.
-      Re-run with <code>pnpm start</code> and rebuild the site to refresh this table.
+      For small boards most of the time is Node.js start-up. The Number solver stops at 10×10, because from 12×12 on
+      its result exceeds 2<sup>53</sup> and is no longer exact.
+      <span id="environment"></span>
+      Older measurements are kept in <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark/2024-03">benchmark/2024-03</a>
+      (March 2024, up to 1,000 runs per board, machine not recorded) and
+      <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark/2024-04">benchmark/2024-04</a>
+      (April 2024, 100,000 runs per board on an Intel Core i7-8700).
+      Re-run with <code>pnpm benchmark</code> and rebuild the site to refresh this table.
     </p>
   </section>
   <footer>
@@ -267,7 +270,12 @@ const short = n => {
   return `${mantissa} × 10${[...String(exponent)].map(d => SUPERSCRIPT[d]).join('')}`;
 };
 const num = n => (isLong(n) ? `<span class="num" title="${fmt(n)}">${short(n)}</span>` : fmt(n));
-const ms = t => (t === null ? '-' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
+const ms = result =>
+  result === null || result.average === null
+    ? '-'
+    : result.average >= 1000
+      ? `${(result.average / 1000).toFixed(2)} s`
+      : `${result.average.toFixed(2)} ms`;
 const confirmedBoards = new Set();
 const pending = new Map();
 let worker = null;
@@ -495,9 +503,23 @@ $('load-table').addEventListener('click', () => {
   render();
 });
 
+function runsLabel(row) {
+  const runs = [row.number, row.bigint, row.formula].map(result => (result ? result.runs : null));
+  const measured = runs.filter(count => count !== null);
+
+  return measured.every(count => count === measured[0])
+    ? fmt(measured[0])
+    : `<span title="Number / BigInt / Formula">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
+}
+
 $('benchmark-rows').innerHTML = DATA.benchmark
-  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '-' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
+  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '-' : num(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${runsLabel(r)}</td></tr>`)
   .join('');
+
+if (DATA.environment) {
+  const { date, node, cpu, platform, cores, memory } = DATA.environment;
+  $('environment').textContent = `Measured on ${date} with Node.js ${node} on ${cpu} (${platform}, ${cores} cores, ${memory}).`;
+}
 
 window.addEventListener('hashchange', render);
 render();

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const { parseArgs, exec } = require('./helpers');
 const {
   filesInt,
@@ -6,6 +7,20 @@ const {
   filesBigInt,
   testCasesBigInt,
 } = require('./test-data');
+
+const BENCHMARK_DIRECTORY = 'benchmark';
+const USAGE =
+  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>]';
+
+function readOnlyArg(argv) {
+  const index = argv.indexOf('--only');
+
+  return index === -1 ? null : argv[index + 1] ?? '';
+}
+
+function selectFiles(files, only) {
+  return only === null ? files : files.filter(fileName => fileName === only);
+}
 
 function calculateAverageTime(executionTimes) {
   return (
@@ -35,9 +50,31 @@ function generateContent(averageTime, executionTimes) {
   ].join('\n');
 }
 
+function saveEnvironment() {
+  const cpus = os.cpus();
+  const environment = {
+    date: new Date().toISOString().slice(0, 10),
+    node: process.version,
+    platform: `${os.type()} ${os.release()} ${os.arch()}`,
+    cpu: cpus.length ? cpus[0].model.trim() : 'unknown',
+    cores: cpus.length,
+    memory: `${Math.round(os.totalmem() / 2 ** 30)} GB`,
+  };
+
+  ensureDirectoryExists(BENCHMARK_DIRECTORY);
+  fs.writeFileSync(
+    `${BENCHMARK_DIRECTORY}/environment.json`,
+    `${JSON.stringify(environment, null, 2)}\n`,
+  );
+}
+
+function selectTestCases(testCases, offset, maxSize) {
+  return testCases.slice(offset, maxSize ? offset + maxSize : undefined);
+}
+
 function saveExecutionResults(options) {
   const { executionTimes, averageTime } = options;
-  const directory = 'benchmark';
+  const directory = BENCHMARK_DIRECTORY;
 
   ensureDirectoryExists(directory);
 
@@ -93,31 +130,51 @@ function executeBenchmark(options, files, testCases) {
 
 function __main__() {
   try {
-    const argsSchema = { '-n': 'numberOfExecutions', '-m': 'maxSize' };
-    const { numberOfExecutions, maxSize } = parseArgs(
-      process.argv.slice(2),
-      argsSchema,
-    );
+    const argsSchema = {
+      '-n': 'numberOfExecutions',
+      '-m': 'maxSize',
+      '-o': 'offset',
+    };
+    const argv = process.argv.slice(2);
+    const {
+      numberOfExecutions,
+      maxSize,
+      offset = 0,
+    } = parseArgs(argv, argsSchema);
+    const only = readOnlyArg(argv);
 
-    if (!numberOfExecutions) {
-      throw new Error(
-        'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>]',
-      );
+    if (
+      !(numberOfExecutions > 0) ||
+      (maxSize !== undefined && !(maxSize > 0)) ||
+      !(offset >= 0) ||
+      (only !== null && ![...filesInt, ...filesBigInt].includes(only))
+    ) {
+      throw new Error(USAGE);
+    }
+
+    const options = { numberOfExecutions };
+    const filesToRunInt = selectFiles(filesInt, only);
+    const filesToRunBigInt = selectFiles(filesBigInt, only);
+    const testCasesToRunInt = selectTestCases(testCasesInt, offset, maxSize);
+    const testCasesToRunBigInt = selectTestCases(testCasesBigInt, offset, maxSize);
+
+    if (
+      !(filesToRunInt.length && testCasesToRunInt.length) &&
+      !(filesToRunBigInt.length && testCasesToRunBigInt.length)
+    ) {
+      throw new Error(`No test cases from test case ${offset + 1}. ${USAGE}`);
     }
 
     console.log(
-      `Starting benchmark execution with ${numberOfExecutions} executions each for ${maxSize || 'all available'} test cases...`,
+      `Starting benchmark execution with ${numberOfExecutions} executions each for ${maxSize || 'all available'} test cases from test case ${offset + 1}...`,
     );
 
-    const options = { numberOfExecutions };
-    const testCasesToRunInt = maxSize ? testCasesInt.slice(0, maxSize) : testCasesInt;
-    const testCasesToRunBigInt = maxSize
-      ? testCasesBigInt.slice(0, maxSize)
-      : testCasesBigInt;
-    const allPassedInt = executeBenchmark(options, filesInt, testCasesToRunInt);
+    saveEnvironment();
+
+    const allPassedInt = executeBenchmark(options, filesToRunInt, testCasesToRunInt);
     const allPassedBigInt = executeBenchmark(
       options,
-      filesBigInt,
+      filesToRunBigInt,
       testCasesToRunBigInt,
     );
 
