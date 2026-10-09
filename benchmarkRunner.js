@@ -10,7 +10,17 @@ const {
 
 const BENCHMARK_DIRECTORY = 'benchmark';
 const USAGE =
-  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>]';
+  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>]';
+
+function readOnlyArg(argv) {
+  const index = argv.indexOf('--only');
+
+  return index === -1 ? null : argv[index + 1] ?? '';
+}
+
+function selectFiles(files, only) {
+  return only === null ? files : files.filter(fileName => fileName === only);
+}
 
 function calculateAverageTime(executionTimes) {
   return (
@@ -125,25 +135,33 @@ function __main__() {
       '-m': 'maxSize',
       '-o': 'offset',
     };
+    const argv = process.argv.slice(2);
     const {
       numberOfExecutions,
       maxSize,
       offset = 0,
-    } = parseArgs(process.argv.slice(2), argsSchema);
+    } = parseArgs(argv, argsSchema);
+    const only = readOnlyArg(argv);
 
     if (
       !(numberOfExecutions > 0) ||
       (maxSize !== undefined && !(maxSize > 0)) ||
-      !(offset >= 0)
+      !(offset >= 0) ||
+      (only !== null && ![...filesInt, ...filesBigInt].includes(only))
     ) {
       throw new Error(USAGE);
     }
 
     const options = { numberOfExecutions };
+    const filesToRunInt = selectFiles(filesInt, only);
+    const filesToRunBigInt = selectFiles(filesBigInt, only);
     const testCasesToRunInt = selectTestCases(testCasesInt, offset, maxSize);
     const testCasesToRunBigInt = selectTestCases(testCasesBigInt, offset, maxSize);
 
-    if (!testCasesToRunInt.length && !testCasesToRunBigInt.length) {
+    if (
+      !(filesToRunInt.length && testCasesToRunInt.length) &&
+      !(filesToRunBigInt.length && testCasesToRunBigInt.length)
+    ) {
       throw new Error(`No test cases from test case ${offset + 1}. ${USAGE}`);
     }
 
@@ -153,10 +171,10 @@ function __main__() {
 
     saveEnvironment();
 
-    const allPassedInt = executeBenchmark(options, filesInt, testCasesToRunInt);
+    const allPassedInt = executeBenchmark(options, filesToRunInt, testCasesToRunInt);
     const allPassedBigInt = executeBenchmark(
       options,
-      filesBigInt,
+      filesToRunBigInt,
       testCasesToRunBigInt,
     );
 

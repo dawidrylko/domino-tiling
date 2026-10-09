@@ -47,7 +47,7 @@
   },
   "scripts": {
     "start": "node benchmarkRunner.js -n 1000 -m 7",
-    "benchmark": "node benchmarkRunner.js -n 1000 -m 7 && node benchmarkRunner.js -n 10 -m 2 -o 7 && node benchmarkRunner.js -n 1 -o 9",
+    "benchmark": "node benchmarkRunner.js -n 1000 -m 7 && node benchmarkRunner.js -n 1000 -o 7 --only dominoTilingSolver-Formula.js && node benchmarkRunner.js -n 10 -m 2 -o 7 --only dominoTilingSolver-BigInt.js && node benchmarkRunner.js -n 1 -o 9 --only dominoTilingSolver-BigInt.js",
     "test": "node testRunner.js -m 7",
     "render": "node dominoTilingRenderer.js",
     "test:render": "node renderTestRunner.js",
