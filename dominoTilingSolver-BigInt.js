@@ -71,11 +71,15 @@ function calculateTotalTilingCombinations({ rowCount, colCount }) {
   return tilingMatrix[rowCount][0];
 }
 
+function isValidSize(size) {
+  return Number.isInteger(size) && size >= 0;
+}
+
 function __main__() {
   const argsSchema = { '-r': 'rowCount', '-c': 'colCount' };
   const options = parseArgs(process.argv.slice(2), argsSchema);
 
-  if (!options.rowCount || !options.colCount) {
+  if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
       'Usage: node dominoTilingSolver-BigInt.js -r <rowCount> -c <colCount>',
     );
