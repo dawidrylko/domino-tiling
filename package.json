@@ -47,6 +47,7 @@
   },
   "scripts": {
     "start": "node benchmarkRunner.js -n 1000 -m 7",
+    "benchmark": "node benchmarkRunner.js -n 1000 -m 7 && node benchmarkRunner.js -n 10 -m 2 -o 7 && node benchmarkRunner.js -n 1 -o 9",
     "test": "node testRunner.js -m 7",
     "render": "node dominoTilingRenderer.js",
     "test:render": "node renderTestRunner.js",

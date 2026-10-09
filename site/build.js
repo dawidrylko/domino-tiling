@@ -81,21 +81,21 @@ function buildBenchmark() {
 
   return sizes.map(({ rowCount, colCount }) => {
     const suffix = `_${rowCount}x${colCount}.txt`;
-    const number = readAverageTime(`dominoTilingSolver.js${suffix}`);
-    const bigint = readAverageTime(`dominoTilingSolver-BigInt.js${suffix}`);
-    const formula = readAverageTime(`dominoTilingSolver-Formula.js${suffix}`);
-    const results = [number, bigint, formula].filter(Boolean);
-
     return {
       rowCount,
       colCount,
       tilings: tilingsBySize.get(`${rowCount}x${colCount}`) ?? null,
-      number: number && number.average,
-      bigint: bigint && bigint.average,
-      formula: formula && formula.average,
-      runs: Math.max(...results.map(result => result.runs)),
+      number: readAverageTime(`dominoTilingSolver.js${suffix}`),
+      bigint: readAverageTime(`dominoTilingSolver-BigInt.js${suffix}`),
+      formula: readAverageTime(`dominoTilingSolver-Formula.js${suffix}`),
     };
   });
+}
+
+function readEnvironment() {
+  const file = path.join(BENCHMARK_DIRECTORY, 'environment.json');
+
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf-8')) : null;
 }
 
 function buildJsonLd() {
@@ -158,6 +158,7 @@ function __main__() {
       total: countTilings(board),
     })),
     benchmark: buildBenchmark(),
+    environment: readEnvironment(),
   };
   const readScripts = files => files.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
   const scripts = readScripts(BROWSER_SCRIPTS);
