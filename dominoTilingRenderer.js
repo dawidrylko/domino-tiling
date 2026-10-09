@@ -52,12 +52,13 @@ function* sampleRandomTilings(options, count) {
 }
 
 function selectTilings(argv, options, unranker, total) {
+  const index = readBigIntArg(argv, '-i');
+  const offset = readBigIntArg(argv, '-o') || BigInt(0);
+  const random = argv.includes('--random');
+
   if (total === BigInt(0)) {
     return { offset: BigInt(0), count: BigInt(0) };
   }
-
-  const index = readBigIntArg(argv, '-i');
-  const random = argv.includes('--random');
 
   if (index !== null || random) {
     if (!unranker) {
@@ -72,8 +73,6 @@ function selectTilings(argv, options, unranker, total) {
 
     return { offset: rank, count: BigInt(1) };
   }
-
-  const offset = readBigIntArg(argv, '-o') || BigInt(0);
 
   if (argv.includes('--all') && total === null) {
     throw new Error(
@@ -172,7 +171,8 @@ function __main__() {
       return;
     }
 
-    const counted = unranker ? unranker.total : countTilings(options);
+    const isOdd = (rowCount * colCount) % 2 !== 0;
+    const counted = isOdd ? 0 : unranker ? unranker.total : countTilings(options);
     const total = counted === null ? null : BigInt(counted);
 
     console.log(

@@ -24,8 +24,11 @@ const randomValidityTestCases = [
   { rowCount: 30, colCount: 30 },
 ];
 const cliTestCases = [
-  { rowCount: 3, colCount: 3, args: ['--random', '--ascii'] },
-  { rowCount: 3, colCount: 3, args: ['-i', '1', '--ascii'] },
+  { rowCount: 3, colCount: 3, args: ['--random', '--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 3, colCount: 3, args: ['-i', '1', '--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 11, colCount: 15, args: ['--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 3, colCount: 3, args: ['-o', 'abc', '--ascii'], status: 1, output: '-o expects' },
+  { rowCount: 2, colCount: 2, args: ['-l', '0', '--ascii'], status: 1, output: 'Usage' },
 ];
 
 function serializeTiling(tiling) {
@@ -207,15 +210,15 @@ function runRandomValidityTest(testCase) {
   return true;
 }
 
-function runCliTest({ rowCount, colCount, args }) {
-  const { status, stdout, stderr } = spawnSync(
+function runCliTest({ rowCount, colCount, args, status, output }) {
+  const result = spawnSync(
     process.execPath,
     ['dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
     { cwd: __dirname, encoding: 'utf-8' },
   );
 
-  if (status !== 0 || !stdout.includes('Nothing to render.')) {
-    console.error(`Failed! Exit code ${status}: ${(stderr || stdout).trim()}`);
+  if (result.status !== status || !`${result.stdout}${result.stderr}`.includes(output)) {
+    console.error(`Failed! Exit code ${result.status}: ${(result.stderr || result.stdout).trim()}`);
 
     return false;
   }
@@ -249,14 +252,15 @@ function __main__() {
 
   console.log(`Starting renderer test execution with ${testCases.length} tests...`);
 
-  const allPassed =
-    runSuite('renderer', testCases, runTest) &&
-    runSuite('unrank', unrankTestCases, runUnrankTest) &&
-    runSuite('random uniformity', randomTestCases, runRandomUniformityTest) &&
-    runSuite('random validity', randomValidityTestCases, runRandomValidityTest) &&
-    runSuite('command line', cliTestCases, runCliTest);
+  const results = [
+    runSuite('renderer', testCases, runTest),
+    runSuite('unrank', unrankTestCases, runUnrankTest),
+    runSuite('random uniformity', randomTestCases, runRandomUniformityTest),
+    runSuite('random validity', randomValidityTestCases, runRandomValidityTest),
+    runSuite('command line', cliTestCases, runCliTest),
+  ];
 
-  if (allPassed) {
+  if (results.every(Boolean)) {
     console.log('All renderer tests completed successfully.');
     process.exit(0);
   } else {

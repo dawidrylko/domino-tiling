@@ -34,7 +34,7 @@ Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on,
 - **Parameters**: The function `searchTileArrangements` takes parameters such as `tilingMatrix`, `rowCount`, `colCount`, `rowIndex`, `colIndex`, `currentMask`, and `nextMask`.
 - **Function Flow**: The function walks through the cells of the current row. A cell that is already covered is skipped; a free cell is covered either by a vertical domino (which reaches into the next row) or by a horizontal domino (if the cell to its right is free as well).
 - **Bitwise Operations**: `currentMask` marks the cells of the current row that are already covered by vertical dominoes from the row above, and `nextMask` marks the cells of the next row that the current row's vertical dominoes reach into. With one bit per column, all occupancy patterns of a row fit in `2^colCount` table entries.
-- **Complexity**: The solvers walk along the longer side and use the shorter one as the row width, so the table has `(max(rowCount, colCount) + 1) × 2^min(rowCount, colCount)` entries. The running time grows linearly with the longer side and exponentially with the shorter one, which is why a 2×33 board takes milliseconds while the shorter side is capped at 30.
+- **Complexity**: The solvers walk along the longer side and use the shorter one as the row width, so the table has `(max(rowCount, colCount) + 1) × 2^min(rowCount, colCount)` entries. The running time grows linearly with the longer side and exponentially with the shorter one, which is why a 2×33 board takes milliseconds. The shorter side is capped at 30, because a row is stored as a 32-bit mask, but memory runs out much earlier: a 24×24 board already needs a table of about 420 million entries.
 
 ## 📋 Requirements
 
@@ -75,7 +75,7 @@ node benchmarkRunner.js -n <k> -m <m>
 pnpm test
 ```
 
-By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` and formula solvers. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time. Every run also checks a few rectangular boards (3×4 and 2×33 in both orientations) and the argument parser.
+By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` and formula solvers. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time. Every run also checks a few rectangular boards (3×4 and 2×33 in both orientations), the argument parser and the error messages for invalid arguments and boards above the size cap. The renderer tests (`pnpm test:render`) compare unranking with the enumeration, check the uniformity of random tilings with a chi-squared test at p = 0.001 and run the command line on boards without tilings.
 
 To run a different number of test cases, pass it with the `-m` argument:
 
