@@ -1,17 +1,21 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  enumerateTilings,
-  writeSvgSheets,
-  takeRange,
-  countTilings,
-} = require('../renderer');
 const { testCasesBigInt } = require('../test-data');
 
+const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
 const BENCHMARK_DIRECTORY = 'benchmark';
-const MAX_COMPLETE_GALLERY = 10000;
-const PARTIAL_GALLERY_LIMIT = 1000;
+const BROWSER_SCRIPTS = ['renderer/svg.js', 'renderer/unrank.js'];
+const ASSETS = {
+  'domino.svg': '.github/assets/domino.svg',
+  'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
+  'og-image.png': '.github/assets/og-image.png',
+};
+const AUTHOR = {
+  '@type': 'Person',
+  name: 'Dawid Ryłko',
+  url: 'https://dawidrylko.com',
+};
 const GALLERY_BOARDS = [
   { rowCount: 1, colCount: 2 },
   { rowCount: 2, colCount: 2 },
@@ -20,30 +24,10 @@ const GALLERY_BOARDS = [
   { rowCount: 4, colCount: 4 },
   { rowCount: 6, colCount: 6 },
   { rowCount: 8, colCount: 8 },
+  { rowCount: 10, colCount: 10 },
+  { rowCount: 12, colCount: 12 },
 ];
 const DEFAULT_BOARD = '4x4';
-
-function buildGalleryBoard(board) {
-  const id = `${board.rowCount}x${board.colCount}`;
-  const total = countTilings(board);
-  const lastNumber =
-    Number(total) <= MAX_COMPLETE_GALLERY ? Number(total) : PARTIAL_GALLERY_LIMIT;
-  const directory = path.join(OUTPUT_DIRECTORY, 'gallery', id);
-  const tilings = takeRange(enumerateTilings(board), 0, lastNumber);
-  const sheets = writeSvgSheets(tilings, {
-    ...board,
-    directory,
-    offset: 0,
-    lastNumber,
-  }).map(sheet => ({
-    ...sheet,
-    file: path.relative(OUTPUT_DIRECTORY, sheet.file).split(path.sep).join('/'),
-  }));
-
-  console.log(`Gallery ${id}: ${sheets.length} sheets.`);
-
-  return { id, ...board, total, rendered: String(lastNumber), sheets };
-}
 
 function readAverageTime(fileName) {
   const file = path.join(BENCHMARK_DIRECTORY, fileName);
@@ -97,18 +81,78 @@ function buildBenchmark() {
   });
 }
 
+function buildJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_URL}#website`,
+        url: SITE_URL,
+        name: 'Domino Tiling',
+        inLanguage: 'en',
+        author: AUTHOR,
+      },
+      {
+        '@type': 'SoftwareSourceCode',
+        name: 'Domino Tiling',
+        description:
+          'JavaScript solvers that count domino tilings of rectangular boards with bitmask dynamic programming, plus a renderer for every tiling.',
+        codeRepository: 'https://github.com/dawidrylko/domino-tiling',
+        programmingLanguage: 'JavaScript',
+        runtimePlatform: 'Node.js',
+        license: 'https://opensource.org/licenses/MIT',
+        keywords: 'domino tiling, dimer coverings, OEIS A004003, combinatorics',
+        author: AUTHOR,
+        isBasedOn: 'https://oeis.org/A004003',
+        subjectOf: {
+          '@type': 'BlogPosting',
+          url: 'https://dawidrylko.com/domino-tiling/',
+          inLanguage: 'pl',
+          author: AUTHOR,
+        },
+      },
+    ],
+  };
+}
+
+function buildSitemap() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    `  <url><loc>${SITE_URL}</loc><lastmod>${today}</lastmod></url>`,
+    '</urlset>',
+    '',
+  ].join('\n');
+}
+
 function __main__() {
   fs.rmSync(OUTPUT_DIRECTORY, { recursive: true, force: true });
+  fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 
   const data = {
     defaultBoard: DEFAULT_BOARD,
-    boards: GALLERY_BOARDS.map(buildGalleryBoard),
+    boards: GALLERY_BOARDS.map(board => ({
+      id: `${board.rowCount}x${board.colCount}`,
+      ...board,
+    })),
     benchmark: buildBenchmark(),
   };
+  const scripts = BROWSER_SCRIPTS.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
   const template = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf-8');
-  const html = template.replace('__DATA__', () => JSON.stringify(data));
+  const html = template
+    .replace('__SCRIPTS__', () => scripts)
+    .replace('__DATA__', () => JSON.stringify(data))
+    .replace('__JSON_LD__', () => JSON.stringify(buildJsonLd()).replace(/</g, '\\u003c'))
+    .replace(/__SITE_URL__/g, SITE_URL);
 
+  Object.entries(ASSETS).forEach(([name, source]) =>
+    fs.copyFileSync(source, path.join(OUTPUT_DIRECTORY, name)),
+  );
   fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'index.html'), html);
+  fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'sitemap.xml'), buildSitemap());
   console.log(`Site saved: ${path.join(OUTPUT_DIRECTORY, 'index.html')}`);
 }
 
