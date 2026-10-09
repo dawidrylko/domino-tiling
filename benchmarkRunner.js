@@ -139,15 +139,20 @@ function __main__() {
       throw new Error(USAGE);
     }
 
+    const options = { numberOfExecutions };
+    const testCasesToRunInt = selectTestCases(testCasesInt, offset, maxSize);
+    const testCasesToRunBigInt = selectTestCases(testCasesBigInt, offset, maxSize);
+
+    if (!testCasesToRunInt.length && !testCasesToRunBigInt.length) {
+      throw new Error(`No test cases from test case ${offset + 1}. ${USAGE}`);
+    }
+
     console.log(
       `Starting benchmark execution with ${numberOfExecutions} executions each for ${maxSize || 'all available'} test cases from test case ${offset + 1}...`,
     );
 
     saveEnvironment();
 
-    const options = { numberOfExecutions };
-    const testCasesToRunInt = selectTestCases(testCasesInt, offset, maxSize);
-    const testCasesToRunBigInt = selectTestCases(testCasesBigInt, offset, maxSize);
     const allPassedInt = executeBenchmark(options, filesInt, testCasesToRunInt);
     const allPassedBigInt = executeBenchmark(
       options,

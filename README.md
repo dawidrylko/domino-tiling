@@ -61,7 +61,9 @@ pnpm install
 pnpm start
 ```
 
-This command runs the first 7 benchmark cases (boards up to 12×12) 1000 times each and saves the results in the [`benchmark`](./benchmark) directory, together with a description of the machine in `environment.json`. Larger boards take a long time to solve (a single 20×20 run with `BigInt` takes almost half an hour), so the whole table shown on the [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) is measured with `pnpm benchmark`: 1000 runs up to 12×12, 10 runs for 14×14 and 16×16 and a single run for 18×18 and 20×20. It takes about an hour. Earlier measurements are kept in [`benchmark/2024-03`](./benchmark/2024-03) and [`benchmark/2024-04`](./benchmark/2024-04) (100,000 runs per board on an Intel Core i7-8700).
+This command runs the first 7 benchmark cases (boards up to 12×12) 1000 times each and saves the results in the [`benchmark`](./benchmark) directory, together with a description of the machine in `environment.json`.
+
+The full table on the [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) is measured with `pnpm benchmark`. A single 20×20 run with `BigInt` takes almost half an hour, so the number of runs drops with the board size: 1000 up to 12×12, 10 for 14×14 and 16×16, and one for 18×18 and 20×20. Earlier measurements are kept in [`benchmark/2024-03`](./benchmark/2024-03) (March 2024, up to 1,000 runs per board, machine not recorded) and [`benchmark/2024-04`](./benchmark/2024-04) (April 2024, 100,000 runs per board on an Intel Core i7-8700).
 
 To run the benchmark with a different number of iterations or test cases, pass them with the `-n`, `-m` and `-o` arguments (`-o` skips the first test cases):
 
