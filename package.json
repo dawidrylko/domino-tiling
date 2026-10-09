@@ -24,6 +24,10 @@
     "url": "https://github.com/dawidrylko/domino-tiling/issues"
   },
   "homepage": "https://github.com/dawidrylko/domino-tiling#readme",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=26"
+  },
   "scripts": {
     "start": "node benchmarkRunner.js -n 1000",
     "test": "node testRunner.js -m 7"

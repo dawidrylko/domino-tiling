@@ -24,7 +24,8 @@ The core of the solution lies in a recursive function named `searchTileArrangeme
 
 ## 📋 Requirements
 
-To ensure compatibility and consistency, it's important to use the Node.js version specified in the `.nvmrc` file within the root directory of your project.
+- [Node.js](https://nodejs.org/) 26 or newer – the exact version is specified in the `.nvmrc` file (`nvm use`).
+- [pnpm](https://pnpm.io/) – the version is pinned in the `packageManager` field of `package.json`. Install it with `npm install -g pnpm` (Corepack is no longer bundled with Node.js 25+).
 
 ## 🚀 Getting Started
 
@@ -34,10 +35,16 @@ To ensure compatibility and consistency, it's important to use the Node.js versi
 git clone https://github.com/dawidrylko/domino-tiling.git
 ```
 
-2. Run the project:
+2. Install dependencies:
 
 ```sh
-npm start
+pnpm install
+```
+
+3. Run the project:
+
+```sh
+pnpm start
 ```
 
 This command will execute the benchmark tests 1000 times.
@@ -48,10 +55,10 @@ If you want to run the benchmark tests with a different number of iterations, yo
 node benchmarkRunner.js -n <k>
 ```
 
-3. Run tests:
+4. Run tests:
 
 ```sh
-npm test
+pnpm test
 ```
 
 This command will run tests for the first 7 test cases by default. This default value is used for my tests and CI. Increasing this value may lead to a significantly longer test execution time.
