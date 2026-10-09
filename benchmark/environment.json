@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-09",
+  "node": "v26.11.1",
+  "platform": "Darwin 27.0.0 arm64",
+  "cpu": "Apple M4",
+  "cores": 10,
+  "memory": "16 GB"
+}
