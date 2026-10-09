@@ -4,7 +4,37 @@ const {
   testCasesInt,
   filesBigInt,
   testCasesBigInt,
+  filesRectangles,
+  testCasesRectangles,
 } = require('./test-data');
+
+const parserTestCases = [
+  { value: '12', expectedResult: 12 },
+  { value: '0', expectedResult: 0 },
+  { value: '2abc', expectedResult: NaN },
+  { value: '-2', expectedResult: NaN },
+  { value: '1e3', expectedResult: NaN },
+];
+
+function executeParserTests() {
+  return parserTestCases.every(({ value, expectedResult }, index) => {
+    process.stdout.write(
+      `Executing parser test ${index + 1} of ${parserTestCases.length} for "${value}"... `,
+    );
+
+    const { size } = parseArgs(['-s', value], { '-s': 'size' });
+
+    if (!Object.is(size, expectedResult)) {
+      console.error(`Failed! Expected: ${expectedResult}, Actual: ${size}`);
+
+      return false;
+    }
+
+    console.log('Passed!');
+
+    return true;
+  });
+}
 
 function runTest(testCase, useBigInt) {
   const { fileName, expectedResult } = testCase;
@@ -49,8 +79,11 @@ function executeTests(files, testCases, useBigInt) {
 function __main__() {
   try {
     const argsSchema = { '-m': 'maxSize' };
-    const options = parseArgs(process.argv.slice(2), argsSchema);
-    const maxSize = options.maxSize;
+    const { maxSize } = parseArgs(process.argv.slice(2), argsSchema);
+
+    if (maxSize !== undefined && !(maxSize > 0)) {
+      throw new Error('Usage: node testRunner.js [-m <maxSize>]');
+    }
 
     console.log(`Starting test execution with ${maxSize || 'all available'} tests...`);
 
@@ -59,8 +92,15 @@ function __main__() {
 
     const allIntTestsPassed = executeTests(filesInt, testCasesToRunInt, false);
     const allBigIntTestsPassed = executeTests(filesBigInt, testCasesToRunBigInt, true);
+    const allRectangleTestsPassed = executeTests(filesRectangles, testCasesRectangles, true);
+    const allParserTestsPassed = executeParserTests();
 
-    if (allIntTestsPassed && allBigIntTestsPassed) {
+    if (
+      allIntTestsPassed &&
+      allBigIntTestsPassed &&
+      allRectangleTestsPassed &&
+      allParserTestsPassed
+    ) {
       console.log('All tests completed successfully.');
       process.exit(0);
     } else {

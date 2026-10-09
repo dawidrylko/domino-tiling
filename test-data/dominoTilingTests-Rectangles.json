@@ -1,0 +1,25 @@
+{
+  "files": ["dominoTilingSolver.js", "dominoTilingSolver-BigInt.js"],
+  "testCases": [
+    {
+      "rowCount": 3,
+      "colCount": 4,
+      "expectedResult": "11"
+    },
+    {
+      "rowCount": 4,
+      "colCount": 3,
+      "expectedResult": "11"
+    },
+    {
+      "rowCount": 33,
+      "colCount": 2,
+      "expectedResult": "5702887"
+    },
+    {
+      "rowCount": 2,
+      "colCount": 33,
+      "expectedResult": "5702887"
+    }
+  ]
+}
