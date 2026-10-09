@@ -114,6 +114,15 @@ th, td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--bo
 th:first-child, td:first-child { text-align: left; }
 th { color: var(--muted); font-weight: 600; font-size: 13px; }
 .table-wrap { overflow-x: auto; }
+@media (max-width: 720px) {
+  .table-wrap table { display: block; }
+  .table-wrap tbody { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; }
+  .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .table-wrap tr { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); grid-template-columns: subgrid; row-gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .table-wrap td { padding: 0; border: 0; text-align: left; white-space: normal; }
+  .table-wrap td::before { content: attr(data-label); display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
+  .table-wrap td:last-child { grid-area: 1 / 3; }
+}
 .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
@@ -221,9 +230,9 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
 
   <section id="benchmark" hidden>
     <div class="table-wrap">
-      <table>
-        <thead><tr><th>Board</th><th>Tilings</th><th>Number (avg)</th><th>BigInt (avg)</th><th>Formula (avg)</th><th>Runs</th></tr></thead>
-        <tbody id="benchmark-rows"></tbody>
+      <table role="table">
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">Number (avg)</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Formula (avg)</th><th role="columnheader">Runs</th></tr></thead>
+        <tbody id="benchmark-rows" role="rowgroup"></tbody>
       </table>
     </div>
     <p class="note">
@@ -509,8 +518,11 @@ function runsLabel(row) {
     : `<span title="Number / BigInt / Formula">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
 }
 
+const benchmarkColumns = [...document.querySelectorAll('#benchmark thead th')].map(th => th.textContent);
+
 $('benchmark-rows').innerHTML = DATA.benchmark
-  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '-' : num(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${runsLabel(r)}</td></tr>`)
+  .map(r => [`${r.rowCount}×${r.colCount}`, r.tilings === null ? '-' : num(r.tilings), ms(r.number), ms(r.bigint), ms(r.formula), runsLabel(r)])
+  .map(cells => `<tr role="row">${cells.map((cell, i) => `<td role="cell" data-label="${benchmarkColumns[i]}">${cell}</td>`).join('')}</tr>`)
   .join('');
 
 if (DATA.environment) {
