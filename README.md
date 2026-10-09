@@ -27,7 +27,7 @@ The closed-form formula from [OEIS A004003](https://oeis.org/A004003) gives the 
 a(n) = ∏_{j=1..n} ∏_{k=1..n} (4·cos²(jπ/(2n+1)) + 4·cos²(kπ/(2n+1)))
 ```
 
-Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))`, which is the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
+Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))`. The resultant is the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
 
 ## 🧩 Key Components
 
