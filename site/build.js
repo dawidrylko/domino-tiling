@@ -4,7 +4,7 @@ const { testCasesBigInt } = require('../test-data');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
-const BENCHMARK_DIRECTORY = 'benchmark';
+const BENCHMARK_DIRECTORY = findLatestBenchmarkDirectory('benchmark');
 const BROWSER_SCRIPTS = ['renderer/svg.js'];
 const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'site/worker.js'];
 const ASSETS = {
@@ -30,6 +30,19 @@ const GALLERY_BOARDS = [
   { rowCount: 20, colCount: 20, mode: 'random' },
 ];
 const DEFAULT_BOARD = '4x4';
+
+function findLatestBenchmarkDirectory(root) {
+  const runs = fs
+    .readdirSync(root)
+    .filter(name => /^\d{4}-\d{2}$/.test(name))
+    .sort();
+
+  if (!runs.length) {
+    throw new Error(`No benchmark/YYYY-MM directory in ${root}.`);
+  }
+
+  return path.join(root, runs[runs.length - 1]);
+}
 
 function countTilings(board) {
   const testCase = testCasesBigInt.find(
@@ -169,7 +182,8 @@ function __main__() {
     .replace('__DATA__', () => JSON.stringify(data))
     .replace('__WORKER__', () => JSON.stringify(workerSource).replace(/</g, '\\u003c'))
     .replace('__JSON_LD__', () => JSON.stringify(buildJsonLd()).replace(/</g, '\\u003c'))
-    .replace(/__SITE_URL__/g, SITE_URL);
+    .replace(/__SITE_URL__/g, SITE_URL)
+    .replace(/__BENCHMARK_DIRECTORY__/g, BENCHMARK_DIRECTORY);
 
   Object.entries(ASSETS).forEach(([name, source]) =>
     fs.copyFileSync(source, path.join(OUTPUT_DIRECTORY, name)),
