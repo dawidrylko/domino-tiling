@@ -1,6 +1,9 @@
 # 🎲 Domino Tiling
 
 [![Continuous Integration](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml)
+[![Pages](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml)
+
+**[🖼️ Gallery of tilings & 📊 benchmark results](https://dawidrylko.github.io/domino-tiling/)**
 
 > 1, 2, 36, 6728, 12988816, 258584046368, 53060477521960000, 112202208776036178000000, 2444888770250892795802079170816, 548943583215388338077567813208427340288, 1269984011256235834242602753102293934298576249856
 
@@ -76,6 +79,22 @@ Alternatively, if you don't specify any argument, all available test cases will 
 ```sh
 node testRunner.js
 ```
+
+## 🖼️ Visualization
+
+Rendering is a separate tool with its own enumeration algorithm, so the solvers, tests and benchmarks are not affected by it.
+
+```sh
+pnpm render -r 4 -c 4            # all 36 tilings as SVG sheets in output/4x4/
+pnpm render -r 2 -c 4 --ascii    # print tilings in the terminal
+pnpm render -r 8 -c 8 -o 5000 -l 200   # tilings 5001-5200 of 12,988,816
+```
+
+- `-l <limit>` – maximum number of tilings to render (default: 1000).
+- `-o <offset>` – number of tilings to skip, for paging through large boards.
+- `--all` – remove the limit; allowed only for boards up to 144 cells.
+
+The [online gallery](https://dawidrylko.github.io/domino-tiling/) is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
 
 ## 📜 License
 
