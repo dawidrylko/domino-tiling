@@ -1,7 +1,7 @@
 {
   "name": "domino-tiling",
   "version": "0.1.0",
-  "description": "Count and render every domino tiling of a rectangular board – bitmask dynamic programming solvers (Number and BigInt), unranking renderer and an online gallery.",
+  "description": "Count and render every domino tiling of a 2n×2n board (OEIS A004003) – bitmask dynamic programming solvers (Number and BigInt), unranking renderer and an online gallery.",
   "keywords": [
     "domino-tiling",
     "dimer-coverings",
@@ -43,7 +43,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "start": "node benchmarkRunner.js -n 1000",
+    "start": "node benchmarkRunner.js -n 1000 -m 7",
     "test": "node testRunner.js -m 7",
     "render": "node dominoTilingRenderer.js",
     "test:render": "node renderTestRunner.js",
