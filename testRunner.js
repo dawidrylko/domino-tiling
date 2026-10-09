@@ -1,4 +1,4 @@
-const { exec, verifyInt, verifyBigInt } = require('./helpers');
+const { exec, parseArgs, verifyInt, verifyBigInt } = require('./helpers');
 const {
   filesInt,
   testCasesInt,
@@ -48,12 +48,19 @@ function executeTests(files, testCases, useBigInt) {
 
 function __main__() {
   try {
-    console.log('Starting test execution...');
+    const argsSchema = { '-m': 'maxSize' };
+    const options = parseArgs(process.argv.slice(2), argsSchema);
+    const maxSize = options.maxSize;
 
-    const allPassedInt = executeTests(filesInt, testCasesInt, false);
-    const allPassedBigInt = executeTests(filesBigInt, testCasesBigInt, true);
+    console.log(`Starting test execution with ${maxSize || 'all available'} tests...`);
 
-    if (allPassedInt && allPassedBigInt) {
+    const testCasesToRunInt = maxSize ? testCasesInt.slice(0, maxSize) : testCasesInt;
+    const testCasesToRunBigInt = maxSize ? testCasesBigInt.slice(0, maxSize) : testCasesBigInt;
+
+    const allIntTestsPassed = executeTests(filesInt, testCasesToRunInt, false);
+    const allBigIntTestsPassed = executeTests(filesBigInt, testCasesToRunBigInt, true);
+
+    if (allIntTestsPassed && allBigIntTestsPassed) {
       console.log('All tests completed successfully.');
       process.exit(0);
     } else {

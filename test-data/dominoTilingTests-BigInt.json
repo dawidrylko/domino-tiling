@@ -2,8 +2,8 @@
   "files": ["dominoTilingSolver-BigInt.js"],
   "testCases": [
     {
-      "rowCount": 1,
-      "colCount": 2,
+      "rowCount": 0,
+      "colCount": 0,
       "expectedResult": "1"
     },
     {
