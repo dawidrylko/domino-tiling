@@ -5,6 +5,7 @@ const writeSvgSheets = require('./sheets');
 const takeRange = require('./range');
 const { countTilings, MAX_CELLS_TO_COUNT } = require('./count');
 const { canUnrank, createUnranker, unrankTiling } = require('./unrank');
+const { sampleRandomTiling } = require('./cftp');
 
 module.exports = {
   enumerateTilings,
@@ -17,4 +18,5 @@ module.exports = {
   canUnrank,
   createUnranker,
   unrankTiling,
+  sampleRandomTiling,
 };
