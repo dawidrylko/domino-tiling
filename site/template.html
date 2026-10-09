@@ -57,10 +57,10 @@ header a:hover { color: var(--fg); }
 nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
 nav.tabs a { padding: 8px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
 nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent); font-weight: 600; }
-.picker { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-width: 0; }
+.picker { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; min-width: 0; }
 .picker .label { flex: none; }
 .label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.boards { display: flex; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: thin; padding: 2px; }
+.boards { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; padding: 2px; }
 .boards button { flex: none; font: inherit; font-variant-numeric: tabular-nums; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--fg); cursor: pointer; }
 .boards button:hover { border-color: var(--accent); }
 .boards button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
@@ -85,6 +85,7 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .num { cursor: help; border-bottom: 1px dotted var(--muted); }
 @media (max-width: 640px) {
   .picker { flex-direction: column; align-items: stretch; gap: 6px; }
+  .boards { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
   .toolbar .group, .toolbar .group.end { width: 100%; margin-left: 0; }
   .toolbar .group.pages .label { display: none; }
   #page { flex: 1 1 6ch; width: auto !important; }
@@ -105,8 +106,7 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .formula figcaption p { margin: 0 0 12px; }
 .formula figcaption p:last-child { margin-bottom: 0; }
 @media (max-width: 640px) { .formula math { font-size: 1.05em; } }
-.sheet svg { display: block; max-width: none; height: auto; }
-@media (min-width: 900px) { .sheet svg { max-width: 100%; } }
+.sheet svg { display: block; max-width: 100%; height: auto; }
 h1 { display: flex; align-items: center; gap: 10px; }
 h1 img { width: 32px; height: 32px; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -279,6 +279,7 @@ let worker = null;
 let requestId = 0;
 let renderId = 0;
 let shownBoardId = null;
+let shownSheet = null;
 
 function getWorker() {
   if (!worker) {
@@ -357,11 +358,12 @@ function randomBelow(limit) {
 }
 
 function sheetColumns(board) {
-  return Math.max(2, Math.min(10, Math.floor(1040 / (board.colCount * 16 + 12))));
+  return Math.max(2, Math.min(10, Math.floor(($('gallery').clientWidth - 14) / (board.colCount * 16 + 12))));
 }
 
 function showSheet(board, tilings, first, labels) {
-  $('sheet').innerHTML = renderSheet(tilings, first, { ...board, columns: sheetColumns(board), labels });
+  shownSheet = { board, tilings, first, labels, columns: sheetColumns(board) };
+  $('sheet').innerHTML = renderSheet(tilings, first, { ...board, columns: shownSheet.columns, labels });
   const svg = $('sheet').querySelector('svg');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', `Domino tilings of a ${board.rowCount} by ${board.colCount} board`);
@@ -373,8 +375,9 @@ function highlightTiling(number) {
   if (label) {
     label.style.fill = 'var(--hit)';
     label.style.fontWeight = '700';
-    label.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
+
+  return label;
 }
 
 function updateControls({ board, page }) {
@@ -446,7 +449,7 @@ async function renderGallery(state) {
     if (!isCurrent()) return;
     $('status').textContent = '';
     showSheet(board, tilings, first + ONE);
-    if (highlight) highlightTiling(highlight);
+    if (highlight) highlightTiling(highlight)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   } catch (error) {
     if (!isCurrent()) return;
     $('sheet').innerHTML = '';
@@ -517,6 +520,28 @@ if (DATA.environment) {
   const { date, node, cpu, platform, cores, memory } = DATA.environment;
   $('environment').textContent = `Measured on ${date} with Node.js ${node} on ${cpu} (${platform}, ${cores} cores, ${memory}).`;
 }
+
+function visibleLabel(number) {
+  const labels = [...$('sheet').querySelectorAll('text')].filter(text => {
+    const { top } = text.getBoundingClientRect();
+    return top >= 0 && top < innerHeight;
+  });
+
+  return labels.find(text => text.textContent === `#${number}`) || labels[0];
+}
+
+new ResizeObserver(() => {
+  if (!shownSheet || $('gallery').hidden || !$('sheet').firstChild || sheetColumns(shownSheet.board) === shownSheet.columns) return;
+  const { board, tilings, first, labels } = shownSheet;
+  const { highlight } = parseHash();
+  const anchor = visibleLabel(highlight);
+  const anchorText = anchor?.textContent;
+  const anchorTop = anchor?.getBoundingClientRect().top;
+  showSheet(board, tilings, first, labels);
+  if (highlight) highlightTiling(highlight);
+  const moved = anchor && [...$('sheet').querySelectorAll('text')].find(text => text.textContent === anchorText);
+  if (moved) scrollBy(0, moved.getBoundingClientRect().top - anchorTop);
+}).observe($('gallery'));
 
 window.addEventListener('hashchange', render);
 render();
