@@ -101,7 +101,9 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .sheet text { fill: var(--label); }
 .formula { margin: 0 0 24px; overflow-x: auto; }
 .formula math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; font-size: 1.3em; margin: 0 0 8px; }
-.formula figcaption { color: var(--muted); font-size: 13px; max-width: 75ch; }
+.formula figcaption { color: var(--muted); }
+.formula figcaption p { margin: 0 0 12px; }
+.formula figcaption p:last-child { margin-bottom: 0; }
 @media (max-width: 640px) { .formula math { font-size: 1.05em; } }
 .sheet svg { display: block; max-width: none; height: auto; }
 @media (min-width: 900px) { .sheet svg { max-width: 100%; } }
@@ -116,7 +118,7 @@ th { color: var(--muted); font-weight: 600; font-size: 13px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
-.intro { color: var(--muted); max-width: 75ch; margin: 0 0 20px; overflow-wrap: anywhere; }
+.intro { color: var(--muted); margin: 0 0 20px; overflow-wrap: anywhere; }
 .status { color: var(--muted); margin: 0 0 12px; }
 .status:empty { display: none; }
 .notice { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
@@ -136,10 +138,9 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
   </header>
   <p class="intro">
-    A chessboard can be covered with 32 dominoes in exactly <strong>12,988,816</strong> ways. The gallery shows every one
-    of them, and every tiling of the other 2n&nbsp;×&nbsp;2n boards up to 18×18. Each tiling is rebuilt from its number when its page
-    opens, so nothing is stored. A 20×20 board has too many tilings to number in a browser, so the gallery draws uniformly
-    random ones instead.
+    A chessboard can be covered with 32 dominoes in exactly <strong>12,988,816</strong> ways. A 20×20 board has about
+    1.27&nbsp;×&nbsp;10<sup>48</sup> tilings, so listing them one by one is out of the question. The project answers two
+    questions instead: how many tilings a 2n&nbsp;×&nbsp;2n board has, and what any single one of them looks like.
   </p>
   <figure class="formula">
     <math display="block">
@@ -158,10 +159,19 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
       </mrow>
     </math>
     <figcaption>
-      The number of domino tilings of a 2n&nbsp;×&nbsp;2n board (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>), derived in 1961
-      by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a> and by
-      <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. The formula solver evaluates it exactly with BigInt,
-      as the resultant of two integer polynomials.
+      <p>
+        The first answer is the product formula above (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>), derived in
+        1961 by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a> and by
+        <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. With floating-point cosines it goes wrong from 12×12
+        on, so the formula solver evaluates it exactly with BigInt, as the resultant of two integer polynomials, in
+        milliseconds even for 20×20.
+      </p>
+      <p>
+        The second one takes dynamic programming. Two solvers count the tilings by scanning the board with a bitmask of the
+        current row, and a finer table, filled one cell at a time, turns a tiling's number into the tiling itself. That is how
+        the gallery below shows every tiling up to 18×18 without storing a single image. 20×20 is different. Its table would
+        need several gigabytes, so the gallery draws uniformly random tilings with coupling from the past.
+      </p>
     </figcaption>
   </figure>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
