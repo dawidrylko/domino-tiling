@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 
 /**
- * Generates a command string for executing a node script with given options.
+ * Generates a command string for executing a node script with the same Node.js binary as the current process.
  * @param {string} fileName The file name of the node script.
  * @param {Object} options Options including row and column counts.
  * @property {number} options.rowCount The number of rows.
@@ -9,7 +9,7 @@ const { execSync } = require('child_process');
  * @returns {string} The generated command string.
  */
 function generateNodeCommand(fileName, { rowCount, colCount }) {
-  return `node ${fileName} -r ${rowCount} -c ${colCount}`;
+  return `"${process.execPath}" ${fileName} -r ${rowCount} -c ${colCount}`;
 }
 
 /**
@@ -34,4 +34,4 @@ function executeNodeScript(fileName, options) {
   }
 }
 
-module.exports = executeNodeScript;
+module.exports = Object.assign(executeNodeScript, { generateNodeCommand });
