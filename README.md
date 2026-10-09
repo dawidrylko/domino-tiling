@@ -11,7 +11,7 @@
 
 ## 📖 Overview
 
-This repository contains two JavaScript solvers for the domino tiling problem: one based on the standard `Number` type and one based on `BigInt`. Both calculate the number of ways to tile a 2n × 2n board with 2×1 and 1×2 dominoes. The repository also includes a test suite, a benchmark runner and a renderer that draws any individual tiling.
+This repository contains three JavaScript solvers for the domino tiling problem: two dynamic programming solvers, one based on the standard `Number` type and one based on `BigInt`, and an exact evaluation of the closed-form formula. All of them calculate the number of ways to tile a 2n × 2n board with 2×1 and 1×2 dominoes. The repository also includes a test suite, a benchmark runner and a renderer that draws any individual tiling.
 
 ## ❓ Problem Statement
 
@@ -20,6 +20,14 @@ The main problem tackled by this project is determining the number of different 
 ## 💡 Solution
 
 The core of the solution lies in a recursive function named `searchTileArrangements`, combined with dynamic programming over bitmasks (also known as the broken-profile method). The board is processed row by row, and the number of ways to reach every possible occupancy pattern of the next row is accumulated in a table instead of enumerating whole tilings.
+
+The closed-form formula from [OEIS A004003](https://oeis.org/A004003) gives the same numbers directly:
+
+```
+a(n) = ∏_{j=1..n} ∏_{k=1..n} (4·cos²(jπ/(2n+1)) + 4·cos²(kπ/(2n+1)))
+```
+
+Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))` – the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
 
 ## 🧩 Key Components
 
@@ -67,7 +75,7 @@ node benchmarkRunner.js -n <k> -m <m>
 pnpm test
 ```
 
-By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` solver. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time.
+By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` and formula solvers. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time.
 
 To run a different number of test cases, pass it with the `-m` argument:
 

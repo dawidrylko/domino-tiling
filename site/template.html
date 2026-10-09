@@ -178,14 +178,16 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
   <section id="benchmark" hidden>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Board</th><th>Tilings</th><th>Number (avg)</th><th>BigInt (avg)</th><th>Runs</th></tr></thead>
+        <thead><tr><th>Board</th><th>Tilings</th><th>Number (avg)</th><th>BigInt (avg)</th><th>Formula (avg)</th><th>Runs</th></tr></thead>
         <tbody id="benchmark-rows"></tbody>
       </table>
     </div>
     <p class="note">
       Average wall-clock time of a full solver process (<code>node &lt;solver&gt; -r R -c C</code>), as stored in
       <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark">benchmark/</a>.
-      Results were measured in March 2024, before the upgrade to Node.js 26.
+      The Number and BigInt results were measured in March 2024, before the upgrade to Node.js 26; the Formula results
+      in October 2026 on Node.js 26 on a different machine, so compare them across columns only roughly. For small
+      boards most of the time is Node.js start-up.
       The Number solver is benchmarked only up to 12×12; from 12×12 on its result exceeds 2<sup>53</sup> and is no longer exact.
       Re-run with <code>pnpm start</code> and rebuild the site to refresh this table.
     </p>
@@ -450,7 +452,7 @@ $('load-table').addEventListener('click', () => {
 });
 
 $('benchmark-rows').innerHTML = DATA.benchmark
-  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '—' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${r.runs}</td></tr>`)
+  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '—' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
   .join('');
 
 window.addEventListener('hashchange', render);
