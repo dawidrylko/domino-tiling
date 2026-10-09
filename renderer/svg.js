@@ -27,7 +27,7 @@ function renderTiling(tiling, label, offsetX, offsetY, options) {
   return [
     `<rect class="b" x="${offsetX}" y="${offsetY}" width="${boardWidth}" height="${boardHeight}"/>`,
     ...tiling.map(domino => renderDomino(domino, offsetX, offsetY)),
-    `<text x="${offsetX + boardWidth / 2}" y="${offsetY + boardHeight + LABEL_HEIGHT - 2}">#${label}</text>`,
+    `<text x="${offsetX + boardWidth / 2}" y="${offsetY + boardHeight + LABEL_HEIGHT - 2}">${label}</text>`,
   ].join('');
 }
 
@@ -39,6 +39,7 @@ function renderTiling(tiling, label, offsetX, offsetY, options) {
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
  * @property {number} [options.columns] The number of tilings per sheet row (default: 10).
+ * @property {string[]} [options.labels] Labels shown under the tilings instead of their numbers.
  * @returns {string} The SVG document.
  */
 function renderSheet(tilings, firstNumber, options) {
@@ -54,7 +55,7 @@ function renderSheet(tilings, firstNumber, options) {
   const body = tilings.map((tiling, i) =>
     renderTiling(
       tiling,
-      BigInt(firstNumber) + BigInt(i),
+      options.labels ? options.labels[i] : `#${BigInt(firstNumber) + BigInt(i)}`,
       PADDING + (i % sheetColumns) * tileWidth,
       PADDING + Math.floor(i / sheetColumns) * tileHeight,
       options,

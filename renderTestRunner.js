@@ -5,11 +5,26 @@ const {
   canUnrank,
   createUnranker,
   unrankTiling,
+  sampleRandomTiling,
 } = require('./renderer');
+const { createRandom } = require('./renderer/cftp');
 const { testCasesBigInt } = require('./test-data');
 
 const MAX_CELLS = 36;
 const UNRANK_SAMPLE_SIZE = 1000;
+const RANDOM_SEED = 2024;
+const SAMPLES_PER_TILING = 200;
+// Chi-squared critical values at p = 0.001 for the degrees of freedom used below.
+const randomTestCases = [
+  { rowCount: 2, colCount: 4, expectedResult: 5, criticalValue: 18.47 },
+  { rowCount: 3, colCount: 4, expectedResult: 11, criticalValue: 29.59 },
+  { rowCount: 4, colCount: 4, expectedResult: 36, criticalValue: 66.62 },
+];
+const randomValidityTestCases = [
+  { rowCount: 7, colCount: 8 },
+  { rowCount: 20, colCount: 20 },
+  { rowCount: 30, colCount: 30 },
+];
 const extraTestCases = [
   { rowCount: 1, colCount: 3, expectedResult: '0' },
   { rowCount: 2, colCount: 3, expectedResult: '3' },
@@ -142,6 +157,78 @@ function runUnrankTest(testCase) {
   return true;
 }
 
+function runRandomUniformityTest(testCase) {
+  const { expectedResult, criticalValue } = testCase;
+  const random = createRandom(RANDOM_SEED);
+  const sampleCount = expectedResult * SAMPLES_PER_TILING;
+  const frequencies = new Map();
+
+  for (let i = 0; i < sampleCount; i++) {
+    const tiling = sampleRandomTiling(testCase, random);
+    const error = findCoverageError(tiling, testCase);
+
+    if (error) {
+      console.error(`Failed! Invalid random tiling: ${error}`);
+
+      return false;
+    }
+
+    const key = serializeTiling(tiling);
+    frequencies.set(key, (frequencies.get(key) || 0) + 1);
+  }
+
+  const expected = sampleCount / expectedResult;
+  const chiSquared = [...frequencies.values()].reduce(
+    (sum, observed) => sum + (observed - expected) ** 2 / expected,
+    (expectedResult - frequencies.size) * expected,
+  );
+
+  if (frequencies.size !== expectedResult || chiSquared > criticalValue) {
+    console.error(
+      `Failed! Distinct: ${frequencies.size}/${expectedResult}, chi-squared: ${chiSquared.toFixed(2)} (limit ${criticalValue})`,
+    );
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runRandomValidityTest(testCase) {
+  const tiling = sampleRandomTiling(testCase, createRandom(RANDOM_SEED));
+  const error = findCoverageError(tiling, testCase);
+
+  if (error) {
+    console.error(`Failed! Invalid random tiling: ${error}`);
+
+    return false;
+  }
+
+  if (sampleRandomTiling({ rowCount: 3, colCount: 5 }) !== null) {
+    console.error('Failed! A board with an odd number of cells has no tilings.');
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runSuite(name, testCases, run) {
+  return testCases.every((testCase, index) => {
+    const { rowCount, colCount } = testCase;
+
+    process.stdout.write(
+      `Executing ${name} test ${index + 1} of ${testCases.length} for ${rowCount}x${colCount}... `,
+    );
+
+    return run(testCase);
+  });
+}
+
 function __main__() {
   const testCases = [...testCasesBigInt, ...extraTestCases].filter(
     ({ rowCount, colCount }) => rowCount * colCount <= MAX_CELLS,
@@ -173,7 +260,11 @@ function __main__() {
     return runUnrankTest(testCase);
   });
 
-  if (allPassed && allUnrankPassed) {
+  const allRandomPassed =
+    runSuite('random uniformity', randomTestCases, runRandomUniformityTest) &&
+    runSuite('random validity', randomValidityTestCases, runRandomValidityTest);
+
+  if (allPassed && allUnrankPassed && allRandomPassed) {
     console.log('All renderer tests completed successfully.');
     process.exit(0);
   } else {
