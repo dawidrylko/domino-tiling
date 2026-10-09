@@ -129,8 +129,10 @@ function gridsEqual(a, b) {
 }
 
 /**
- * Samples a uniformly random domino tiling with monotone coupling from the past (Propp–Wilson).
+ * Samples a uniformly random domino tiling with monotone coupling from the past (Propp and Wilson).
  * It needs no counting table, so it works for boards far beyond the reach of unranking.
+ * Epoch 0 covers the last rowCount * colCount moves before time 0 and every older epoch doubles the total;
+ * each epoch keeps its seed, so restarting further in the past replays the same moves.
  * @param {Object} options Board dimensions.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
@@ -151,8 +153,6 @@ function sampleRandomTiling({ rowCount, colCount }, random = Math.random) {
   const baseSteps = rowCount * colCount;
   const seeds = [];
 
-  // Epoch 0 covers the last baseSteps moves before time 0 and epoch k > 0 the baseSteps * 2^(k-1) moves
-  // before that; each epoch keeps its seed, so restarting further in the past replays the same moves.
   for (;;) {
     seeds.push(Math.floor(random() * 4294967296));
 

@@ -5,7 +5,7 @@
 [![Gallery & benchmark](https://img.shields.io/badge/Gallery_%26_benchmark-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
 [![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-e0a458?style=flat)](https://dawidrylko.com/domino-tiling/)
 
-> Number of domino tilings (or dimer coverings) of a 2n × 2n square, [OEIS A004003](https://oeis.org/A004003), for n = 0, 1, 2, …:
+> Number of domino tilings (or dimer coverings) of a 2n × 2n square, [OEIS A004003](https://oeis.org/A004003), for n = 0, 1, 2, ...:
 >
 > 1, 2, 36, 6728, 12988816, 258584046368, 53060477521960000, 112202208776036178000000, 2444888770250892795802079170816, 548943583215388338077567813208427340288, 1269984011256235834242602753102293934298576249856
 
@@ -15,7 +15,7 @@ This repository contains three JavaScript solvers for the domino tiling problem:
 
 ## ❓ Problem Statement
 
-The main problem tackled by this project is determining the number of different ways to completely cover an 8×8 board with 2×1 domino tiles – the answer is 12,988,816. The same solvers handle every board of the sequence, from the empty 0×0 board (exactly one tiling – the empty one) up to 20×20; `Number` stays exact up to 2<sup>53</sup> (10×10), while `BigInt` keeps the results exact for larger boards.
+The main problem tackled by this project is determining the number of different ways to completely cover an 8×8 board with 2×1 domino tiles. The answer is 12,988,816. The same solvers handle every board of the sequence, from the empty 0×0 board (exactly one tiling, the empty one) up to 20×20; `Number` stays exact up to 2<sup>53</sup> (10×10), while `BigInt` keeps the results exact for larger boards.
 
 ## 💡 Solution
 
@@ -27,7 +27,7 @@ The closed-form formula from [OEIS A004003](https://oeis.org/A004003) gives the 
 a(n) = ∏_{j=1..n} ∏_{k=1..n} (4·cos²(jπ/(2n+1)) + 4·cos²(kπ/(2n+1)))
 ```
 
-Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))` – the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
+Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))`. The resultant is the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
 
 ## 🧩 Key Components
 
@@ -38,8 +38,8 @@ Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on,
 
 ## 📋 Requirements
 
-- [Node.js](https://nodejs.org/) 26 or newer – the exact version is specified in the `.nvmrc` file (run `nvm use`).
-- [pnpm](https://pnpm.io/) – the version is pinned in the `packageManager` field of `package.json`. Install it with `npm install -g pnpm` (Corepack is no longer bundled with Node.js 25 and newer).
+- [Node.js](https://nodejs.org/) 26 or newer. The exact version is specified in the `.nvmrc` file (run `nvm use`).
+- [pnpm](https://pnpm.io/). The version is pinned in the `packageManager` field of `package.json`. Install it with `npm install -g pnpm` (Corepack is no longer bundled with Node.js 25 and newer).
 
 ## 🚀 Getting Started
 
@@ -104,15 +104,15 @@ pnpm render -r 10 -c 10 --random --ascii    # a random tiling
 pnpm render -r 20 -c 20 --random -l 12      # 12 uniformly random tilings of a 20×20 board
 ```
 
-- `-l <limit>` – maximum number of tilings to render (default: 1000).
-- `-o <offset>` – number of tilings to skip, for paging through large boards.
-- `-i <number>` – render a single tiling by its 1-based number.
-- `--random` – render a single random tiling (with `-l`, several of them on boards too large to number).
-- `--all` – remove the limit; allowed only for boards up to 144 cells.
+- `-l <limit>`: maximum number of tilings to render (default: 1000).
+- `-o <offset>`: number of tilings to skip, for paging through large boards.
+- `-i <number>`: render a single tiling by its 1-based number.
+- `--random`: render a single random tiling (with `-l`, several of them on boards too large to number).
+- `--all`: remove the limit; allowed only for boards up to 144 cells.
 
-Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 1 GB for 18×18 and several GB for 20×20. For boards that large, `--random` switches to monotone coupling from the past (Propp–Wilson), which samples tilings uniformly at random without any table.
+Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 240 MB for 16×16, 1 GB for 18×18 and several GB for 20×20. The command line numbers boards whose table has at most 4 million entries (up to 14×14). For larger boards `--random` switches to monotone coupling from the past (Propp and Wilson), which samples tilings uniformly at random without any table.
 
-The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
+The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
 
 ## 📜 License
 
@@ -120,4 +120,4 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ## 👨‍💻 Author
 
-This project was created by [Dawid Ryłko](https://dawidrylko.com) and is fully documented in the blog post titled 🇵🇱 [Domino Tiling](https://dawidrylko.com/domino-tiling/).
+This project was created by [Dawid Ryłko](https://dawidrylko.com). The dynamic programming solver and the test and benchmark runners are described in two blog posts: 🇵🇱 [Domino Tiling](https://dawidrylko.com/domino-tiling/) and 🇵🇱 [Domino tiling library](https://dawidrylko.com/domino-tiling-library/).

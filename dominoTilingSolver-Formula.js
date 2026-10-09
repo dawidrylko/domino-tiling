@@ -1,11 +1,5 @@
 const { parseArgs } = require('./helpers');
 
-// a(n) = Product_{j=1..n} Product_{k=1..n} (4*cos(j*Pi/(2*n+1))^2 + 4*cos(k*Pi/(2*n+1))^2)
-//
-// Evaluating the product with floating-point cosines loses precision from n = 6 on, so it is computed
-// exactly instead: x_j = 4*cos(j*Pi/(2*n+1))^2 are the roots of an integer polynomial P(x), which turns
-// the double product into a resultant, a(n) = (-1)^n * Res(P(x), P(-x)), i.e. a BigInt determinant.
-
 /**
  * Multiplies two polynomials given as coefficient arrays, from the constant term up.
  * @param {BigInt[]} p The first polynomial.
