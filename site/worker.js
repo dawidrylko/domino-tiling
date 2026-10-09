@@ -1,6 +1,3 @@
-/* global createUnranker, unrankTiling, sampleRandomTiling */
-// Runs in a Web Worker together with renderer/unrank.js and renderer/cftp.js, so that building
-// large counting tables never blocks the page. Only one large table is kept in memory at a time.
 const LARGE_TABLE_SIZE = 4000000;
 const unrankers = new Map();
 
