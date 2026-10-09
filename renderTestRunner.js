@@ -1,3 +1,4 @@
+const { spawnSync } = require('child_process');
 const {
   enumerateTilings,
   renderSheet,
@@ -14,7 +15,6 @@ const MAX_CELLS = 36;
 const UNRANK_SAMPLE_SIZE = 1000;
 const RANDOM_SEED = 2024;
 const SAMPLES_PER_TILING = 200;
-// Chi-squared critical values at p = 0.001 for the degrees of freedom used below.
 const randomTestCases = [
   { rowCount: 2, colCount: 2, expectedResult: 2, criticalValue: 10.83 },
   { rowCount: 4, colCount: 4, expectedResult: 36, criticalValue: 66.62 },
@@ -22,6 +22,13 @@ const randomTestCases = [
 const randomValidityTestCases = [
   { rowCount: 20, colCount: 20 },
   { rowCount: 30, colCount: 30 },
+];
+const cliTestCases = [
+  { rowCount: 3, colCount: 3, args: ['--random', '--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 3, colCount: 3, args: ['-i', '1', '--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 11, colCount: 15, args: ['--ascii'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 3, colCount: 3, args: ['-o', 'abc', '--ascii'], status: 1, output: '-o expects' },
+  { rowCount: 2, colCount: 2, args: ['-l', '0', '--ascii'], status: 1, output: 'Usage' },
 ];
 
 function serializeTiling(tiling) {
@@ -203,6 +210,24 @@ function runRandomValidityTest(testCase) {
   return true;
 }
 
+function runCliTest({ rowCount, colCount, args, status, output }) {
+  const result = spawnSync(
+    process.execPath,
+    ['dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
+    { cwd: __dirname, encoding: 'utf-8' },
+  );
+
+  if (result.status !== status || !`${result.stdout}${result.stderr}`.includes(output)) {
+    console.error(`Failed! Exit code ${result.status}: ${(result.stderr || result.stdout).trim()}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function runSuite(name, testCases, run) {
   return testCases.every((testCase, index) => {
     const { rowCount, colCount } = testCase;
@@ -220,37 +245,22 @@ function __main__() {
     ({ rowCount, colCount }) => rowCount * colCount <= MAX_CELLS,
   );
 
-  console.log(`Starting renderer test execution with ${testCases.length} tests...`);
-
-  const allPassed = testCases.every((testCase, index) => {
-    const { rowCount, colCount } = testCase;
-
-    process.stdout.write(
-      `Executing renderer test ${index + 1} of ${testCases.length} for ${rowCount}x${colCount}... `,
-    );
-
-    return runTest(testCase);
-  });
-
   const unrankTestCases = testCasesBigInt.filter(
     ({ rowCount, colCount }) =>
       rowCount * colCount > MAX_CELLS && canUnrank({ rowCount, colCount }),
   );
-  const allUnrankPassed = unrankTestCases.every((testCase, index) => {
-    const { rowCount, colCount } = testCase;
 
-    process.stdout.write(
-      `Executing unrank test ${index + 1} of ${unrankTestCases.length} for ${rowCount}x${colCount}... `,
-    );
+  console.log(`Starting renderer test execution with ${testCases.length} tests...`);
 
-    return runUnrankTest(testCase);
-  });
+  const results = [
+    runSuite('renderer', testCases, runTest),
+    runSuite('unrank', unrankTestCases, runUnrankTest),
+    runSuite('random uniformity', randomTestCases, runRandomUniformityTest),
+    runSuite('random validity', randomValidityTestCases, runRandomValidityTest),
+    runSuite('command line', cliTestCases, runCliTest),
+  ];
 
-  const allRandomPassed =
-    runSuite('random uniformity', randomTestCases, runRandomUniformityTest) &&
-    runSuite('random validity', randomValidityTestCases, runRandomValidityTest);
-
-  if (allPassed && allUnrankPassed && allRandomPassed) {
+  if (results.every(Boolean)) {
     console.log('All renderer tests completed successfully.');
     process.exit(0);
   } else {

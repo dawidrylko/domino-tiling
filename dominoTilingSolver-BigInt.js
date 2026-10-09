@@ -1,5 +1,7 @@
 const { parseArgs } = require('./helpers');
 
+const MAX_SHORTER_SIDE = 30;
+
 function canSkipTwoBits(colIndex, colCount, currentMask, currentBit, nextBit) {
   return (
     colIndex + 1 < colCount &&
@@ -50,7 +52,9 @@ function createInitialTilingMatrix(rowCount, colCount) {
   );
 }
 
-function calculateTotalTilingCombinations({ rowCount, colCount }) {
+function calculateTotalTilingCombinations(options) {
+  const rowCount = Math.max(options.rowCount, options.colCount);
+  const colCount = Math.min(options.rowCount, options.colCount);
   const tilingMatrix = createInitialTilingMatrix(rowCount, colCount);
   tilingMatrix[0][0] = BigInt(1);
 
@@ -82,6 +86,13 @@ function __main__() {
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
       'Usage: node dominoTilingSolver-BigInt.js -r <rowCount> -c <colCount>',
+    );
+    process.exit(1);
+  }
+
+  if (Math.min(options.rowCount, options.colCount) > MAX_SHORTER_SIDE) {
+    console.error(
+      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because a row is stored as a 32-bit mask.`,
     );
     process.exit(1);
   }

@@ -1,10 +1,76 @@
+const { spawnSync } = require('child_process');
 const { exec, parseArgs, verifyInt, verifyBigInt } = require('./helpers');
 const {
   filesInt,
   testCasesInt,
   filesBigInt,
   testCasesBigInt,
+  filesRectangles,
+  testCasesRectangles,
 } = require('./test-data');
+
+const REJECTION_TIMEOUT = 30000;
+const parserTestCases = [
+  { value: '12', expectedResult: 12 },
+  { value: '0', expectedResult: 0 },
+  { value: '2abc', expectedResult: NaN },
+  { value: '-2', expectedResult: NaN },
+  { value: '1e3', expectedResult: NaN },
+  { value: '99999999999999999999999', expectedResult: NaN },
+  { value: undefined, expectedResult: NaN },
+];
+const rejectionTestCases = [
+  { args: ['dominoTilingSolver.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['dominoTilingSolver-BigInt.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['dominoTilingSolver.js', '-r', '2abc', '-c', '2'], message: 'Usage' },
+  { args: ['testRunner.js', '-m', 'abc'], message: 'Usage' },
+  { args: ['testRunner.js', '-m'], message: 'Usage' },
+];
+
+function executeParserTests() {
+  return parserTestCases.every(({ value, expectedResult }, index) => {
+    process.stdout.write(
+      `Executing parser test ${index + 1} of ${parserTestCases.length} for "${value}"... `,
+    );
+
+    const args = value === undefined ? ['-s'] : ['-s', value];
+    const { size } = parseArgs(args, { '-s': 'size' });
+
+    if (!Object.is(size, expectedResult)) {
+      console.error(`Failed! Expected: ${expectedResult}, Actual: ${size}`);
+
+      return false;
+    }
+
+    console.log('Passed!');
+
+    return true;
+  });
+}
+
+function executeRejectionTests() {
+  return rejectionTestCases.every(({ args, message }, index) => {
+    process.stdout.write(
+      `Executing rejection test ${index + 1} of ${rejectionTestCases.length} for "${args.join(' ')}"... `,
+    );
+
+    const { status, stderr } = spawnSync(process.execPath, args, {
+      cwd: __dirname,
+      encoding: 'utf-8',
+      timeout: REJECTION_TIMEOUT,
+    });
+
+    if (status === 0 || !stderr.includes(message)) {
+      console.error(`Failed! Exit code ${status}: ${stderr.trim()}`);
+
+      return false;
+    }
+
+    console.log('Passed!');
+
+    return true;
+  });
+}
 
 function runTest(testCase, useBigInt) {
   const { fileName, expectedResult } = testCase;
@@ -49,8 +115,11 @@ function executeTests(files, testCases, useBigInt) {
 function __main__() {
   try {
     const argsSchema = { '-m': 'maxSize' };
-    const options = parseArgs(process.argv.slice(2), argsSchema);
-    const maxSize = options.maxSize;
+    const { maxSize } = parseArgs(process.argv.slice(2), argsSchema);
+
+    if (maxSize !== undefined && !(maxSize > 0)) {
+      throw new Error('Usage: node testRunner.js [-m <maxSize>]');
+    }
 
     console.log(`Starting test execution with ${maxSize || 'all available'} tests...`);
 
@@ -59,8 +128,17 @@ function __main__() {
 
     const allIntTestsPassed = executeTests(filesInt, testCasesToRunInt, false);
     const allBigIntTestsPassed = executeTests(filesBigInt, testCasesToRunBigInt, true);
+    const allRectangleTestsPassed = executeTests(filesRectangles, testCasesRectangles, true);
+    const allParserTestsPassed = executeParserTests();
+    const allRejectionTestsPassed = executeRejectionTests();
 
-    if (allIntTestsPassed && allBigIntTestsPassed) {
+    if (
+      allIntTestsPassed &&
+      allBigIntTestsPassed &&
+      allRectangleTestsPassed &&
+      allParserTestsPassed &&
+      allRejectionTestsPassed
+    ) {
       console.log('All tests completed successfully.');
       process.exit(0);
     } else {
