@@ -2,20 +2,20 @@
 
 [![Continuous Integration](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml)
 [![Pages](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml)
+[![Gallery & benchmark](https://img.shields.io/badge/Gallery_%26_benchmark-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
+[![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-e0a458?style=flat)](https://dawidrylko.com/domino-tiling/)
 
-**[🖼️ Gallery of tilings & 📊 benchmark results](https://dawidrylko.github.io/domino-tiling/)**
-
-> Number of domino tilings of a 2n×2n board ([OEIS A004003](https://oeis.org/A004003)):
+> Number of domino tilings (or dimer coverings) of a 2n × 2n square, [OEIS A004003](https://oeis.org/A004003), for n = 0, 1, 2, …:
 >
 > 1, 2, 36, 6728, 12988816, 258584046368, 53060477521960000, 112202208776036178000000, 2444888770250892795802079170816, 548943583215388338077567813208427340288, 1269984011256235834242602753102293934298576249856
 
 ## 📖 Overview
 
-This repository contains two JavaScript solvers for the domino tiling problem: one based on the standard `Number` type and one based on `BigInt`. Both calculate the number of ways to tile a rectangular grid with 2×1 and 1×2 dominoes. The repository also includes a test suite, a benchmark runner and a renderer that draws any individual tiling.
+This repository contains two JavaScript solvers for the domino tiling problem: one based on the standard `Number` type and one based on `BigInt`. Both calculate the number of ways to tile a 2n × 2n board with 2×1 and 1×2 dominoes. The repository also includes a test suite, a benchmark runner and a renderer that draws any individual tiling.
 
 ## ❓ Problem Statement
 
-The main problem tackled by this project is determining the number of different ways to completely cover an 8×8 board with 2×1 domino tiles – the answer is 12,988,816. The same solvers handle any rectangular board; `Number` stays exact up to 2<sup>53</sup> (10×10), while `BigInt` keeps the results exact for larger boards such as 20×20.
+The main problem tackled by this project is determining the number of different ways to completely cover an 8×8 board with 2×1 domino tiles – the answer is 12,988,816. The same solvers handle every board of the sequence, from the empty 0×0 board (exactly one tiling – the empty one) up to 20×20; `Number` stays exact up to 2<sup>53</sup> (10×10), while `BigInt` keeps the results exact for larger boards.
 
 ## 💡 Solution
 
@@ -53,12 +53,12 @@ pnpm install
 pnpm start
 ```
 
-This command runs every benchmark case 1000 times and saves the results in the [`benchmark`](./benchmark) directory. The results are also presented on the [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark). Large boards take a long time to solve (a single 20×20 run takes almost half an hour), so consider fewer iterations.
+This command runs the first 7 benchmark cases (boards up to 12×12) 1000 times each and saves the results in the [`benchmark`](./benchmark) directory. The results are also presented on the [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark). Larger boards take a long time to solve (a single 20×20 run takes almost half an hour), so run them with fewer iterations.
 
-To run the benchmark with a different number of iterations, pass it with the `-n` argument:
+To run the benchmark with a different number of iterations or test cases, pass them with the `-n` and `-m` arguments:
 
 ```sh
-node benchmarkRunner.js -n <k>
+node benchmarkRunner.js -n <k> -m <m>
 ```
 
 4. Run tests:
@@ -67,7 +67,7 @@ node benchmarkRunner.js -n <k>
 pnpm test
 ```
 
-By default, this command runs the first 7 test cases (boards up to 12×12). The same default is used in CI. Increasing this value may lead to a significantly longer test execution time.
+By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` solver. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time.
 
 To run a different number of test cases, pass it with the `-m` argument:
 
@@ -89,7 +89,7 @@ Rendering is a separate tool, so the solvers, tests and benchmarks are not affec
 
 ```sh
 pnpm render -r 4 -c 4                       # all 36 tilings as SVG sheets in output/4x4/
-pnpm render -r 2 -c 4 --ascii               # print tilings in the terminal
+pnpm render -r 2 -c 2 --ascii               # print tilings in the terminal
 pnpm render -r 8 -c 8 -o 5000 -l 200        # tilings 5001-5200 of 12,988,816
 pnpm render -r 12 -c 12 -i 1000000000000    # one specific tiling
 pnpm render -r 10 -c 10 --random --ascii    # a random tiling

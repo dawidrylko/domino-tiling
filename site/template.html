@@ -19,14 +19,14 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:url" content="__SITE_URL__">
 <meta property="og:title" content="Domino Tiling – Gallery of Every Tiling &amp; Solver Benchmark">
-<meta property="og:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 1×2 up to 18×18.">
+<meta property="og:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
 <meta property="og:image" content="__SITE_URL__og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Domino Tiling – six of the 12,988,816 domino tilings of an 8×8 board">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Domino Tiling – Gallery of Every Tiling &amp; Solver Benchmark">
-<meta name="twitter:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 1×2 up to 18×18.">
+<meta name="twitter:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
 <meta name="twitter:image" content="__SITE_URL__og-image.png">
 <meta name="twitter:image:alt" content="Domino Tiling – six of the 12,988,816 domino tilings of an 8×8 board">
 <script type="application/ld+json">__JSON_LD__</script>
@@ -54,24 +54,46 @@ header a:hover { color: var(--fg); }
 nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
 nav.tabs a { padding: 8px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
 nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent); font-weight: 600; }
-.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
-.segmented { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.segmented button { border: 0; background: var(--surface); color: var(--fg); padding: 6px 12px; font: inherit; cursor: pointer; }
-.segmented button + button { border-left: 1px solid var(--border); }
-.segmented button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
-.pager { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.pager button, .pager select { font: inherit; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--fg); cursor: pointer; }
-.pager button:disabled { opacity: .4; cursor: default; }
+.picker { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-width: 0; }
+.picker .label { flex: none; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.boards { display: flex; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: thin; padding: 2px; }
+.boards button { flex: none; font: inherit; font-variant-numeric: tabular-nums; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--fg); cursor: pointer; }
+.boards button:hover { border-color: var(--accent); }
+.boards button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); margin-bottom: 12px; }
+.toolbar .group { display: flex; align-items: center; gap: 6px; }
+.toolbar .group.end { margin-left: auto; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; min-width: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font: inherit; cursor: pointer; }
+.btn.icon { padding: 0; }
+.btn svg { width: 16px; height: 16px; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.field { height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; min-width: 0; }
+.field:focus, .btn:focus-visible, .boards button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#page { flex: 0 1 auto; max-width: 100%; text-align: center; }
+.toolbar .group.pages { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+.range { font-variant-numeric: tabular-nums; word-break: break-all; }
+#tiling { width: 18ch; }
+.of { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin: 0 0 12px; }
+.summary .meta { margin: 0; }
+.num { cursor: help; border-bottom: 1px dotted var(--muted); }
+@media (max-width: 640px) {
+  .picker { flex-direction: column; align-items: stretch; gap: 6px; }
+  .toolbar .group, .toolbar .group.end { width: 100%; margin-left: 0; }
+  .toolbar .group.pages .label { display: none; }
+  #page { flex: 1 1 6ch; width: auto !important; }
+  .of { flex: 1 0 100%; order: 10; text-align: center; }
+  #tiling { flex: 1; width: auto; }
+}
 .meta { color: var(--muted); margin: 0 0 12px; }
 .legend { display: inline-flex; gap: 14px; color: var(--muted); font-size: 13px; }
 .legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
 .sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
 .sheet svg { display: block; max-width: none; height: auto; }
 @media (min-width: 900px) { .sheet svg { max-width: 100%; } }
-.pager label { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.pager input { font: inherit; width: 24ch; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg); }
-#tiling { width: 26ch; }
-@media (max-width: 600px) { .pager input, #tiling { width: 100%; min-width: 0; } .pager label { white-space: normal; flex: 1 1 100%; } }
 h1 { display: flex; align-items: center; gap: 10px; }
 h1 img { width: 32px; height: 32px; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -83,11 +105,12 @@ th { color: var(--muted); font-weight: 600; font-size: 13px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
-.intro { color: var(--muted); max-width: 75ch; margin: 0 0 20px; }
-.status { color: var(--muted); margin: 0 0 12px; min-height: 1.5em; }
+.intro { color: var(--muted); max-width: 75ch; margin: 0 0 20px; overflow-wrap: anywhere; }
+.status { color: var(--muted); margin: 0 0 12px; }
+.status:empty { display: none; }
 .notice { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
 .notice p { margin: 0 0 10px; }
-.notice button, #resample { font: inherit; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+.notice button { font: inherit; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
 .sheet:empty { display: none; }
 </style>
 </head>
@@ -115,28 +138,35 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
   </nav>
 
   <section id="gallery">
-    <div class="controls">
-      <div class="segmented" id="boards" role="group" aria-label="Board size"></div>
-      <span class="legend"><span><i style="background:var(--h)"></i>horizontal</span><span><i style="background:var(--v)"></i>vertical</span></span>
+    <div class="picker">
+      <span class="label" id="boards-label">Board</span>
+      <div class="boards" id="boards" role="group" aria-labelledby="boards-label"></div>
     </div>
-    <div class="controls" id="page-controls">
-      <div class="pager">
-        <button id="first" aria-label="First page">⇤</button>
-        <button id="prev" aria-label="Previous page">←</button>
-        <label>Page <input id="page" inputmode="numeric" aria-label="Page"> of <span id="pages"></span></label>
-        <button id="next" aria-label="Next page">→</button>
-        <button id="last" aria-label="Last page">⇥</button>
+    <div class="toolbar" id="page-controls">
+      <div class="group pages" role="group" aria-label="Pages">
+        <button class="btn icon" id="first" title="First page" aria-label="First page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 8 8l4 4M6 4v8"/></svg></button>
+        <button class="btn icon" id="prev" title="Previous page" aria-label="Previous page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4 6 8l4 4"/></svg></button>
+        <label class="label" for="page">Page</label>
+        <input class="field" id="page" inputmode="numeric" autocomplete="off">
+        <span class="of">of <span id="pages"></span></span>
+        <button class="btn icon" id="next" title="Next page" aria-label="Next page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 4 4 4-4 4"/></svg></button>
+        <button class="btn icon" id="last" title="Last page" aria-label="Last page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 4 4 4-4 4M10 4v8"/></svg></button>
       </div>
-      <form class="pager" id="goto">
-        <label>Tiling&nbsp;# <input id="tiling" inputmode="numeric" aria-label="Tiling number"></label>
-        <button type="submit">Go</button>
-        <button type="button" id="random">Random</button>
+      <form class="group end" id="goto" role="search" aria-label="Jump to tiling">
+        <input class="field" id="tiling" inputmode="numeric" autocomplete="off" placeholder="Tiling #" aria-label="Tiling number">
+        <button class="btn" type="submit">Go</button>
+        <button class="btn primary" type="button" id="random" title="Jump to a random tiling"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h2.5c3 0 4 8 7 8H14M2 12h2.5c1.2 0 2-1.2 2.7-2.6M9 6.6C9.6 5.2 10.4 4 11.5 4H14M12 2l2 2-2 2M12 10l2 2-2 2"/></svg>Random</button>
       </form>
     </div>
-    <div class="controls" id="sample-controls" hidden>
-      <div class="pager"><button type="button" id="resample">New random sample</button></div>
+    <div class="toolbar" id="sample-controls" hidden>
+      <div class="group">
+        <button class="btn primary" type="button" id="resample"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h2.5c3 0 4 8 7 8H14M2 12h2.5c1.2 0 2-1.2 2.7-2.6M9 6.6C9.6 5.2 10.4 4 11.5 4H14M12 2l2 2-2 2M12 10l2 2-2 2"/></svg>New random sample</button>
+      </div>
     </div>
-    <p class="meta" id="gallery-meta"></p>
+    <div class="summary">
+      <p class="meta" id="gallery-meta"></p>
+      <span class="legend"><span><i style="background:var(--h)"></i>horizontal</span><span><i style="background:var(--v)"></i>vertical</span></span>
+    </div>
     <div class="notice" id="notice" hidden>
       <p id="notice-text"></p>
       <button type="button" id="load-table">Build the table</button>
@@ -177,6 +207,20 @@ const ONE = BigInt(1);
 
 const $ = id => document.getElementById(id);
 const fmt = n => BigInt(n).toLocaleString('en-US');
+const SUPERSCRIPT = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+const isLong = n => String(BigInt(n)).length > 12;
+const short = n => {
+  const digits = String(BigInt(n));
+  if (!isLong(n)) return fmt(n);
+  let exponent = digits.length - 1;
+  let mantissa = Number(`${digits[0]}.${digits.slice(1, 6)}`).toFixed(2);
+  if (mantissa === '10.00') {
+    mantissa = '1.00';
+    exponent++;
+  }
+  return `${mantissa} × 10${[...String(exponent)].map(d => SUPERSCRIPT[d]).join('')}`;
+};
+const num = n => (isLong(n) ? `<span class="num" title="${fmt(n)}">${short(n)}</span>` : fmt(n));
 const ms = t => (t === null ? '—' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
 const confirmedBoards = new Set();
 const pending = new Map();
@@ -291,7 +335,8 @@ function updateControls({ board, page }) {
 
   if (pages) {
     $('page').value = fmt(page);
-    $('pages').textContent = fmt(pageCount(board));
+    $('page').style.width = `${Math.max(fmt(page).length + 3, 6)}ch`;
+    $('pages').innerHTML = num(pageCount(board));
     $('first').disabled = $('prev').disabled = page === ONE;
     $('last').disabled = $('next').disabled = page === pageCount(board);
   }
@@ -312,8 +357,8 @@ async function renderGallery(state) {
   }
 
   if (board.mode === 'random') {
-    $('gallery-meta').textContent =
-      `${board.rowCount}×${board.colCount} board · ${fmt(board.total)} tilings · too many to number in a browser, ` +
+    $('gallery-meta').innerHTML =
+      `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · too many to number in a browser, ` +
       `so these are ${RANDOM_SAMPLE_SIZE} uniformly random ones (coupling from the past)`;
     $('status').textContent = 'Sampling random tilings…';
     const tilings = await requestTilings({ type: 'random', board, count: RANDOM_SAMPLE_SIZE });
@@ -325,8 +370,9 @@ async function renderGallery(state) {
   const first = (page - ONE) * PAGE_SIZE;
   const end = first + PAGE_SIZE < BigInt(board.total) ? first + PAGE_SIZE : BigInt(board.total);
 
-  $('gallery-meta').textContent =
-    `${board.rowCount}×${board.colCount} board · ${fmt(board.total)} tilings · showing ${fmt(first + ONE)}–${fmt(end)}`;
+  $('gallery-meta').innerHTML =
+    `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · showing ` +
+    (isLong(end) ? `<span class="range">#${fmt(first + ONE)} – #${fmt(end)}</span>` : `${fmt(first + ONE)} – ${fmt(end)}`);
 
   if (board.confirm && !confirmedBoards.has(board.id)) {
     $('sheet').innerHTML = '';
