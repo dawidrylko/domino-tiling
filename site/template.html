@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Domino Tiling – Gallery of Every Tiling &amp; Solver Benchmark | Dawid Ryłko</title>
-<meta name="description" content="Browse every domino tiling of boards up to 18×18 – all 12,988,816 tilings of a chessboard included – plus uniformly random 20×20 tilings and JavaScript solver benchmarks.">
+<title>Domino Tiling: every tiling of a 2n × 2n board | Dawid Ryłko</title>
+<meta name="description" content="Browse every domino tiling of boards up to 18×18 (all 12,988,816 tilings of a chessboard included), see the closed-form formula, sample uniformly random 20×20 tilings and compare three JavaScript solvers.">
 <meta name="author" content="Dawid Ryłko">
 <meta name="keywords" content="domino tiling, dimer coverings, OEIS A004003, chessboard, combinatorics, dynamic programming, bitmask, BigInt, JavaScript">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -18,28 +18,31 @@
 <meta property="og:site_name" content="Domino Tiling">
 <meta property="og:locale" content="en_US">
 <meta property="og:url" content="__SITE_URL__">
-<meta property="og:title" content="Domino Tiling – Gallery of Every Tiling &amp; Solver Benchmark">
+<meta property="og:title" content="Domino Tiling: every tiling of a 2n × 2n board and a solver benchmark">
 <meta property="og:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
 <meta property="og:image" content="__SITE_URL__og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Domino Tiling – six of the 12,988,816 domino tilings of an 8×8 board">
+<meta property="og:image:alt" content="Six of the 12,988,816 domino tilings of an 8×8 board">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Domino Tiling – Gallery of Every Tiling &amp; Solver Benchmark">
+<meta name="twitter:title" content="Domino Tiling: every tiling of a 2n × 2n board and a solver benchmark">
 <meta name="twitter:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
 <meta name="twitter:image" content="__SITE_URL__og-image.png">
-<meta name="twitter:image:alt" content="Domino Tiling – six of the 12,988,816 domino tilings of an 8×8 board">
+<meta name="twitter:image:alt" content="Six of the 12,988,816 domino tilings of an 8×8 board">
 <script type="application/ld+json">__JSON_LD__</script>
 <style>
 :root {
   --bg: #ffffff; --fg: #111827; --muted: #6b7280; --border: #e5e7eb;
   --surface: #f9fafb; --accent: #4f7cac; --accent-fg: #ffffff;
   --h: #4f7cac; --v: #e0a458;
+  --sheet: #ffffff; --board: #f3f4f6; --edge: #1f2937; --label: #4b5563; --hit: #dc2626;
+  color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0f1115; --fg: #e5e7eb; --muted: #9ca3af; --border: #262a33;
     --surface: #161a21; --accent: #7aa2cf; --accent-fg: #0f1115;
+    --sheet: #161a21; --board: #232833; --edge: #0b0d11; --label: #9ca3af; --hit: #f87171;
   }
 }
 * { box-sizing: border-box; }
@@ -91,7 +94,17 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .meta { color: var(--muted); margin: 0 0 12px; }
 .legend { display: inline-flex; gap: 14px; color: var(--muted); font-size: 13px; }
 .legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
-.sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--sheet); }
+.sheet .bg { fill: var(--sheet); }
+.sheet .b { fill: var(--board); }
+.sheet .h, .sheet .v { stroke: var(--edge); }
+.sheet text { fill: var(--label); }
+.formula { margin: 0 0 24px; overflow-x: auto; }
+.formula math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; font-size: 1.3em; margin: 0 0 8px; }
+.formula figcaption { color: var(--muted); }
+.formula figcaption p { margin: 0 0 12px; }
+.formula figcaption p:last-child { margin-bottom: 0; }
+@media (max-width: 640px) { .formula math { font-size: 1.05em; } }
 .sheet svg { display: block; max-width: none; height: auto; }
 @media (min-width: 900px) { .sheet svg { max-width: 100%; } }
 h1 { display: flex; align-items: center; gap: 10px; }
@@ -105,7 +118,7 @@ th { color: var(--muted); font-weight: 600; font-size: 13px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
-.intro { color: var(--muted); max-width: 75ch; margin: 0 0 20px; overflow-wrap: anywhere; }
+.intro { color: var(--muted); margin: 0 0 20px; overflow-wrap: anywhere; }
 .status { color: var(--muted); margin: 0 0 12px; }
 .status:empty { display: none; }
 .notice { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
@@ -125,11 +138,42 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
   </header>
   <p class="intro">
-    How many ways can you cover a chessboard with 32 dominoes? Exactly <strong>12,988,816</strong>
-    (<a href="https://oeis.org/A004003">OEIS A004003</a>). This page lets you browse every one of them, and every tiling
-    of other boards up to 18×18, where there are 548,943,583,215,388,338,077,567,813,208,427,340,288. Each tiling is rebuilt
-    on demand from its number, so nothing is precomputed or stored. For 20×20 the page draws uniformly random tilings instead.
+    A chessboard can be covered with 32 dominoes in exactly <strong>12,988,816</strong> ways. A 20×20 board has about
+    1.27&nbsp;×&nbsp;10<sup>48</sup> tilings, so listing them one by one is out of the question. The project answers two
+    questions instead: how many tilings a 2n&nbsp;×&nbsp;2n board has, and what any single one of them looks like.
   </p>
+  <figure class="formula">
+    <math display="block">
+      <mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo>
+      <mo>=</mo>
+      <munderover><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+      <munderover><mo>∏</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+      <mrow>
+        <mo>(</mo>
+        <mn>4</mn><msup><mi>cos</mi><mn>2</mn></msup><mo>&#x2061;</mo>
+        <mfrac><mrow><mi>j</mi><mi>π</mi></mrow><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac>
+        <mo>+</mo>
+        <mn>4</mn><msup><mi>cos</mi><mn>2</mn></msup><mo>&#x2061;</mo>
+        <mfrac><mrow><mi>k</mi><mi>π</mi></mrow><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac>
+        <mo>)</mo>
+      </mrow>
+    </math>
+    <figcaption>
+      <p>
+        The first answer is the product formula above (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>), derived in
+        1961 by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a> and by
+        <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. With floating-point cosines it goes wrong from 12×12
+        on, so the formula solver evaluates it exactly with BigInt, as the resultant of two integer polynomials, in
+        milliseconds even for 20×20.
+      </p>
+      <p>
+        The second one takes dynamic programming. Two solvers count the tilings by scanning the board with a bitmask of the
+        current row, and a finer table, filled one cell at a time, turns a tiling's number into the tiling itself. That is how
+        the gallery below shows every tiling up to 18×18 without storing a single image. 20×20 is different. Its table would
+        need several gigabytes, so the gallery draws uniformly random tilings with coupling from the past.
+      </p>
+    </figcaption>
+  </figure>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
     <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark">repository</a>.</p></noscript>
   <nav class="tabs">
@@ -223,7 +267,7 @@ const short = n => {
   return `${mantissa} × 10${[...String(exponent)].map(d => SUPERSCRIPT[d]).join('')}`;
 };
 const num = n => (isLong(n) ? `<span class="num" title="${fmt(n)}">${short(n)}</span>` : fmt(n));
-const ms = t => (t === null ? '—' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
+const ms = t => (t === null ? '-' : t >= 1000 ? `${(t / 1000).toFixed(2)} s` : `${t.toFixed(2)} ms`);
 const confirmedBoards = new Set();
 const pending = new Map();
 let worker = null;
@@ -322,7 +366,7 @@ function highlightTiling(number) {
   const label = [...$('sheet').querySelectorAll('text')].find(t => t.textContent === `#${number}`);
 
   if (label) {
-    label.style.fill = '#dc2626';
+    label.style.fill = 'var(--hit)';
     label.style.fontWeight = '700';
     label.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
@@ -362,7 +406,7 @@ async function renderGallery(state) {
     $('gallery-meta').innerHTML =
       `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · too many to number in a browser, ` +
       `so these are ${RANDOM_SAMPLE_SIZE} uniformly random ones (coupling from the past)`;
-    $('status').textContent = 'Sampling random tilings…';
+    $('status').textContent = 'Sampling random tilings...';
     const tilings = await requestTilings({ type: 'random', board, count: RANDOM_SAMPLE_SIZE });
     if (!isCurrent()) return;
     $('status').textContent = '';
@@ -374,7 +418,7 @@ async function renderGallery(state) {
 
   $('gallery-meta').innerHTML =
     `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · showing ` +
-    (isLong(end) ? `<span class="range">#${fmt(first + ONE)} – #${fmt(end)}</span>` : `${fmt(first + ONE)} – ${fmt(end)}`);
+    (isLong(end) ? `<span class="range">#${fmt(first + ONE)} to #${fmt(end)}</span>` : `${fmt(first + ONE)}-${fmt(end)}`);
 
   if (board.confirm && !confirmedBoards.has(board.id)) {
     $('sheet').innerHTML = '';
@@ -390,7 +434,7 @@ async function renderGallery(state) {
       { type: 'page', board, first: String(first), count: Number(PAGE_SIZE) },
       progress => {
         if (isCurrent()) {
-          $('status').textContent = `Building the counting table${board.memory ? ` (about ${board.memory})` : ''}… ${Math.round(progress * 100)}%`;
+          $('status').textContent = `Building the counting table${board.memory ? ` (about ${board.memory})` : ''}... ${Math.round(progress * 100)}%`;
         }
       },
     );
@@ -452,7 +496,7 @@ $('load-table').addEventListener('click', () => {
 });
 
 $('benchmark-rows').innerHTML = DATA.benchmark
-  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '—' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
+  .map(r => `<tr><td>${r.rowCount}×${r.colCount}</td><td>${r.tilings === null ? '-' : fmt(r.tilings)}</td><td>${ms(r.number)}</td><td>${ms(r.bigint)}</td><td>${ms(r.formula)}</td><td>${r.runs}</td></tr>`)
   .join('');
 
 window.addEventListener('hashchange', render);
