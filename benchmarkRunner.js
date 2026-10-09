@@ -93,22 +93,32 @@ function executeBenchmark(options, files, testCases) {
 
 function __main__() {
   try {
-    const argsSchema = { '-n': 'numberOfExecutions' };
-    const options = parseArgs(process.argv.slice(2), argsSchema);
+    const argsSchema = { '-n': 'numberOfExecutions', '-m': 'maxSize' };
+    const { numberOfExecutions, maxSize } = parseArgs(
+      process.argv.slice(2),
+      argsSchema,
+    );
 
-    if (!options.numberOfExecutions) {
-      throw new Error('Usage: node benchmarkRunner.js -n <numberOfExecutions>');
+    if (!numberOfExecutions) {
+      throw new Error(
+        'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>]',
+      );
     }
 
     console.log(
-      `Starting benchmark execution with ${options.numberOfExecutions} executions each...`,
+      `Starting benchmark execution with ${numberOfExecutions} executions each for ${maxSize || 'all available'} test cases...`,
     );
 
-    const allPassedInt = executeBenchmark(options, filesInt, testCasesInt);
+    const options = { numberOfExecutions };
+    const testCasesToRunInt = maxSize ? testCasesInt.slice(0, maxSize) : testCasesInt;
+    const testCasesToRunBigInt = maxSize
+      ? testCasesBigInt.slice(0, maxSize)
+      : testCasesBigInt;
+    const allPassedInt = executeBenchmark(options, filesInt, testCasesToRunInt);
     const allPassedBigInt = executeBenchmark(
       options,
       filesBigInt,
-      testCasesBigInt,
+      testCasesToRunBigInt,
     );
 
     if (allPassedInt && allPassedBigInt) {

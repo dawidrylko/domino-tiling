@@ -154,7 +154,7 @@ function __main__() {
     });
     const { rowCount, colCount } = options;
 
-    if (!rowCount || !colCount) {
+    if (![rowCount, colCount].every(size => Number.isInteger(size) && size >= 0)) {
       throw new Error(USAGE);
     }
 

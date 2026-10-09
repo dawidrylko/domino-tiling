@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { testCasesBigInt } = require('../test-data');
-const { createUnranker } = require('../renderer');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
@@ -19,10 +18,7 @@ const AUTHOR = {
   url: 'https://dawidrylko.com',
 };
 const GALLERY_BOARDS = [
-  { rowCount: 1, colCount: 2 },
   { rowCount: 2, colCount: 2 },
-  { rowCount: 2, colCount: 4 },
-  { rowCount: 3, colCount: 4 },
   { rowCount: 4, colCount: 4 },
   { rowCount: 6, colCount: 6 },
   { rowCount: 8, colCount: 8 },
@@ -40,7 +36,11 @@ function countTilings(board) {
     t => t.rowCount === board.rowCount && t.colCount === board.colCount,
   );
 
-  return testCase ? testCase.expectedResult : String(createUnranker(board).total);
+  if (!testCase) {
+    throw new Error(`No expected result in test-data for ${board.rowCount}x${board.colCount}.`);
+  }
+
+  return testCase.expectedResult;
 }
 
 function readAverageTime(fileName) {
@@ -111,7 +111,7 @@ function buildJsonLd() {
         '@type': 'SoftwareSourceCode',
         name: 'Domino Tiling',
         description:
-          'JavaScript solvers that count domino tilings of rectangular boards with bitmask dynamic programming, plus a renderer for every tiling.',
+          'JavaScript solvers that count domino tilings of 2n×2n boards (OEIS A004003) with bitmask dynamic programming, plus a renderer for every tiling.',
         codeRepository: 'https://github.com/dawidrylko/domino-tiling',
         programmingLanguage: 'JavaScript',
         runtimePlatform: 'Node.js',
