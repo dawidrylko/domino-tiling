@@ -52,6 +52,10 @@ function* sampleRandomTilings(options, count) {
 }
 
 function selectTilings(argv, options, unranker, total) {
+  if (total === BigInt(0)) {
+    return { offset: BigInt(0), count: BigInt(0) };
+  }
+
   const index = readBigIntArg(argv, '-i');
   const random = argv.includes('--random');
 
@@ -154,7 +158,10 @@ function __main__() {
     });
     const { rowCount, colCount } = options;
 
-    if (![rowCount, colCount].every(size => Number.isInteger(size) && size >= 0)) {
+    if (
+      ![rowCount, colCount].every(size => Number.isInteger(size) && size >= 0) ||
+      (options.limit !== undefined && !(options.limit > 0))
+    ) {
       throw new Error(USAGE);
     }
 
