@@ -15,6 +15,7 @@ const MAX_CELLS = 36;
 const UNRANK_SAMPLE_SIZE = 1000;
 const RANDOM_SEED = 2024;
 const SAMPLES_PER_TILING = 200;
+const CLI_TIMEOUT = 30000;
 const randomTestCases = [
   { rowCount: 2, colCount: 2, expectedResult: 2, criticalValue: 10.83 },
   { rowCount: 4, colCount: 4, expectedResult: 36, criticalValue: 66.62 },
@@ -29,6 +30,8 @@ const cliTestCases = [
   { rowCount: 11, colCount: 15, args: ['--ascii'], status: 0, output: 'Nothing to render.' },
   { rowCount: 3, colCount: 3, args: ['-o', 'abc', '--ascii'], status: 1, output: '-o expects' },
   { rowCount: 2, colCount: 2, args: ['-l', '0', '--ascii'], status: 1, output: 'Usage' },
+  { rowCount: 8, colCount: 8, args: ['--all', '--ascii'], status: 1, output: '--all is only allowed' },
+  { rowCount: 2, colCount: 2, args: ['--all', '--ascii'], status: 0, output: 'Rendered tilings 1-2.' },
 ];
 
 function serializeTiling(tiling) {
@@ -214,7 +217,7 @@ function runCliTest({ rowCount, colCount, args, status, output }) {
   const result = spawnSync(
     process.execPath,
     ['dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
-    { cwd: __dirname, encoding: 'utf-8' },
+    { cwd: __dirname, encoding: 'utf-8', timeout: CLI_TIMEOUT },
   );
 
   if (result.status !== status || !`${result.stdout}${result.stderr}`.includes(output)) {

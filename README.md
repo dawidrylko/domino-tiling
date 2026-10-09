@@ -63,7 +63,7 @@ pnpm start
 
 This command runs the first 7 benchmark cases (boards up to 12×12) 1000 times each and saves the results in a `benchmark/<year-month>` directory named after the month of the run (for example [`benchmark/2026-10`](./benchmark/2026-10)), together with a description of the machine in `environment.json`.
 
-The [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) shows the newest complete directory (one with `environment.json` and every solver's largest board), so a partial run such as `pnpm start` never replaces a full table. The full table is measured with `pnpm benchmark`. A single 20×20 run with `BigInt` takes almost half an hour, so the number of `BigInt` runs drops with the board size: 1000 up to 12×12, 10 for 14×14 and 16×16, and one for 18×18 and 20×20. The formula solver needs milliseconds and runs 1000 times on every board. Other runs stay in their own directories and are listed under the table, including [`benchmark/2024-03`](./benchmark/2024-03) (March 2024, up to 1,000 runs per board, machine not recorded) and [`benchmark/2024-04`](./benchmark/2024-04) (April 2024, 100,000 runs per board on an Intel Core i7-8700).
+The [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) shows the newest complete directory (one with `environment.json` and every solver's largest board), so a partial run such as `pnpm start` never replaces a full table. The full table is measured with `pnpm benchmark`. A single 20×20 run with `BigInt` takes more than four minutes even on an Apple M4, so the number of `BigInt` runs drops with the board size: 1000 up to 12×12, 10 for 14×14 and 16×16, and one for 18×18 and 20×20. The formula solver needs milliseconds and runs 1000 times on every board. Other runs stay in their own directories and are listed under the table, including [`benchmark/2024-03`](./benchmark/2024-03) (March 2024, up to 1,000 runs per board, machine not recorded) and [`benchmark/2024-04`](./benchmark/2024-04) (April 2024, 100,000 runs per board on an Intel Core i7-8700).
 
 To run the benchmark with a different number of iterations or test cases, pass them with the `-n`, `-m` and `-o` arguments (`-o` skips the first test cases), and limit the run to one solver with `--only`:
 
@@ -110,11 +110,11 @@ pnpm render -r 20 -c 20 --random -l 12      # 12 uniformly random tilings of a 2
 - `-o <offset>`: number of tilings to skip, for paging through large boards.
 - `-i <number>`: render a single tiling by its 1-based number.
 - `--random`: render a single random tiling (with `-l`, several of them on boards too large to number).
-- `--all`: remove the limit; allowed only for boards up to 144 cells.
+- `--all`: remove the limit; allowed only for boards with at most 100,000 tilings (6×6 and smaller squares), so it never fills the disk.
 
-Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 240 MB for 16×16, 1 GB for 18×18 and several GB for 20×20. The command line numbers boards whose table has at most 4 million entries (up to 14×14). For larger boards `--random` switches to monotone coupling from the past (Propp and Wilson), which samples tilings uniformly at random without any table.
+Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 250 MB for 16×16, 1.1 GB for 18×18 and several GB for 20×20. The command line numbers boards whose table has at most 4 million entries (up to 14×14). The table grows with the number of columns, so a 30×2 board can be numbered while the same board turned sideways (2×30) cannot. For larger boards `--random` switches to monotone coupling from the past (Propp and Wilson), which samples tilings uniformly at random without any table.
 
-The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
+The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`.
 
 ## 📜 License
 

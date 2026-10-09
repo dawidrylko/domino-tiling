@@ -27,6 +27,22 @@ const rejectionTestCases = [
   { args: ['testRunner.js', '-m'], message: 'Usage' },
 ];
 
+function executeExecutorTest() {
+  process.stdout.write('Executing executor test 1 of 1 for the Node.js binary... ');
+
+  const command = exec.generateNodeCommand('dominoTilingSolver.js', { rowCount: 2, colCount: 2 });
+
+  if (!command.startsWith(`"${process.execPath}" `)) {
+    console.error(`Failed! Command: ${command}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function executeParserTests() {
   return parserTestCases.every(({ value, expectedResult }, index) => {
     process.stdout.write(
@@ -121,7 +137,9 @@ function __main__() {
       throw new Error('Usage: node testRunner.js [-m <maxSize>]');
     }
 
-    console.log(`Starting test execution with ${maxSize || 'all available'} tests...`);
+    console.log(
+      `Starting test execution with ${maxSize || 'all available'} test cases per solver group...`,
+    );
 
     const testCasesToRunInt = maxSize ? testCasesInt.slice(0, maxSize) : testCasesInt;
     const testCasesToRunBigInt = maxSize ? testCasesBigInt.slice(0, maxSize) : testCasesBigInt;
@@ -131,13 +149,15 @@ function __main__() {
     const allRectangleTestsPassed = executeTests(filesRectangles, testCasesRectangles, true);
     const allParserTestsPassed = executeParserTests();
     const allRejectionTestsPassed = executeRejectionTests();
+    const executorTestPassed = executeExecutorTest();
 
     if (
       allIntTestsPassed &&
       allBigIntTestsPassed &&
       allRectangleTestsPassed &&
       allParserTestsPassed &&
-      allRejectionTestsPassed
+      allRejectionTestsPassed &&
+      executorTestPassed
     ) {
       console.log('All tests completed successfully.');
       process.exit(0);

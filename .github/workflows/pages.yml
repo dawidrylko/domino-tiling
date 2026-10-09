@@ -25,6 +25,7 @@ jobs:
           node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm test
       - run: pnpm test:render
       - run: pnpm site:build
       - uses: actions/configure-pages@v6

@@ -7,7 +7,6 @@ const {
   writeSvgSheets,
   takeRange,
   countTilings,
-  MAX_CELLS_TO_COUNT,
   canUnrank,
   createUnranker,
   unrankTiling,
@@ -15,6 +14,7 @@ const {
 } = require('./renderer');
 
 const DEFAULT_LIMIT = 1000;
+const MAX_TILINGS_FOR_ALL = BigInt(100000);
 const OUTPUT_DIRECTORY = 'output';
 const USAGE =
   'Usage: node dominoTilingRenderer.js -r <rowCount> -c <colCount> [-l <limit>] [-o <offset>] [-i <number>] [--random] [--all] [--ascii]';
@@ -74,9 +74,9 @@ function selectTilings(argv, options, unranker, total) {
     return { offset: rank, count: BigInt(1) };
   }
 
-  if (argv.includes('--all') && total === null) {
+  if (argv.includes('--all') && (total === null || total > MAX_TILINGS_FOR_ALL)) {
     throw new Error(
-      `--all is only allowed for boards up to ${MAX_CELLS_TO_COUNT} cells. Use -l and -o instead.`,
+      `--all is only allowed for boards with at most ${MAX_TILINGS_FOR_ALL.toLocaleString('en-US')} tilings. Use -l and -o instead.`,
     );
   }
 
