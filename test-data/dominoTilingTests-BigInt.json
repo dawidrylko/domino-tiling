@@ -1,5 +1,5 @@
 {
-  "files": ["dominoTilingSolver-BigInt.js"],
+  "files": ["dominoTilingSolver-BigInt.js", "dominoTilingSolver-Formula.js"],
   "testCases": [
     {
       "rowCount": 0,
