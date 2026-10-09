@@ -8,7 +8,8 @@ const {
   testCasesBigInt,
 } = require('./test-data');
 
-const BENCHMARK_DIRECTORY = 'benchmark';
+const RUN_DATE = new Date().toISOString().slice(0, 10);
+const BENCHMARK_DIRECTORY = `benchmark/${RUN_DATE.slice(0, 7)}`;
 const USAGE =
   'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>]';
 
@@ -33,7 +34,7 @@ function ensureDirectoryExists(directory) {
     return;
   }
 
-  fs.mkdirSync(directory);
+  fs.mkdirSync(directory, { recursive: true });
 }
 
 function generateFileName(options) {
@@ -53,7 +54,7 @@ function generateContent(averageTime, executionTimes) {
 function saveEnvironment() {
   const cpus = os.cpus();
   const environment = {
-    date: new Date().toISOString().slice(0, 10),
+    date: RUN_DATE,
     node: process.version,
     platform: `${os.type()} ${os.release()} ${os.arch()}`,
     cpu: cpus.length ? cpus[0].model.trim() : 'unknown',

@@ -1,10 +1,18 @@
 const fs = require('fs');
 const path = require('path');
-const { testCasesBigInt } = require('../test-data');
+const { filesInt, testCasesInt, filesBigInt, testCasesBigInt } = require('../test-data');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
+const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
-const BENCHMARK_DIRECTORY = 'benchmark';
+const BENCHMARK_ROOT = 'benchmark';
+const BENCHMARK_NOTES = {
+  '2024-03': 'March 2024, up to 1,000 runs per board, machine not recorded',
+  '2024-04': 'April 2024, 100,000 runs per board on an Intel Core i7-8700',
+};
+const BENCHMARK_RUNS = listBenchmarkRuns();
+const BENCHMARK_RUN = findLatestCompleteRun();
+const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, BENCHMARK_RUN);
 const BROWSER_SCRIPTS = ['renderer/svg.js'];
 const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'site/worker.js'];
 const ASSETS = {
@@ -30,6 +38,64 @@ const GALLERY_BOARDS = [
   { rowCount: 20, colCount: 20, mode: 'random' },
 ];
 const DEFAULT_BOARD = '4x4';
+
+function listBenchmarkRuns() {
+  return fs
+    .readdirSync(BENCHMARK_ROOT)
+    .filter(name => /^\d{4}-\d{2}$/.test(name))
+    .sort()
+    .reverse();
+}
+
+function resultFileName(fileName, { rowCount, colCount }) {
+  return `${fileName}_${rowCount}x${colCount}.txt`;
+}
+
+function isCompleteRun(run) {
+  const lastInt = testCasesInt[testCasesInt.length - 1];
+  const lastBigInt = testCasesBigInt[testCasesBigInt.length - 1];
+  const requiredFiles = [
+    'environment.json',
+    ...filesInt.map(fileName => resultFileName(fileName, lastInt)),
+    ...filesBigInt.map(fileName => resultFileName(fileName, lastBigInt)),
+  ];
+
+  return requiredFiles.every(file => fs.existsSync(path.join(BENCHMARK_ROOT, run, file)));
+}
+
+function findLatestCompleteRun() {
+  const run = BENCHMARK_RUNS.find(isCompleteRun);
+
+  if (!run) {
+    throw new Error(
+      `No complete benchmark/YYYY-MM directory: one needs environment.json and every solver's largest board.`,
+    );
+  }
+
+  return run;
+}
+
+function describeRun(run) {
+  const environment = readEnvironment(path.join(BENCHMARK_ROOT, run));
+
+  return environment
+    ? `${environment.date}, Node.js ${environment.node} on ${environment.cpu}`
+    : BENCHMARK_NOTES[run] || 'machine not recorded';
+}
+
+function buildOlderBenchmarks() {
+  const links = BENCHMARK_RUNS.filter(run => run !== BENCHMARK_RUN).map(
+    run => `<a href="${REPOSITORY_TREE_URL}/${BENCHMARK_ROOT}/${run}">${BENCHMARK_ROOT}/${run}</a> (${describeRun(run)})`,
+  );
+
+  if (!links.length) {
+    return '';
+  }
+
+  const list = links.length === 1 ? links[0] : `${links.slice(0, -1).join(', ')} and ${links[links.length - 1]}`;
+
+  return `Other measurements are kept in ${list}.`;
+}
 
 function countTilings(board) {
   const testCase = testCasesBigInt.find(
@@ -92,8 +158,8 @@ function buildBenchmark() {
   });
 }
 
-function readEnvironment() {
-  const file = path.join(BENCHMARK_DIRECTORY, 'environment.json');
+function readEnvironment(directory) {
+  const file = path.join(directory, 'environment.json');
 
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf-8')) : null;
 }
@@ -158,7 +224,7 @@ function __main__() {
       total: countTilings(board),
     })),
     benchmark: buildBenchmark(),
-    environment: readEnvironment(),
+    environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
   const readScripts = files => files.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
   const scripts = readScripts(BROWSER_SCRIPTS);
@@ -169,7 +235,9 @@ function __main__() {
     .replace('__DATA__', () => JSON.stringify(data))
     .replace('__WORKER__', () => JSON.stringify(workerSource).replace(/</g, '\\u003c'))
     .replace('__JSON_LD__', () => JSON.stringify(buildJsonLd()).replace(/</g, '\\u003c'))
-    .replace(/__SITE_URL__/g, SITE_URL);
+    .replace(/__SITE_URL__/g, SITE_URL)
+    .replace(/__BENCHMARK_DIRECTORY__/g, `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`)
+    .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks());
 
   Object.entries(ASSETS).forEach(([name, source]) =>
     fs.copyFileSync(source, path.join(OUTPUT_DIRECTORY, name)),
