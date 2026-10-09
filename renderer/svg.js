@@ -65,7 +65,7 @@ function renderSheet(tilings, firstNumber, options) {
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
     `<style>${STYLE}</style>`,
-    '<rect width="100%" height="100%" fill="#fff"/>',
+    '<rect class="bg" width="100%" height="100%" fill="#fff"/>',
     ...body,
     '</svg>',
     '',
