@@ -18,9 +18,10 @@ function canUnrank({ rowCount, colCount }) {
  * @param {Object} options Board dimensions.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
+ * @param {function(number): void} [onProgress] Called with the completed fraction after every board row.
  * @returns {{ rowCount: number, colCount: number, table: BigInt[][], total: BigInt }} The unranker.
  */
-function createUnranker({ rowCount, colCount }) {
+function createUnranker({ rowCount, colCount }, onProgress) {
   const cellCount = rowCount * colCount;
   const maskCount = 1 << colCount;
   const verticalBit = 1 << colCount;
@@ -51,6 +52,10 @@ function createUnranker({ rowCount, colCount }) {
     }
 
     table[index] = current;
+
+    if (onProgress && index % colCount === 0) {
+      onProgress((cellCount - index) / cellCount);
+    }
   }
 
   return { rowCount, colCount, table, total: table[0][0] };

@@ -93,15 +93,18 @@ pnpm render -r 2 -c 4 --ascii               # print tilings in the terminal
 pnpm render -r 8 -c 8 -o 5000 -l 200        # tilings 5001-5200 of 12,988,816
 pnpm render -r 12 -c 12 -i 1000000000000    # one specific tiling
 pnpm render -r 10 -c 10 --random --ascii    # a random tiling
+pnpm render -r 20 -c 20 --random -l 12      # 12 uniformly random tilings of a 20×20 board
 ```
 
 - `-l <limit>` – maximum number of tilings to render (default: 1000).
 - `-o <offset>` – number of tilings to skip, for paging through large boards.
 - `-i <number>` – render a single tiling by its 1-based number.
-- `--random` – render a single random tiling.
+- `--random` – render a single random tiling (with `-l`, several of them on boards too large to number).
 - `--all` – remove the limit; allowed only for boards up to 144 cells.
 
-The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 12×12 without storing any images. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
+Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 1 GB for 18×18 and several GB for 20×20. For boards that large, `--random` switches to monotone coupling from the past (Propp–Wilson), which samples tilings uniformly at random without any table.
+
+The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. Renderer tests run with `pnpm test:render`.
 
 ## 📜 License
 
