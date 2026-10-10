@@ -144,7 +144,6 @@ function __main__() {
 
   const result = calculateTotalTilingCombinations(options);
   console.log(result.toString());
-  process.exit(0);
 }
 
 __main__();

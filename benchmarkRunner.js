@@ -1,5 +1,6 @@
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 const { parseArgs, exec } = require('./helpers');
 const {
   filesInt,
@@ -9,9 +10,17 @@ const {
 } = require('./test-data');
 
 const RUN_DATE = new Date().toISOString().slice(0, 10);
-const BENCHMARK_DIRECTORY = `benchmark/${RUN_DATE.slice(0, 7)}`;
+const BENCHMARK_ROOT = process.env.BENCHMARK_ROOT || path.join(__dirname, 'benchmark');
+const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, RUN_DATE.slice(0, 7));
+const MACHINE_KEYS = ['node', 'platform', 'cpu'];
 const USAGE =
-  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>]';
+  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>] [--force]';
+
+function displayPath(file) {
+  const relative = path.relative(__dirname, file);
+
+  return relative.startsWith('..') ? file : relative;
+}
 
 function readOnlyArg(argv) {
   const index = argv.indexOf('--only');
@@ -40,7 +49,7 @@ function ensureDirectoryExists(directory) {
 function generateFileName(options) {
   const { directory, fileName, rowCount, colCount } = options;
 
-  return `${directory}/${fileName}_${rowCount}x${colCount}.txt`;
+  return path.join(directory, `${fileName}_${rowCount}x${colCount}.txt`);
 }
 
 function generateContent(averageTime, executionTimes) {
@@ -51,20 +60,42 @@ function generateContent(averageTime, executionTimes) {
   ].join('\n');
 }
 
-function saveEnvironment() {
+function describeMachine() {
   const cpus = os.cpus();
-  const environment = {
+
+  return {
     date: RUN_DATE,
     node: process.version,
     platform: `${os.type()} ${os.release()} ${os.arch()}`,
-    cpu: cpus.length ? cpus[0].model.trim() : 'unknown',
-    cores: cpus.length,
+    cpu: cpus.length ? cpus[0].model.trim() : null,
+    cores: cpus.length || null,
     memory: `${Math.round(os.totalmem() / 2 ** 30)} GB`,
   };
+}
 
+function checkDirectory(environment, force) {
+  const file = path.join(BENCHMARK_DIRECTORY, 'environment.json');
+
+  if (force || !fs.existsSync(file)) {
+    return;
+  }
+
+  const recorded = JSON.parse(fs.readFileSync(file, 'utf-8'));
+  const differences = MACHINE_KEYS.filter(key => recorded[key] !== environment[key]);
+
+  if (differences.length) {
+    throw new Error(
+      `${displayPath(BENCHMARK_DIRECTORY)} holds results measured on another machine (${differences
+        .map(key => `${key} ${recorded[key]}`)
+        .join(', ')}). Run with --force to overwrite them.`,
+    );
+  }
+}
+
+function saveEnvironment(environment) {
   ensureDirectoryExists(BENCHMARK_DIRECTORY);
   fs.writeFileSync(
-    `${BENCHMARK_DIRECTORY}/environment.json`,
+    path.join(BENCHMARK_DIRECTORY, 'environment.json'),
     `${JSON.stringify(environment, null, 2)}\n`,
   );
 }
@@ -83,7 +114,7 @@ function saveExecutionResults(options) {
   const content = generateContent(averageTime, executionTimes);
 
   fs.writeFileSync(resultFileName, content);
-  console.log(`File saved: ${resultFileName}`);
+  console.log(`File saved: ${displayPath(resultFileName)}`);
 }
 
 function runBenchmarkTest(testCase) {
@@ -170,7 +201,10 @@ function __main__() {
       `Starting benchmark execution with ${numberOfExecutions} executions each for ${maxSize || 'all available'} test cases from test case ${offset + 1}...`,
     );
 
-    saveEnvironment();
+    const environment = describeMachine();
+
+    checkDirectory(environment, argv.includes('--force'));
+    saveEnvironment(environment);
 
     const allPassedInt = executeBenchmark(options, filesToRunInt, testCasesToRunInt);
     const allPassedBigInt = executeBenchmark(

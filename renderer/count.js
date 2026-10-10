@@ -1,22 +1,39 @@
 const { exec } = require('../helpers');
 
-const MAX_CELLS_TO_COUNT = 144;
+const MAX_SOLVER_TABLE_SIZE = 4000000;
 
 /**
- * Counts tilings with the BigInt solver, skipping boards that would take too long.
+ * Checks whether the BigInt solver's table for a board has at most 4 million entries.
+ * The solver scans along the longer side and keeps 2^(shorter side) entries per step.
  * @param {Object} options Board dimensions.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
- * @returns {string|null} The number of tilings, or null for boards above 144 cells.
+ * @returns {boolean} True if the board can be counted.
+ */
+function canCount({ rowCount, colCount }) {
+  const longerSide = Math.max(rowCount, colCount);
+  const shorterSide = Math.min(rowCount, colCount);
+
+  return (longerSide + 1) * 2 ** shorterSide <= MAX_SOLVER_TABLE_SIZE;
+}
+
+/**
+ * Counts tilings with the BigInt solver, skipping boards whose table is too large or whose count runs out of memory.
+ * @param {Object} options Board dimensions.
+ * @property {number} options.rowCount The number of rows.
+ * @property {number} options.colCount The number of columns.
+ * @returns {string|null} The number of tilings, or null for boards too large to count.
  */
 function countTilings(options) {
-  const { rowCount, colCount } = options;
-
-  if (rowCount * colCount > MAX_CELLS_TO_COUNT) {
+  if (!canCount(options)) {
     return null;
   }
 
-  return exec('dominoTilingSolver-BigInt.js', options);
+  try {
+    return exec('dominoTilingSolver-BigInt.js', options);
+  } catch {
+    return null;
+  }
 }
 
-module.exports = { countTilings, MAX_CELLS_TO_COUNT };
+module.exports = { canCount, countTilings };

@@ -1,17 +1,12 @@
-const LARGE_TABLE_SIZE = 4000000;
 const unrankers = new Map();
-
-function tableSize({ rowCount, colCount }) {
-  return (rowCount * colCount + 1) * 2 ** colCount;
-}
 
 function getUnranker(board, id) {
   const key = `${board.rowCount}x${board.colCount}`;
 
   if (!unrankers.has(key)) {
-    if (tableSize(board) > LARGE_TABLE_SIZE) {
+    if (!canUnrank(board)) {
       [...unrankers.keys()]
-        .filter(other => tableSize(unrankers.get(other)) > LARGE_TABLE_SIZE)
+        .filter(other => !canUnrank(unrankers.get(other)))
         .forEach(other => unrankers.delete(other));
     }
 

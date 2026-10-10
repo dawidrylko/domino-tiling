@@ -32,6 +32,15 @@ const cliTestCases = [
   { rowCount: 2, colCount: 2, args: ['-l', '0', '--ascii'], status: 1, output: 'Usage' },
   { rowCount: 8, colCount: 8, args: ['--all', '--ascii'], status: 1, output: '--all is only allowed' },
   { rowCount: 2, colCount: 2, args: ['--all', '--ascii'], status: 0, output: 'Rendered tilings 1-2.' },
+  { rowCount: 2, colCount: 100, args: ['-l', '1', '--ascii'], status: 0, output: '573147844013817084101 tilings.' },
+  { rowCount: 18, colCount: 18, args: ['-l', '1', '--ascii'], status: 0, output: 'tilings not counted (board too large).' },
+  { rowCount: 0, colCount: 0, args: ['--ascii'], status: 0, output: 'Board 0x0: 1 tiling.' },
+  { rowCount: 2, colCount: 2, args: ['-i', '1', '--random'], status: 1, output: 'cannot be combined' },
+  { rowCount: 2, colCount: 2, args: ['--all', '-l', '1'], status: 1, output: 'cannot be combined' },
+  { rowCount: 30, colCount: 2, args: ['-i', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
+  { rowCount: 2, colCount: 30, args: ['-i', '1', '--ascii'], status: 1, output: 'use -r 30 -c 2 instead' },
+  { rowCount: 2, colCount: 20000, args: ['-l', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
+  { rowCount: 5, colCount: 100000, args: ['-l', '1', '--ascii'], status: 0, output: 'tilings not counted (board too large).' },
 ];
 
 function serializeTiling(tiling) {
@@ -253,7 +262,12 @@ function __main__() {
       rowCount * colCount > MAX_CELLS && canUnrank({ rowCount, colCount }),
   );
 
-  console.log(`Starting renderer test execution with ${testCases.length} tests...`);
+  const total = [testCases, unrankTestCases, randomTestCases, randomValidityTestCases, cliTestCases].reduce(
+    (sum, suite) => sum + suite.length,
+    0,
+  );
+
+  console.log(`Starting renderer test execution with ${total} tests...`);
 
   const results = [
     runSuite('renderer', testCases, runTest),
