@@ -62,7 +62,13 @@ function selectTilings(argv, options, unranker, total) {
 
   if (index !== null || random) {
     if (!unranker) {
-      throw new Error('-i is not supported for boards this large; use --random instead.');
+      const swapped = { rowCount: options.colCount, colCount: options.rowCount };
+
+      throw new Error(
+        canUnrank(swapped)
+          ? `-i needs a numbering table, which grows with the number of columns; use -r ${options.colCount} -c ${options.rowCount} instead.`
+          : '-i needs a numbering table, which does not fit in memory for this board; use --random instead.',
+      );
     }
 
     const rank = random ? randomBigInt(total) : index - BigInt(1);
@@ -86,6 +92,14 @@ function selectTilings(argv, options, unranker, total) {
   const available = total === null ? limit : total - offset;
 
   return { offset, count: available < limit ? available : limit };
+}
+
+function describeTotal(total) {
+  if (total === null) {
+    return 'tilings not counted (board too large)';
+  }
+
+  return `${total} ${total === BigInt(1) ? 'tiling' : 'tilings'}`;
 }
 
 function printAscii(tilings, { offset, labels, ...options }) {
@@ -164,6 +178,14 @@ function __main__() {
       throw new Error(USAGE);
     }
 
+    if (argv.includes('--random') && readBigIntArg(argv, '-i') !== null) {
+      throw new Error('-i and --random cannot be combined.');
+    }
+
+    if (argv.includes('--all') && options.limit !== undefined) {
+      throw new Error('--all and -l cannot be combined.');
+    }
+
     const unranker = canUnrank(options) ? createUnranker(options) : null;
 
     if (!unranker && argv.includes('--random') && readBigIntArg(argv, '-i') === null) {
@@ -175,9 +197,7 @@ function __main__() {
     const counted = isOdd ? 0 : unranker ? unranker.total : countTilings(options);
     const total = counted === null ? null : BigInt(counted);
 
-    console.log(
-      `Board ${rowCount}x${colCount}: ${total ?? 'not counted (board too large)'} tilings.`,
-    );
+    console.log(`Board ${rowCount}x${colCount}: ${describeTotal(total)}.`);
 
     const { offset, count } = selectTilings(argv, options, unranker, total);
 

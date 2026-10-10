@@ -92,7 +92,7 @@ function __main__() {
 
   if (Math.min(options.rowCount, options.colCount) > MAX_SHORTER_SIDE) {
     console.error(
-      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because a row is stored as a 32-bit mask.`,
+      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because the rows are indexed with 32-bit integers.`,
     );
     process.exit(1);
   }

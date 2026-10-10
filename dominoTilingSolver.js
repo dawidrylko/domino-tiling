@@ -92,13 +92,19 @@ function __main__() {
 
   if (Math.min(options.rowCount, options.colCount) > MAX_SHORTER_SIDE) {
     console.error(
-      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because a row is stored as a 32-bit mask.`,
+      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because the rows are indexed with 32-bit integers.`,
     );
     process.exit(1);
   }
 
   const result = calculateTotalTilingCombinations(options);
   console.log(result);
+
+  if (!Number.isSafeInteger(result)) {
+    console.error(
+      'Warning: the result is above 2^53, so it is not exact. Use dominoTilingSolver-BigInt.js for this board.',
+    );
+  }
   process.exit(0);
 }
 

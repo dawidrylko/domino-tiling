@@ -1,15 +1,18 @@
 const { execSync } = require('child_process');
+const path = require('path');
+
+const ROOT_DIRECTORY = path.join(__dirname, '..');
 
 /**
  * Generates a command string for executing a node script with the same Node.js binary as the current process.
- * @param {string} fileName The file name of the node script.
+ * @param {string} fileName The file name of the node script, relative to the repository root.
  * @param {Object} options Options including row and column counts.
  * @property {number} options.rowCount The number of rows.
  * @property {number} options.colCount The number of columns.
  * @returns {string} The generated command string.
  */
 function generateNodeCommand(fileName, { rowCount, colCount }) {
-  return `"${process.execPath}" ${fileName} -r ${rowCount} -c ${colCount}`;
+  return `"${process.execPath}" "${path.join(ROOT_DIRECTORY, fileName)}" -r ${rowCount} -c ${colCount}`;
 }
 
 /**

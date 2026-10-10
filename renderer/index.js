@@ -3,7 +3,7 @@ const renderSheet = require('./svg');
 const renderAscii = require('./ascii');
 const writeSvgSheets = require('./sheets');
 const takeRange = require('./range');
-const { countTilings, MAX_CELLS_TO_COUNT } = require('./count');
+const { canCount, countTilings } = require('./count');
 const { canUnrank, createUnranker, unrankTiling } = require('./unrank');
 const { sampleRandomTiling } = require('./cftp');
 
@@ -13,8 +13,8 @@ module.exports = {
   renderAscii,
   writeSvgSheets,
   takeRange,
+  canCount,
   countTilings,
-  MAX_CELLS_TO_COUNT,
   canUnrank,
   createUnranker,
   unrankTiling,

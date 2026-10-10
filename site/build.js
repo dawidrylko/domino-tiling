@@ -4,12 +4,13 @@ const { filesInt, testCasesInt, filesBigInt, testCasesBigInt } = require('../tes
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
-const OUTPUT_DIRECTORY = path.join('dist', 'site');
+const ROOT_DIRECTORY = path.join(__dirname, '..');
+const OUTPUT_DIRECTORY = path.join(ROOT_DIRECTORY, 'dist', 'site');
 const BENCHMARK_ROOT = 'benchmark';
 const RESULT_FILE = /_(\d+)x(\d+)\.txt$/;
 const BENCHMARK_RUNS = listBenchmarkRuns();
 const BENCHMARK_RUN = findLatestCompleteRun();
-const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, BENCHMARK_RUN);
+const BENCHMARK_DIRECTORY = path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, BENCHMARK_RUN);
 const BROWSER_SCRIPTS = ['renderer/svg.js'];
 const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'site/worker.js'];
 const ASSETS = {
@@ -40,7 +41,7 @@ const DEFAULT_BOARD = '4x4';
 
 function listBenchmarkRuns() {
   return fs
-    .readdirSync(BENCHMARK_ROOT)
+    .readdirSync(path.join(ROOT_DIRECTORY, BENCHMARK_ROOT))
     .filter(name => /^\d{4}-\d{2}$/.test(name))
     .sort()
     .reverse();
@@ -59,7 +60,7 @@ function isCompleteRun(run) {
     ...filesBigInt.map(fileName => resultFileName(fileName, lastBigInt)),
   ];
 
-  return requiredFiles.every(file => fs.existsSync(path.join(BENCHMARK_ROOT, run, file)));
+  return requiredFiles.every(file => fs.existsSync(path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, run, file)));
 }
 
 function findLatestCompleteRun() {
@@ -75,7 +76,7 @@ function findLatestCompleteRun() {
 }
 
 function describeRun(run) {
-  const directory = path.join(BENCHMARK_ROOT, run);
+  const directory = path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, run);
   const environment = readEnvironment(directory) || {};
   const runs = fs
     .readdirSync(directory)
@@ -241,7 +242,7 @@ function __main__() {
     benchmark: buildBenchmark(),
     environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
-  const readScripts = files => files.map(file => fs.readFileSync(file, 'utf-8')).join('\n');
+  const readScripts = files => files.map(file => fs.readFileSync(path.join(ROOT_DIRECTORY, file), 'utf-8')).join('\n');
   const scripts = readScripts(BROWSER_SCRIPTS);
   const workerSource = readScripts(WORKER_SCRIPTS);
   const template = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf-8');
@@ -255,11 +256,11 @@ function __main__() {
     .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks());
 
   Object.entries(ASSETS).forEach(([name, source]) =>
-    fs.copyFileSync(source, path.join(OUTPUT_DIRECTORY, name)),
+    fs.copyFileSync(path.join(ROOT_DIRECTORY, source), path.join(OUTPUT_DIRECTORY, name)),
   );
   fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'index.html'), html);
   fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'sitemap.xml'), buildSitemap());
-  console.log(`Site saved: ${path.join(OUTPUT_DIRECTORY, 'index.html')}`);
+  console.log(`Site saved: ${path.relative(ROOT_DIRECTORY, path.join(OUTPUT_DIRECTORY, 'index.html'))}`);
 }
 
 __main__();
