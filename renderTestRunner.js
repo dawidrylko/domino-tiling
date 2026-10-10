@@ -40,7 +40,14 @@ const cliTestCases = [
   { rowCount: 30, colCount: 2, args: ['-i', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
   { rowCount: 2, colCount: 30, args: ['-i', '1', '--ascii'], status: 1, output: 'use -r 30 -c 2 instead' },
   { rowCount: 2, colCount: 20000, args: ['-l', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
-  { rowCount: 5, colCount: 100000, args: ['-l', '1', '--ascii'], status: 0, output: 'tilings not counted (board too large).' },
+  {
+    rowCount: 2,
+    colCount: 100000,
+    args: ['-l', '1', '--ascii'],
+    env: { NODE_OPTIONS: '--max-old-space-size=128' },
+    status: 0,
+    output: 'tilings not counted (board too large).',
+  },
 ];
 
 function serializeTiling(tiling) {
@@ -222,11 +229,11 @@ function runRandomValidityTest(testCase) {
   return true;
 }
 
-function runCliTest({ rowCount, colCount, args, status, output }) {
+function runCliTest({ rowCount, colCount, args, env = {}, status, output }) {
   const result = spawnSync(
     process.execPath,
     ['dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
-    { cwd: __dirname, encoding: 'utf-8', timeout: CLI_TIMEOUT },
+    { cwd: __dirname, encoding: 'utf-8', timeout: CLI_TIMEOUT, env: { ...process.env, ...env } },
   );
 
   if (result.status !== status || !`${result.stdout}${result.stderr}`.includes(output)) {
