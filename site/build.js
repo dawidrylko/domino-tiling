@@ -6,10 +6,7 @@ const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
 const OUTPUT_DIRECTORY = path.join('dist', 'site');
 const BENCHMARK_ROOT = 'benchmark';
-const BENCHMARK_NOTES = {
-  '2024-03': 'March 2024, up to 1,000 runs per board, machine not recorded',
-  '2024-04': 'April 2024, 100,000 runs per board on an Intel Core i7-8700',
-};
+const RESULT_FILE = /_(\d+)x(\d+)\.txt$/;
 const BENCHMARK_RUNS = listBenchmarkRuns();
 const BENCHMARK_RUN = findLatestCompleteRun();
 const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, BENCHMARK_RUN);
@@ -78,11 +75,27 @@ function findLatestCompleteRun() {
 }
 
 function describeRun(run) {
-  const environment = readEnvironment(path.join(BENCHMARK_ROOT, run));
+  const directory = path.join(BENCHMARK_ROOT, run);
+  const environment = readEnvironment(directory) || {};
+  const runs = fs
+    .readdirSync(directory)
+    .filter(fileName => RESULT_FILE.test(fileName))
+    .map(fileName => readAverageTime(directory, fileName).runs);
+  const most = Math.max(...runs);
+  const month = new Date(`${run}-01T00:00:00Z`).toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 
-  return environment
-    ? `${environment.date}, Node.js ${environment.node} on ${environment.cpu}`
-    : BENCHMARK_NOTES[run] || 'machine not recorded';
+  return [
+    environment.date || month,
+    `${runs.every(count => count === most) ? '' : 'up to '}${most.toLocaleString('en-US')} runs per board`,
+    environment.node && `Node.js ${environment.node}`,
+    environment.cpu || 'machine not recorded',
+  ]
+    .filter(Boolean)
+    .join(', ');
 }
 
 function buildOlderBenchmarks() {
@@ -111,8 +124,8 @@ function countTilings(board) {
   return testCase.expectedResult;
 }
 
-function readAverageTime(fileName) {
-  const file = path.join(BENCHMARK_DIRECTORY, fileName);
+function readAverageTime(directory, fileName) {
+  const file = path.join(directory, fileName);
 
   if (!fs.existsSync(file)) {
     return null;
@@ -133,7 +146,7 @@ function buildBenchmark() {
   );
   const sizes = fs
     .readdirSync(BENCHMARK_DIRECTORY)
-    .map(fileName => fileName.match(/_(\d+)x(\d+)\.txt$/))
+    .map(fileName => fileName.match(RESULT_FILE))
     .filter(Boolean)
     .map(([, rowCount, colCount]) => ({
       rowCount: Number(rowCount),
@@ -153,9 +166,9 @@ function buildBenchmark() {
       rowCount,
       colCount,
       tilings: tilingsBySize.get(`${rowCount}x${colCount}`) ?? null,
-      number: readAverageTime(`dominoTilingSolver.js${suffix}`),
-      bigint: readAverageTime(`dominoTilingSolver-BigInt.js${suffix}`),
-      formula: readAverageTime(`dominoTilingSolver-Formula.js${suffix}`),
+      number: readAverageTime(BENCHMARK_DIRECTORY, `dominoTilingSolver.js${suffix}`),
+      bigint: readAverageTime(BENCHMARK_DIRECTORY, `dominoTilingSolver-BigInt.js${suffix}`),
+      formula: readAverageTime(BENCHMARK_DIRECTORY, `dominoTilingSolver-Formula.js${suffix}`),
     };
   });
 }
