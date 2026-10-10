@@ -133,7 +133,7 @@ function renderRandomSample(argv, options) {
   if ((rowCount * colCount) % 2 !== 0) {
     console.log(`Board ${rowCount}x${colCount}: 0 tilings.`);
     console.log('Nothing to render.');
-    process.exit(0);
+    return;
   }
 
   const count = options.limit || 1;
@@ -157,8 +157,6 @@ function renderRandomSample(argv, options) {
   } else {
     saveSvgSheets(tilings, renderOptions);
   }
-
-  process.exit(0);
 }
 
 function __main__() {
@@ -203,7 +201,7 @@ function __main__() {
 
     if (count <= BigInt(0)) {
       console.log('Nothing to render.');
-      process.exit(0);
+      return;
     }
 
     const tilings = unranker
@@ -220,10 +218,9 @@ function __main__() {
       : saveSvgSheets(tilings, renderOptions);
 
     console.log(`Rendered tilings ${offset + BigInt(1)}-${offset + rendered}.`);
-    process.exit(0);
   } catch (error) {
     console.error(error.message);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }
 

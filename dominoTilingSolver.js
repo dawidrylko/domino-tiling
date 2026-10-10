@@ -105,7 +105,6 @@ function __main__() {
       'Warning: the result is above 2^53, so it is not exact. Use dominoTilingSolver-BigInt.js for this board.',
     );
   }
-  process.exit(0);
 }
 
 __main__();

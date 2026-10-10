@@ -39,6 +39,8 @@ const cliTestCases = [
   { rowCount: 2, colCount: 2, args: ['--all', '-l', '1'], status: 1, output: 'cannot be combined' },
   { rowCount: 30, colCount: 2, args: ['-i', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
   { rowCount: 2, colCount: 30, args: ['-i', '1', '--ascii'], status: 1, output: 'use -r 30 -c 2 instead' },
+  { rowCount: 2, colCount: 20000, args: ['-l', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
+  { rowCount: 5, colCount: 100000, args: ['-l', '1', '--ascii'], status: 0, output: 'tilings not counted (board too large).' },
 ];
 
 function serializeTiling(tiling) {
