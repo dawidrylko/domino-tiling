@@ -35,3 +35,5 @@ jobs:
       - run: pnpm test
       - run: pnpm test:render
       - run: pnpm site:build
+      - run: pnpm test:site
+        timeout-minutes: 10

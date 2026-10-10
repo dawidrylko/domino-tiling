@@ -48,6 +48,7 @@
     "test": "node testRunner.js -m 7",
     "render": "node dominoTilingRenderer.js",
     "test:render": "node renderTestRunner.js",
+    "test:site": "node siteTestRunner.js",
     "site:build": "node site/build.js"
   }
 }
