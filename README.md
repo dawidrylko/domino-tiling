@@ -19,7 +19,7 @@ The main problem tackled by this project is determining the number of different 
 
 ## 💡 Solution
 
-The core of the solution lies in a recursive function named `searchTileArrangements`, combined with dynamic programming over bitmasks (also known as the broken-profile method). The board is processed row by row, and the number of ways to reach every possible occupancy pattern of the next row is accumulated in a table instead of enumerating whole tilings.
+The core of the solution lies in a recursive function named `searchTileArrangements`, combined with dynamic programming over row bitmasks. The board is processed row by row, and the number of ways to reach every possible occupancy pattern of the next row is accumulated in a table instead of enumerating whole tilings.
 
 The closed-form formula from [OEIS A004003](https://oeis.org/A004003) gives the same numbers directly:
 
@@ -38,7 +38,7 @@ Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on,
 
 ## 📋 Requirements
 
-- [Node.js](https://nodejs.org/) 26 or newer. The exact version is specified in the `.nvmrc` file (run `nvm use`).
+- [Node.js](https://nodejs.org/) 26 or newer. The major version is specified in the `.nvmrc` file (run `nvm use`).
 - [pnpm](https://pnpm.io/). The version is pinned in the `packageManager` field of `package.json`. Install it with `npm install -g pnpm` (Corepack is no longer bundled with Node.js 25 and newer).
 
 ## 🚀 Getting Started
@@ -47,6 +47,7 @@ Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on,
 
 ```sh
 git clone https://github.com/dawidrylko/domino-tiling.git
+cd domino-tiling
 ```
 
 2. Install dependencies:
@@ -61,7 +62,7 @@ pnpm install
 pnpm start
 ```
 
-This command runs the first 7 benchmark cases (boards up to 12×12) 1000 times each and saves the results in a `benchmark/<year-month>` directory named after the month of the run (for example [`benchmark/2026-10`](./benchmark/2026-10)), together with a description of the machine in `environment.json`.
+This command runs the first 7 benchmark cases (boards up to 10×10 for the `Number` solver and up to 12×12 for the others) 1000 times each and saves the results in a `benchmark/<year-month>` directory named after the month of the run (for example [`benchmark/2026-10`](./benchmark/2026-10)), together with a description of the machine in `environment.json`.
 
 The [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) shows the newest complete directory (one with `environment.json` and every solver's largest board), so a partial run such as `pnpm start` never replaces a full table. The full table is measured with `pnpm benchmark`. A single 20×20 run with `BigInt` takes more than four minutes even on an Apple M4, so the number of `BigInt` runs drops with the board size: 1000 up to 12×12, 10 for 14×14 and 16×16, and one for 18×18 and 20×20. The formula solver needs milliseconds and runs 1000 times on every board. Other runs stay in their own directories and are listed under the table, including [`benchmark/2024-03`](./benchmark/2024-03) (March 2024, up to 1,000 runs per board, machine not recorded) and [`benchmark/2024-04`](./benchmark/2024-04) (April 2024, 100,000 runs per board on an Intel Core i7-8700). Every directory has the same `environment.json`; a value that was not recorded at the time of the run is `null`.
 
@@ -95,7 +96,7 @@ node testRunner.js
 
 ## 🖼️ Visualization
 
-Rendering is a separate tool, so the solvers, tests and benchmarks are not affected by it. Every tiling has a fixed number, and any of them can be rebuilt directly from that number (unranking with the same dynamic programming table the solver uses), so even the 53,060,477,521,960,000th tiling of a 12×12 board renders instantly.
+Rendering is a separate tool, so the solvers, tests and benchmarks are not affected by it. Every tiling has a fixed number, and any of them can be rebuilt directly from that number (unranking with a cell-by-cell variant of the solver's dynamic programming, also known as the broken-profile method), so even the 53,060,477,521,960,000th tiling of a 12×12 board renders instantly.
 
 ```sh
 pnpm render -r 4 -c 4                       # all 36 tilings as SVG sheets in output/4x4/
@@ -120,7 +121,7 @@ The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same 
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-The formula on the gallery page is set in a subset of [STIX Two Math](https://github.com/stipub/stixfonts) 2.13 (tag `v2.13b171`, file `fonts/static_otf/STIXTwoMath-Regular.otf`), which is licensed under the SIL Open Font License 1.1, not MIT. The subset is a modified font and STIX Two is a trademark of the IEEE, so it is renamed Domino Tiling Math. The font and its license are in [site/fonts](./site/fonts). When the formula gains a character, add the code point the browser draws to `FORMULA` in `site/fonts/subset.py` (a single-letter `<mi>` is drawn in mathematical italic, so `m` becomes U+1D45A) and rebuild the font with `python3 site/fonts/subset.py STIXTwoMath-Regular.otf` (needs fontTools and brotli).
+The formula on the gallery page is set in a subset of [STIX Two Math](https://github.com/stipub/stixfonts) 2.13 (tag `v2.13b171`, file `fonts/static_otf/STIXTwoMath-Regular.otf`), which is licensed under the SIL Open Font License 1.1, not MIT. The subset is a modified font and STIX Fonts is a trademark of the IEEE, so it is renamed Domino Tiling Math. The font and its license are in [site/fonts](./site/fonts). When the formula gains a character, add the code point the browser draws to `FORMULA` in `site/fonts/subset.py` (a single-letter `<mi>` is drawn in mathematical italic, so `m` becomes U+1D45A) and rebuild the font with `python3 site/fonts/subset.py STIXTwoMath-Regular.otf` (needs fontTools and brotli).
 
 ## 👨‍💻 Author
 
