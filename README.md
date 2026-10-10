@@ -120,6 +120,8 @@ The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same 
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
+The formula on the gallery page is set in a subset of [STIX Two Math](https://github.com/stipub/stixfonts) 2.13 (tag `v2.13b171`, file `fonts/static_otf/STIXTwoMath-Regular.otf`), which is licensed under the SIL Open Font License 1.1, not MIT. The subset is a modified font and STIX Two is a trademark of the IEEE, so it is renamed Domino Tiling Math. The font and its license are in [site/fonts](./site/fonts). When the formula gains a character, add the code point the browser draws to `FORMULA` in `site/fonts/subset.py` (a single-letter `<mi>` is drawn in mathematical italic, so `m` becomes U+1D45A) and rebuild the font with `python3 site/fonts/subset.py STIXTwoMath-Regular.otf` (needs fontTools and brotli).
+
 ## 👨‍💻 Author
 
 This project was created by [Dawid Ryłko](https://dawidrylko.com). The dynamic programming solver and the test and benchmark runners are described in two blog posts: 🇵🇱 [Domino Tiling](https://dawidrylko.com/domino-tiling/) and 🇵🇱 [Domino tiling library](https://dawidrylko.com/domino-tiling-library/).
