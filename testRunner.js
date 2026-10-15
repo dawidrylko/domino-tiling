@@ -10,6 +10,10 @@ const {
   testCasesBigInt,
   filesRectangles,
   testCasesRectangles,
+  filesDomicule,
+  testCasesDomicule,
+  filesDomiculeRectangles,
+  testCasesDomiculeRectangles,
 } = require('./test-data');
 
 const REJECTION_TIMEOUT = 30000;
@@ -29,6 +33,9 @@ const rejectionTestCases = [
   { args: ['testRunner.js', '-m', 'abc'], message: 'Usage' },
   { args: ['testRunner.js', '-m'], message: 'Usage' },
   { args: ['dominoTilingSolver-Formula.js', '-r', '3', '-c', '3'], message: '2n x 2n boards only' },
+  { args: ['domiculeTilingSolver-BigInt.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['domiculeTilingSolver-Modular.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['domiculeTilingSolver-Modular.js', '-r', '2', '-c', '2', '-j', '0'], message: 'Usage' },
   { args: ['benchmarkRunner.js', '-n', '1', '--only', 'missing.js'], message: 'Usage' },
   { args: ['benchmarkRunner.js', '-n', '1', '-o', '99'], message: 'No test cases' },
 ];
@@ -232,6 +239,10 @@ function __main__() {
     const allIntTestsPassed = executeTests(filesInt, testCasesToRunInt, false);
     const allBigIntTestsPassed = executeTests(filesBigInt, testCasesToRunBigInt, true);
     const allRectangleTestsPassed = executeTests(filesRectangles, testCasesRectangles, true);
+    const testCasesToRunDomicule = maxSize ? testCasesDomicule.slice(0, maxSize) : testCasesDomicule;
+    const allDomiculeTestsPassed =
+      executeTests(filesDomicule, testCasesToRunDomicule, true) &&
+      executeTests(filesDomiculeRectangles, testCasesDomiculeRectangles, true);
     const allParserTestsPassed = executeParserTests();
     const allRejectionTestsPassed = executeRejectionTests();
     const executorTestPassed = executeExecutorTest();
@@ -242,6 +253,7 @@ function __main__() {
       allIntTestsPassed &&
       allBigIntTestsPassed &&
       allRectangleTestsPassed &&
+      allDomiculeTestsPassed &&
       allParserTestsPassed &&
       allRejectionTestsPassed &&
       executorTestPassed &&

@@ -117,6 +117,23 @@ Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` e
 
 The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. `pnpm test:site` loads the built page in headless Chrome at 1440, 786 and 375 px and checks that the sheets of the boards up to 12×12 and of 20×20 and the benchmark fit the page, that the board picker fits at 1440 and 786 px (below 640 px it scrolls on purpose) and that 18×18 waits for confirmation; set `CHROME_PATH` when Chrome is not installed in a standard location.
 
+## 👑 Domicule Tilings
+
+A domicule covers two cells that share a side or a corner, so a domicule tiling is a perfect matching of the king's graph of the board. [OEIS A239264](https://oeis.org/A239264) counts them on rectangles and [OEIS A239273](https://oeis.org/A239273) on 2n × 2n squares:
+
+> 1, 3, 280, 3037561, 3263262629905, 326207195516663381931, 3011882198082438957330143630563, ...
+
+Two solvers count them with the same broken-profile dynamic programming: the cells are processed one by one in row-major order, and a free cell is matched with its right, down-left, down or down-right neighbour. The state remembers the `colCount + 2` cells ahead of the current one, so the table has `2^(min(rowCount, colCount) + 2)` entries.
+
+- `domiculeTilingSolver-BigInt.js` keeps the counts as `BigInt`. It is short and serves as the reference.
+- `domiculeTilingSolver-Modular.js` only ever adds counts, so it keeps them modulo primes below 2<sup>31</sup> in `Uint32Array` tables, one prime per worker thread (`-j <jobs>`, all cores by default). The number of primes follows from the Kahn–Lovász bound on the number of perfect matchings, the exact count is rebuilt with the Chinese remainder theorem and checked against one more prime.
+
+```sh
+node domiculeTilingSolver-Modular.js -r 20 -c 20    # a(10) of A239273
+```
+
+`pnpm test` checks both solvers against A239273 up to 12×12 and a few rectangles from A239264; `node testRunner.js` runs all known terms. The [`oeis`](./oeis) directory holds the PARI program, the b-files built with `node oeis/buildBFiles.js` and the text of the OEIS submission.
+
 ## 📜 License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
