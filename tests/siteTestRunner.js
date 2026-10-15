@@ -49,8 +49,6 @@ const NOTES = [
   { slug: 'a239273', cells: 8 },
 ];
 const NOTE_FAILURES = ['NO', 'DIFFERS FROM OEIS'];
-const { testCasesBigInt, testCasesDomicule } = require('../data');
-const knownTerm = (testCases, side) => testCases.find(t => t.rowCount === side && t.colCount === side)?.expectedResult;
 const PAGE_CONTROLS = '#page-controls button, #page-controls input';
 const siteTestCases = [
   { width: 1440, check: 'sheets' },
@@ -60,7 +58,7 @@ const siteTestCases = [
   { width: 1440, check: 'pieces' },
   { width: 1440, check: 'styles' },
   { width: 375, check: 'styles' },
-  { width: 1440, check: 'sequences' },
+  { width: 1440, check: 'landing' },
   { width: 1440, check: 'notes' },
   { width: 1440, check: 'chrome' },
   { width: 786, check: 'notes' },
@@ -73,7 +71,7 @@ const siteTestCases = [
   { width: 375, check: 'confirmation' },
   { width: 375, check: 'benchmark' },
   { width: 375, check: 'pieces' },
-  { width: 375, check: 'sequences' },
+  { width: 375, check: 'landing' },
   { width: 375, check: 'notes' },
   { width: 375, check: 'chrome' },
 ];
@@ -473,45 +471,26 @@ async function checkStyles(page, baseUrl, width) {
   return problems;
 }
 
-async function checkSequences(page, baseUrl, width) {
+async function checkLanding(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'gallery/4x4/1');
   await page.settle();
-  const state = await page.evaluate(`(() => {
-    const rows = [...document.querySelectorAll('.sequences tbody tr')];
-    const wrap = document.querySelector('.sequences');
-    return {
-      rows: rows.length,
-      newTerms: rows.filter(row => row.querySelector('.badge')).map(row => row.cells[0].textContent),
-      cells: rows.map(row => [row.cells[2].textContent, row.cells[3].firstChild.textContent]),
-      overflow: wrap.scrollWidth - wrap.clientWidth,
-      notes: [...document.querySelectorAll('nav.notes a')].map(link => link.getAttribute('href')),
-    };
-  })()`);
+  const state = await page.evaluate(`(() => ({
+    oeis: [...document.querySelectorAll('.intro a')].map(link => link.getAttribute('href')),
+    leftovers: ['.sequences', 'nav.notes', 'math', '.formula'].filter(selector => document.querySelector(selector)),
+    tabs: [...document.querySelectorAll('nav.tabs a')].map(link => link.dataset.tab),
+  }))()`);
   const problems = [];
 
-  if (state.rows !== 11) {
-    problems.push(`sequence table has ${state.rows} rows instead of 11`);
+  if (state.oeis.join() !== 'https://oeis.org/A004003,https://oeis.org/A239273') {
+    problems.push(`intro links ${state.oeis.join(', ')}`);
   }
 
-  if (state.newTerms.join() !== '10') {
-    problems.push(`terms marked new: ${state.newTerms.join(', ') || 'none'}`);
+  if (state.leftovers.length) {
+    problems.push(`main page still has ${state.leftovers.join(', ')}`);
   }
 
-  state.cells.forEach(([domino, domicule], n) => {
-    const dominoExpected = knownTerm(testCasesBigInt, 2 * n);
-    const domiculeExpected = knownTerm(testCasesDomicule, 2 * n);
-
-    if (domino !== dominoExpected || (domiculeExpected ? domicule !== domiculeExpected : !/^\d+$/.test(domicule))) {
-      problems.push(`row ${n} shows ${domino} and ${domicule}`);
-    }
-  });
-
-  if (state.overflow > 0) {
-    problems.push(`sequence table scrolls ${state.overflow} px sideways`);
-  }
-
-  if (state.notes.length !== NOTES.length) {
-    problems.push(`main page links ${state.notes.length} notes`);
+  if (state.tabs.join() !== 'gallery,benchmark,benchmark-domicule') {
+    problems.push(`tabs are ${state.tabs.join(', ')}`);
   }
 
   return problems;
@@ -641,27 +620,53 @@ async function checkChrome(page, baseUrl, width) {
 }
 
 async function checkBenchmark(page, baseUrl, width) {
-  await loadSite(page, baseUrl, width, 'benchmark');
-  await page.waitFor(
-    "document.querySelectorAll('#benchmark-rows tr').length > 0 && document.querySelectorAll('#domicule-benchmark-rows tr').length > 0",
-    'the benchmark rows',
-  );
-  await page.settle();
-  const state = await page.evaluate(`(() => {
-    const wraps = [...document.querySelectorAll('#benchmark .table-wrap')];
-    const hidden = wraps.flatMap(wrap => {
-      const box = wrap.getBoundingClientRect();
-      return [...wrap.querySelectorAll('td')].filter(cell => {
-        const rect = cell.getBoundingClientRect();
-        return rect.left < box.left - 0.5 || rect.right > box.right + 0.5;
-      });
-    });
-    return { overflow: Math.max(...wraps.map(wrap => wrap.scrollWidth - wrap.clientWidth)), hidden: hidden.length };
-  })()`);
+  const problems = [];
 
-  return state.overflow > 0 || state.hidden
-    ? [`benchmark scrolls ${state.overflow} px sideways with ${state.hidden} cells off screen`]
-    : [];
+  for (const [tab, rows, otherTab] of [
+    ['benchmark', 'benchmark-rows', 'benchmark-domicule'],
+    ['benchmark-domicule', 'domicule-benchmark-rows', 'benchmark'],
+  ]) {
+    await loadSite(page, baseUrl, width, tab);
+    await page.waitFor(`document.querySelectorAll('#${rows} tr').length > 0`, `the ${tab} rows`);
+    await page.settle();
+    const state = await page.evaluate(`(() => {
+      const section = document.getElementById('${tab}');
+      const wrap = section.querySelector('.table-wrap');
+      const box = wrap.getBoundingClientRect();
+      const cells = [...wrap.querySelectorAll('td')];
+      return {
+        shown: !section.hidden && document.getElementById('${otherTab}').hidden && document.getElementById('gallery').hidden,
+        overflow: wrap.scrollWidth - wrap.clientWidth,
+        hidden: cells.filter(cell => {
+          const rect = cell.getBoundingClientRect();
+          return rect.left < box.left - 0.5 || rect.right > box.right + 0.5;
+        }).length,
+        missing: [...wrap.querySelectorAll('tbody tr')]
+          .filter(row => row.cells[0].textContent !== '0×0')
+          .filter(row => [...row.cells].slice(2, -1).some(cell => cell.textContent === '-'))
+          .map(row => row.cells[0].textContent),
+        environment: section.querySelector('.environment').textContent,
+      };
+    })()`);
+
+    if (!state.shown) {
+      problems.push(`${tab} tab does not show only its own table`);
+    }
+
+    if (state.overflow > 0 || state.hidden) {
+      problems.push(`${tab} scrolls ${state.overflow} px sideways with ${state.hidden} cells off screen`);
+    }
+
+    if (tab === 'benchmark-domicule' && state.missing.length) {
+      problems.push(`${tab} has no time for ${state.missing.join(', ')}`);
+    }
+
+    if (!state.environment.startsWith('Measured with Node.js')) {
+      problems.push(`${tab} caption has no environment`);
+    }
+  }
+
+  return problems;
 }
 
 const CHECKS = {
@@ -670,7 +675,7 @@ const CHECKS = {
   confirmation: { label: '18x18 and 16x16 domicule confirmation', run: checkConfirmation },
   pieces: { label: 'straight and diagonal switch', run: checkPieces },
   styles: { label: 'sheet style switch', run: checkStyles },
-  sequences: { label: 'sequence table', run: checkSequences },
+  landing: { label: 'main page', run: checkLanding },
   notes: { label: 'notes', run: checkNotes },
   chrome: { label: 'shared header and footer', run: checkChrome },
   benchmark: { label: 'benchmark table', run: checkBenchmark },

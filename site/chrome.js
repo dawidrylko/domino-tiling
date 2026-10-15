@@ -13,6 +13,7 @@ const CHROME_CSS = `
 .site-nav a[aria-current="page"] { text-decoration: underline 2px var(--accent); text-underline-offset: 6px; }
 .site-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
 .site-footer p { margin: 0 0 4px; }
+.site-footer .site-provenance { margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 `.trim();
 
 /**
@@ -60,7 +61,7 @@ function renderFooter(lines = []) {
 
   return [
     '<footer class="site-footer">',
-    ...lines.map(line => `    <p>${line}</p>`),
+    ...lines.map(line => `    <p class="site-provenance">${line}</p>`),
     `    <p class="site-links">${links.join(' · ')}</p>`,
     '  </footer>',
   ].join('\n');
