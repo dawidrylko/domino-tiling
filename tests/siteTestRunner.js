@@ -501,6 +501,8 @@ const READ_CHROME = `(() => {
   const nav = header ? [...header.querySelectorAll('nav a')] : [];
   return {
     brand: brand && brand.textContent.trim(),
+    brandTag: brand && brand.tagName,
+    headings: document.querySelectorAll('h1').length,
     brandStyle: style(brand),
     brandHome: brand && (brand.tagName === 'H1' ? location.origin + location.pathname : brand.href),
     logo: brand && brand.querySelector('img') ? brand.querySelector('img').getBoundingClientRect().width : 0,
@@ -510,8 +512,8 @@ const READ_CHROME = `(() => {
     navBoxes: nav.map(link => Math.round(link.getBoundingClientRect().left) + ',' + Math.round(link.getBoundingClientRect().top)).join(' '),
     current: nav.filter(link => link.getAttribute('aria-current') === 'page').map(link => link.href),
     back: header ? [...header.querySelectorAll('a')].some(link => link.textContent.includes('←')) : false,
-    footer: footer ? [...footer.querySelectorAll('a')].filter(link => !link.href.includes('/notes/')).map(link => link.textContent.trim() + ' ' + link.href).join(' | ') : '',
-    footerStyle: footer && [style(footer), getComputedStyle(footer).borderTop].join(' '),
+    footer: footer ? [...footer.querySelectorAll('.site-links a')].map(link => link.textContent.trim() + ' ' + link.href).join(' | ') : '',
+    footerStyle: footer && [style(footer), getComputedStyle(footer).borderTop, style(footer.lastElementChild), getComputedStyle(footer.lastElementChild).margin].join(' '),
   };
 })()`;
 
@@ -524,6 +526,10 @@ async function checkChrome(page, baseUrl, width) {
 
   if (home.brand !== 'Domino Tiling' || !home.logo || !home.nav || !home.footer) {
     problems.push(`the main page header or footer is incomplete: ${JSON.stringify(home)}`);
+  }
+
+  if (home.brandTag !== 'H1' || home.headings !== 1) {
+    problems.push(`the main page has ${home.headings} h1 and its site name is a ${home.brandTag}`);
   }
 
   if (home.current.join() !== homeUrl) {
@@ -543,6 +549,10 @@ async function checkChrome(page, baseUrl, width) {
         problems.push(`${slug} ${key} is ${JSON.stringify(note[key])} instead of ${JSON.stringify(home[key])}`);
       }
     });
+
+    if (note.brandTag !== 'A' || note.headings !== 1) {
+      problems.push(`${slug} has ${note.headings} h1 and its site name is a ${note.brandTag}`);
+    }
 
     if (note.brandHome !== homeUrl) {
       problems.push(`${slug} brand links to ${note.brandHome} instead of ${homeUrl}`);
