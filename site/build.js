@@ -223,6 +223,30 @@ function buildBenchmark() {
   });
 }
 
+function buildDomiculeBenchmark(totals) {
+  const prefix = 'domiculeTilingSolver-';
+
+  return fs
+    .readdirSync(BENCHMARK_DIRECTORY)
+    .filter(fileName => fileName.startsWith(prefix))
+    .map(fileName => fileName.match(RESULT_FILE))
+    .filter(Boolean)
+    .map(([, rowCount, colCount]) => `${rowCount}x${colCount}`)
+    .filter((size, index, all) => all.indexOf(size) === index)
+    .map(size => size.split('x').map(Number))
+    .sort(([a], [b]) => a - b)
+    .map(([rowCount, colCount]) => {
+      const suffix = `_${rowCount}x${colCount}.txt`;
+      return {
+        rowCount,
+        colCount,
+        tilings: totals.get(`${rowCount}x${colCount}`) ?? null,
+        bigint: readAverageTime(BENCHMARK_DIRECTORY, `${prefix}BigInt.js${suffix}`),
+        modular: readAverageTime(BENCHMARK_DIRECTORY, `${prefix}Modular.js${suffix}`),
+      };
+    });
+}
+
 function readEnvironment(directory) {
   const file = path.join(directory, 'environment.json');
 
@@ -280,6 +304,17 @@ function __main__() {
   fs.rmSync(OUTPUT_DIRECTORY, { recursive: true, force: true });
   fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 
+  const domiculeBoards = DOMICULE_BOARDS.map(board => ({
+    id: `${board.rowCount}x${board.colCount}-diagonal`,
+    pieces: 'domicule',
+    mode: 'pages',
+    ...board,
+    total: countDomiculeTilings(board),
+  }));
+  const domiculeTotals = new Map([
+    ...testCasesDomicule.map(t => [`${t.rowCount}x${t.colCount}`, t.expectedResult]),
+    ...domiculeBoards.map(b => [`${b.rowCount}x${b.colCount}`, b.total]),
+  ]);
   const data = {
     defaultBoard: DEFAULT_BOARD,
     boards: [
@@ -290,15 +325,10 @@ function __main__() {
         ...board,
         total: countTilings(board),
       })),
-      ...DOMICULE_BOARDS.map(board => ({
-        id: `${board.rowCount}x${board.colCount}-diagonal`,
-        pieces: 'domicule',
-        mode: 'pages',
-        ...board,
-        total: countDomiculeTilings(board),
-      })),
+      ...domiculeBoards,
     ],
     benchmark: buildBenchmark(),
+    domiculeBenchmark: buildDomiculeBenchmark(domiculeTotals),
     environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
   const readScripts = files => files.map(file => fs.readFileSync(path.join(ROOT_DIRECTORY, file), 'utf-8')).join('\n');

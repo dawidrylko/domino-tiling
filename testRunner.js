@@ -42,6 +42,7 @@ const rejectionTestCases = [
   },
   { args: ['benchmarkRunner.js', '-n', '1', '--only', 'missing.js'], message: 'Usage' },
   { args: ['benchmarkRunner.js', '-n', '1', '-o', '99'], message: 'No test cases' },
+  { args: ['benchmarkRunner.js', '-n', '1', '--domicule', '--only', 'dominoTilingSolver.js'], message: 'Usage' },
 ];
 
 function executeExecutorTest() {

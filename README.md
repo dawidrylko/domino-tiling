@@ -115,7 +115,7 @@ pnpm render -r 20 -c 20 --random -l 12      # 12 uniformly random tilings of a 2
 
 Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 250 MB for 16×16, 1.1 GB for 18×18 and several GB for 20×20. The command line numbers boards whose table has at most 4 million entries (up to 14×14). The table grows with the number of columns, so a 30×2 board can be numbered while the same board turned sideways (2×30) cannot. A board that cannot be numbered is still counted with the `BigInt` solver when its table, `(longer side + 1) × 2^shorter side`, has at most 4 million entries (2×100 or 16×16, for example); its tilings are then listed in order from the first one. For larger boards `--random` switches to monotone coupling from the past (Propp and Wilson), which samples tilings uniformly at random without any table.
 
-The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. `pnpm test:site` loads the built page in headless Chrome at 1440, 786 and 375 px and checks that the sheets of the boards up to 12×12 and of 20×20 and the benchmark fit the page, that the board picker fits at 1440 and 786 px (below 640 px it scrolls on purpose) and that 18×18 waits for confirmation; set `CHROME_PATH` when Chrome is not installed in a standard location.
+The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. `pnpm test:site` loads the built page in headless Chrome at 1440, 786 and 375 px and checks that the sheets of the boards up to 12×12 and of 20×20 and the benchmark fit the page, that the board picker fits at 1440 and 786 px (below 640 px it scrolls on purpose), that 18×18 and the 16×16 domicule board wait for confirmation, that the domicule sheets up to 12×12 and of 18×18 and 20×20 fit, and that the straight / diagonal switch keeps the board size; set `CHROME_PATH` when Chrome is not installed in a standard location.
 
 ## 👑 Domicule Tilings
 
@@ -133,6 +133,17 @@ node domiculeTilingSolver-Modular.js -r 20 -c 20    # a(10) of A239273
 ```
 
 `pnpm test` checks both solvers against A239273 up to 12×12 and a few rectangles from A239264; `node testRunner.js` runs all known terms.
+
+The renderer draws domicules as well. `--domicule` numbers them with a table of `(rowCount × colCount + 1) × 2^(colCount + 2)` entries, four times wider than the domino one, so the command line numbers boards up to 12×12 and the gallery, under "Straight + diagonal", up to 16×16. A diagonal piece is a rounded bar from one cell centre to the other, so two crossing pieces in a 2×2 square show as an X; in ASCII it is `\` or `/` in both cells.
+
+```sh
+pnpm render -r 4 -c 4 --domicule --all            # all 280 domicule tilings of a 4×4 board
+pnpm render -r 20 -c 20 --domicule --random -l 6  # six random 20×20 domicule tilings
+```
+
+Coupling from the past relies on the lattice structure of domino tilings, which domicule tilings lack, so `--random` on boards too large to number runs a Markov chain instead: a step picks a cell and one of its eight neighbours and, when their partners are neighbours too, swaps the two pairs. The proposal is symmetric, so the uniform distribution is stationary, and on every board small enough to check (up to 4×5) the steps connect all tilings. A finite chain of 5,000 steps per cell is only approximately uniform, which the gallery and the command line say. `pnpm test:render` checks the domicule numbering against the solvers, every tiling of the small boards, and the chain with a chi-squared test on 2×2 and 4×4.
+
+`pnpm benchmark:domicule` times both solvers up to 16×16 (10 runs each) and the modular one on 18×18 and 20×20 (one run); the results sit next to the domino ones in [`benchmark/2026-10`](./benchmark/2026-10) and on the benchmark page.
 
 The same dynamic programming fits in a few lines of PARI/GP, in [`oeis/A239273.gp`](./oeis/A239273.gp): `T(h, w)` is A239264 and `a(n)` is A239273.
 
@@ -164,6 +175,8 @@ a(n) = T(2*n, 2*n);
 ```sh
 echo 'read("oeis/A239273.gp"); print(vector(7, n, a(n-1)))' | gp -q
 ```
+
+`pnpm test:pari` runs the program against the same test data (A239273 up to 12×12 and the A239264 rectangles) and checks that the block above matches the file; CI installs `pari-gp` for it. Set `GP_PATH` when `gp` is not on the `PATH`.
 
 ## 📜 License
 

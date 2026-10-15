@@ -25,13 +25,29 @@ const COMMAND_TIMEOUT = 30000;
 const LAUNCH_TIMEOUT = 30000;
 const KILL_TIMEOUT = 5000;
 const SETTLE_LAYOUT = 'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))';
-const SHEET_BOARDS = ['2x2', '4x4', '6x6', '8x8', '10x10', '12x12', '20x20'];
+const SHEET_BOARDS = [
+  '2x2',
+  '4x4',
+  '6x6',
+  '8x8',
+  '10x10',
+  '12x12',
+  '20x20',
+  '2x2-diagonal',
+  '4x4-diagonal',
+  '8x8-diagonal',
+  '12x12-diagonal',
+  '18x18-diagonal',
+  '20x20-diagonal',
+];
+const CONFIRMATION_BOARDS = ['18x18', '16x16-diagonal'];
 const PAGE_CONTROLS = '#page-controls button, #page-controls input';
 const siteTestCases = [
   { width: 1440, check: 'sheets' },
   { width: 1440, check: 'picker' },
   { width: 1440, check: 'confirmation' },
   { width: 1440, check: 'benchmark' },
+  { width: 1440, check: 'pieces' },
   { width: 786, check: 'sheets' },
   { width: 786, check: 'picker' },
   { width: 786, check: 'confirmation' },
@@ -39,6 +55,7 @@ const siteTestCases = [
   { width: 375, check: 'sheets' },
   { width: 375, check: 'confirmation' },
   { width: 375, check: 'benchmark' },
+  { width: 375, check: 'pieces' },
 ];
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -265,7 +282,7 @@ async function checkSheets(page, baseUrl, width) {
   const problems = [];
 
   for (const board of SHEET_BOARDS) {
-    const [rowCount, colCount] = board.split('x');
+    const [, rowCount, colCount] = board.match(/^(\d+)x(\d+)/);
     await page.evaluate(`location.hash = 'gallery/${board}/1'`);
     await page.waitFor(
       `(document.querySelector('#sheet svg')?.getAttribute('aria-label') || '').includes('${rowCount} by ${colCount}')`,
@@ -295,8 +312,18 @@ async function checkPicker(page, baseUrl, width) {
 }
 
 async function checkConfirmation(page, baseUrl, width) {
-  await loadSite(page, baseUrl, width, 'gallery/18x18/1');
-  await page.waitFor("!document.getElementById('notice').hidden", 'the 18x18 notice');
+  const problems = [];
+
+  for (const board of CONFIRMATION_BOARDS) {
+    problems.push(...(await checkBoardConfirmation(page, baseUrl, width, board)).map(problem => `${board}: ${problem}`));
+  }
+
+  return problems;
+}
+
+async function checkBoardConfirmation(page, baseUrl, width, board) {
+  await loadSite(page, baseUrl, width, `gallery/${board}/1`);
+  await page.waitFor("!document.getElementById('notice').hidden", `the ${board} notice`);
   const state = await page.evaluate(`(async () => {
     const enabled = () => [...document.querySelectorAll('${PAGE_CONTROLS}')].filter(control => !control.disabled);
     const before = { meta: document.getElementById('gallery-meta').textContent, enabled: enabled().map(control => control.id || control.textContent.trim()) };
@@ -321,18 +348,59 @@ async function checkConfirmation(page, baseUrl, width) {
   return problems;
 }
 
+async function checkPieces(page, baseUrl, width) {
+  await loadSite(page, baseUrl, width, 'gallery/8x8/1');
+  await page.waitFor("document.querySelector('#sheet svg')", 'the 8x8 sheet');
+  const problems = [];
+  const read = () =>
+    page.evaluate(`(() => ({
+      hash: location.hash,
+      boards: [...document.querySelectorAll('#boards button')].filter(button => !button.hidden).map(button => button.dataset.id),
+      legend: [...document.querySelectorAll('.legend > span')].filter(item => !item.hidden).length,
+    }))()`);
+
+  await page.evaluate("document.querySelector('#pieces [data-pieces=domicule]').click()");
+  await page.waitFor("location.hash === '#gallery/8x8-diagonal/1'", 'the switch to 8x8 domicules');
+  const diagonal = await read();
+
+  if (!diagonal.boards.length || diagonal.boards.some(id => !id.endsWith('-diagonal'))) {
+    problems.push(`domicule picker shows ${diagonal.boards.join(', ')}`);
+  }
+
+  if (diagonal.legend !== 4) {
+    problems.push(`domicule legend shows ${diagonal.legend} pieces`);
+  }
+
+  await page.evaluate("location.hash = 'gallery/20x20-diagonal/1'");
+  await page.waitFor("document.querySelector('#sheet svg rect.d, #sheet svg rect.a')", 'the 20x20 domicule sample');
+  await page.evaluate("document.querySelector('#pieces [data-pieces=domino]').click()");
+  await page.waitFor("location.hash === '#gallery/20x20/1'", 'the switch back to 20x20 dominoes');
+  const straight = await read();
+
+  if (straight.boards.some(id => id.endsWith('-diagonal')) || straight.legend !== 2) {
+    problems.push(`domino view shows ${straight.boards.join(', ')} with ${straight.legend} legend entries`);
+  }
+
+  return problems;
+}
+
 async function checkBenchmark(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'benchmark');
-  await page.waitFor("document.querySelectorAll('#benchmark-rows tr').length > 0", 'the benchmark rows');
+  await page.waitFor(
+    "document.querySelectorAll('#benchmark-rows tr').length > 0 && document.querySelectorAll('#domicule-benchmark-rows tr').length > 0",
+    'the benchmark rows',
+  );
   await page.settle();
   const state = await page.evaluate(`(() => {
-    const wrap = document.querySelector('#benchmark .table-wrap');
-    const box = wrap.getBoundingClientRect();
-    const hidden = [...wrap.querySelectorAll('td')].filter(cell => {
-      const rect = cell.getBoundingClientRect();
-      return rect.left < box.left - 0.5 || rect.right > box.right + 0.5;
+    const wraps = [...document.querySelectorAll('#benchmark .table-wrap')];
+    const hidden = wraps.flatMap(wrap => {
+      const box = wrap.getBoundingClientRect();
+      return [...wrap.querySelectorAll('td')].filter(cell => {
+        const rect = cell.getBoundingClientRect();
+        return rect.left < box.left - 0.5 || rect.right > box.right + 0.5;
+      });
     });
-    return { overflow: wrap.scrollWidth - wrap.clientWidth, hidden: hidden.length };
+    return { overflow: Math.max(...wraps.map(wrap => wrap.scrollWidth - wrap.clientWidth)), hidden: hidden.length };
   })()`);
 
   return state.overflow > 0 || state.hidden
@@ -343,7 +411,8 @@ async function checkBenchmark(page, baseUrl, width) {
 const CHECKS = {
   sheets: { label: 'tiling sheets', run: checkSheets },
   picker: { label: 'board picker', run: checkPicker },
-  confirmation: { label: '18x18 confirmation', run: checkConfirmation },
+  confirmation: { label: '18x18 and 16x16 domicule confirmation', run: checkConfirmation },
+  pieces: { label: 'straight and diagonal switch', run: checkPieces },
   benchmark: { label: 'benchmark table', run: checkBenchmark },
 };
 

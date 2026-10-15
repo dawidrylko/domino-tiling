@@ -94,7 +94,8 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
   #tiling { flex: 1; width: auto; }
 }
 .meta { color: var(--muted); margin: 0 0 12px; }
-.legend { display: inline-flex; gap: 14px; color: var(--muted); font-size: 13px; }
+.legend { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 13px; }
+.legend > span { white-space: nowrap; }
 .legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
 .sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--sheet); }
 .sheet .bg { fill: var(--sheet); }
@@ -128,6 +129,8 @@ th { color: var(--muted); font-weight: 600; font-size: 13px; }
   .table-wrap td:last-child { grid-area: 1 / 3; }
 }
 .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+.table-title { font-size: 15px; margin: 0 0 8px; }
+.note + .table-title { margin-top: 28px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
@@ -255,8 +258,9 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
   </section>
 
   <section id="benchmark" hidden>
+    <h2 class="table-title">Dominoes (A004003)</h2>
     <div class="table-wrap">
-      <table role="table">
+      <table role="table" id="domino-benchmark">
         <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">Number (avg)</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Formula (avg)</th><th role="columnheader">Runs</th></tr></thead>
         <tbody id="benchmark-rows" role="rowgroup"></tbody>
       </table>
@@ -269,6 +273,19 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
       <span id="environment"></span>
       __OLDER_BENCHMARKS__
       Re-run with <code>pnpm benchmark</code> and rebuild the site to refresh this table.
+    </p>
+    <h2 class="table-title">Domicules (A239273)</h2>
+    <div class="table-wrap">
+      <table role="table" id="domicule-benchmark">
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Modular (avg)</th><th role="columnheader">Runs</th></tr></thead>
+        <tbody id="domicule-benchmark-rows" role="rowgroup"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      Same machine and Node.js version as above. The BigInt solver keeps exact counts; the modular one counts modulo
+      primes below 2<sup>31</sup> in parallel worker threads, rebuilds the result with the Chinese remainder theorem and
+      checks it against one more prime. 18×18 and 20×20 were measured once, with the modular solver only. Re-run with
+      <code>pnpm benchmark:domicule</code>.
     </p>
   </section>
   <footer>
@@ -573,11 +590,24 @@ function runsLabel(row) {
     : `<span title="Number / BigInt / Formula">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
 }
 
-const benchmarkColumns = [...document.querySelectorAll('#benchmark thead th')].map(th => th.textContent);
+const benchmarkColumns = [...document.querySelectorAll('#domino-benchmark thead th')].map(th => th.textContent);
+const domiculeBenchmarkColumns = [...document.querySelectorAll('#domicule-benchmark thead th')].map(th => th.textContent);
 
 $('benchmark-rows').innerHTML = DATA.benchmark
   .map(r => [`${r.rowCount}×${r.colCount}`, r.tilings === null ? '-' : num(r.tilings), ms(r.number), ms(r.bigint), ms(r.formula), runsLabel(r)])
   .map(cells => `<tr role="row">${cells.map((cell, i) => `<td role="cell" data-label="${benchmarkColumns[i]}">${cell}</td>`).join('')}</tr>`)
+  .join('');
+
+$('domicule-benchmark-rows').innerHTML = DATA.domiculeBenchmark
+  .map(r => {
+    const runs = [r.bigint, r.modular].map(result => (result ? result.runs : null));
+    const measured = runs.filter(count => count !== null);
+    const runsCell = measured.every(count => count === measured[0])
+      ? fmt(measured[0])
+      : `<span title="BigInt / Modular">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
+    return [`${r.rowCount}×${r.colCount}`, r.tilings === null ? '-' : num(r.tilings), ms(r.bigint), ms(r.modular), runsCell];
+  })
+  .map(cells => `<tr role="row">${cells.map((cell, i) => `<td role="cell" data-label="${domiculeBenchmarkColumns[i]}">${cell}</td>`).join('')}</tr>`)
   .join('');
 
 if (DATA.environment) {
