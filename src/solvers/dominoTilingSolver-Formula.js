@@ -1,4 +1,4 @@
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 /**
  * Multiplies two polynomials given as coefficient arrays, from the constant term up.
@@ -130,7 +130,7 @@ function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
-      'Usage: node dominoTilingSolver-Formula.js -r <rowCount> -c <colCount>',
+      'Usage: node src/solvers/dominoTilingSolver-Formula.js -r <rowCount> -c <colCount>',
     );
     process.exit(1);
   }
@@ -146,4 +146,8 @@ function __main__() {
   console.log(result.toString());
 }
 
-__main__();
+if (require.main === module) {
+  __main__();
+}
+
+module.exports = { calculateTotalTilingCombinations, createRootPolynomial, calculateResultant };

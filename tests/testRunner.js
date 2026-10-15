@@ -2,7 +2,7 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { exec, parseArgs, verifyInt, verifyBigInt } = require('./helpers');
+const { exec, parseArgs, verifyInt, verifyBigInt } = require('../src/helpers');
 const {
   filesInt,
   testCasesInt,
@@ -14,8 +14,9 @@ const {
   testCasesDomicule,
   filesDomiculeRectangles,
   testCasesDomiculeRectangles,
-} = require('./test-data');
+} = require('../data');
 
+const ROOT_DIRECTORY = path.join(__dirname, '..');
 const REJECTION_TIMEOUT = 30000;
 const parserTestCases = [
   { value: '12', expectedResult: 12 },
@@ -27,29 +28,53 @@ const parserTestCases = [
   { value: undefined, expectedResult: NaN },
 ];
 const rejectionTestCases = [
-  { args: ['dominoTilingSolver.js', '-r', '31', '-c', '31'], message: 'at most 30' },
-  { args: ['dominoTilingSolver-BigInt.js', '-r', '31', '-c', '31'], message: 'at most 30' },
-  { args: ['dominoTilingSolver.js', '-r', '2abc', '-c', '2'], message: 'Usage' },
-  { args: ['testRunner.js', '-m', 'abc'], message: 'Usage' },
-  { args: ['testRunner.js', '-m'], message: 'Usage' },
-  { args: ['dominoTilingSolver-Formula.js', '-r', '3', '-c', '3'], message: '2n x 2n boards only' },
-  { args: ['domiculeTilingSolver-BigInt.js', '-r', '30', '-c', '30'], message: 'at most 29' },
-  { args: ['domiculeTilingSolver-Modular.js', '-r', '31', '-c', '31'], message: 'at most 30' },
-  { args: ['domiculeTilingSolver-Modular.js', '-r', '2', '-c', '2', '-j', '0'], message: 'Usage' },
+  { args: ['src/solvers/dominoTilingSolver.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['src/solvers/dominoTilingSolver-BigInt.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['src/solvers/dominoTilingSolver.js', '-r', '2abc', '-c', '2'], message: 'Usage' },
+  { args: ['tests/testRunner.js', '-m', 'abc'], message: 'Usage' },
+  { args: ['tests/testRunner.js', '-m'], message: 'Usage' },
+  { args: ['src/solvers/dominoTilingSolver-Formula.js', '-r', '3', '-c', '3'], message: '2n x 2n boards only' },
+  { args: ['src/solvers/domiculeTilingSolver-BigInt.js', '-r', '30', '-c', '30'], message: 'at most 29' },
+  { args: ['src/solvers/domiculeTilingSolver-Modular.js', '-r', '31', '-c', '31'], message: 'at most 30' },
+  { args: ['src/solvers/domiculeTilingSolver-Modular.js', '-r', '2', '-c', '2', '-j', '0'], message: 'Usage' },
   {
-    args: ['--require', './test-data/exitingWorker.js', 'domiculeTilingSolver-Modular.js', '-r', '2', '-c', '2', '-j', '1'],
+    args: ['--require', './tests/fixtures/exitingWorker.js', 'src/solvers/domiculeTilingSolver-Modular.js', '-r', '2', '-c', '2', '-j', '1'],
     message: 'before it sent a result',
   },
-  { args: ['benchmarkRunner.js', '-n', '1', '--only', 'missing.js'], message: 'Usage' },
-  { args: ['benchmarkRunner.js', '-n', '1', '-o', '99'], message: 'No test cases' },
-  { args: ['benchmarkRunner.js', '-n', '1', '--domicule', '--only', 'dominoTilingSolver.js'], message: 'Usage' },
+  { args: ['benchmarks/benchmarkRunner.js', '-n', '1', '--only', 'missing.js'], message: 'Usage' },
+  { args: ['benchmarks/benchmarkRunner.js', '-n', '1', '-o', '99'], message: 'No test cases' },
+  { args: ['benchmarks/benchmarkRunner.js', '-n', '1', '--domicule', '--only', 'dominoTilingSolver.js'], message: 'Usage' },
 ];
+
+function executeReadmeResultsTest() {
+  process.stdout.write('Executing README results test 1 of 1 for the sequence table... ');
+
+  const readme = fs.readFileSync(path.join(ROOT_DIRECTORY, 'README.md'), 'utf-8');
+  const rows = [...readme.matchAll(/^\| (\d+) \| \d+×\d+ \| (\d+) \| (\d+)(?: \*\*new\*\*)? \|$/gm)];
+  const known = (testCases, side) => testCases.find(t => t.rowCount === side && t.colCount === side)?.expectedResult;
+  const wrong = rows.filter(([, n, domino, domicule]) => {
+    const side = 2 * Number(n);
+    const domiculeExpected = known(testCasesDomicule, side);
+
+    return domino !== known(testCasesBigInt, side) || (domiculeExpected !== undefined && domicule !== domiculeExpected);
+  });
+
+  if (rows.length !== 11 || wrong.length) {
+    console.error(`Failed! ${rows.length} rows, wrong: ${wrong.map(([, n]) => n).join(', ')}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
 
 function executeExecutorTest() {
   process.stdout.write('Executing executor test 1 of 1 for the Node.js binary... ');
 
   const command = exec.generateNodeCommand('dominoTilingSolver.js', { rowCount: 2, colCount: 2 });
-  const expected = `"${process.execPath}" "${path.join(__dirname, 'dominoTilingSolver.js')}" `;
+  const expected = `"${process.execPath}" "${path.join(ROOT_DIRECTORY, 'src', 'solvers', 'dominoTilingSolver.js')}" `;
 
   if (!command.startsWith(expected)) {
     console.error(`Failed! Command: ${command}`);
@@ -65,9 +90,9 @@ function executeExecutorTest() {
 function runBenchmark(benchmarkRoot, extraArgs) {
   return spawnSync(
     process.execPath,
-    ['benchmarkRunner.js', '-n', '1', '-m', '1', '--only', 'dominoTilingSolver-Formula.js', ...extraArgs],
+    ['benchmarks/benchmarkRunner.js', '-n', '1', '-m', '1', '--only', 'dominoTilingSolver-Formula.js', ...extraArgs],
     {
-      cwd: __dirname,
+      cwd: ROOT_DIRECTORY,
       encoding: 'utf-8',
       timeout: REJECTION_TIMEOUT,
       env: { ...process.env, BENCHMARK_ROOT: benchmarkRoot },
@@ -124,8 +149,8 @@ function executePrecisionWarningTests() {
 
     const { status, stderr } = spawnSync(
       process.execPath,
-      ['dominoTilingSolver.js', '-r', String(rowCount), '-c', String(rowCount)],
-      { cwd: __dirname, encoding: 'utf-8', timeout: REJECTION_TIMEOUT },
+      ['src/solvers/dominoTilingSolver.js', '-r', String(rowCount), '-c', String(rowCount)],
+      { cwd: ROOT_DIRECTORY, encoding: 'utf-8', timeout: REJECTION_TIMEOUT },
     );
 
     if (status !== 0 || stderr.includes('not exact') !== warns) {
@@ -168,7 +193,7 @@ function executeRejectionTests() {
     );
 
     const { status, stderr } = spawnSync(process.execPath, args, {
-      cwd: __dirname,
+      cwd: ROOT_DIRECTORY,
       encoding: 'utf-8',
       timeout: REJECTION_TIMEOUT,
     });
@@ -231,7 +256,7 @@ function __main__() {
     const { maxSize } = parseArgs(process.argv.slice(2), argsSchema);
 
     if (maxSize !== undefined && !(maxSize > 0)) {
-      throw new Error('Usage: node testRunner.js [-m <maxSize>]');
+      throw new Error('Usage: node tests/testRunner.js [-m <maxSize>]');
     }
 
     console.log(
@@ -250,6 +275,7 @@ function __main__() {
     const allParserTestsPassed = executeParserTests();
     const allRejectionTestsPassed = executeRejectionTests();
     const executorTestPassed = executeExecutorTest();
+    const readmeResultsTestPassed = executeReadmeResultsTest();
     const benchmarkGuardTestPassed = executeBenchmarkGuardTest();
     const precisionWarningTestsPassed = executePrecisionWarningTests();
 
@@ -262,6 +288,7 @@ function __main__() {
       allParserTestsPassed &&
       allRejectionTestsPassed &&
       executorTestPassed &&
+      readmeResultsTestPassed &&
       benchmarkGuardTestPassed &&
       precisionWarningTestsPassed
     ) {

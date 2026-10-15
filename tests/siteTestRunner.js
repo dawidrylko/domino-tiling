@@ -4,7 +4,7 @@ const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const SITE_DIRECTORY = path.resolve(process.env.SITE_DIRECTORY || path.join(__dirname, 'dist', 'site'));
+const SITE_DIRECTORY = path.resolve(process.env.SITE_DIRECTORY || path.join(__dirname, '..', 'dist', 'site'));
 const CHROME_CANDIDATES = [
   '/usr/bin/google-chrome',
   '/usr/bin/chromium',
@@ -43,6 +43,14 @@ const SHEET_BOARDS = [
   '20x20-diagonal',
 ];
 const CONFIRMATION_BOARDS = ['18x18', '16x16-diagonal'];
+const NOTES = [
+  { slug: 'method', cells: 0 },
+  { slug: 'a004003', cells: 6 },
+  { slug: 'a239273', cells: 8 },
+];
+const NOTE_FAILURES = ['NO', 'DIFFERS FROM OEIS'];
+const { testCasesBigInt, testCasesDomicule } = require('../data');
+const knownTerm = (testCases, side) => testCases.find(t => t.rowCount === side && t.colCount === side)?.expectedResult;
 const PAGE_CONTROLS = '#page-controls button, #page-controls input';
 const siteTestCases = [
   { width: 1440, check: 'sheets' },
@@ -50,6 +58,9 @@ const siteTestCases = [
   { width: 1440, check: 'confirmation' },
   { width: 1440, check: 'benchmark' },
   { width: 1440, check: 'pieces' },
+  { width: 1440, check: 'sequences' },
+  { width: 1440, check: 'notes' },
+  { width: 786, check: 'notes' },
   { width: 786, check: 'sheets' },
   { width: 786, check: 'picker' },
   { width: 786, check: 'confirmation' },
@@ -58,6 +69,8 @@ const siteTestCases = [
   { width: 375, check: 'confirmation' },
   { width: 375, check: 'benchmark' },
   { width: 375, check: 'pieces' },
+  { width: 375, check: 'sequences' },
+  { width: 375, check: 'notes' },
 ];
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -387,6 +400,93 @@ async function checkPieces(page, baseUrl, width) {
   return problems;
 }
 
+async function checkSequences(page, baseUrl, width) {
+  await loadSite(page, baseUrl, width, 'gallery/4x4/1');
+  await page.settle();
+  const state = await page.evaluate(`(() => {
+    const rows = [...document.querySelectorAll('.sequences tbody tr')];
+    const wrap = document.querySelector('.sequences');
+    return {
+      rows: rows.length,
+      newTerms: rows.filter(row => row.querySelector('.badge')).map(row => row.cells[0].textContent),
+      cells: rows.map(row => [row.cells[2].textContent, row.cells[3].firstChild.textContent]),
+      overflow: wrap.scrollWidth - wrap.clientWidth,
+      notes: [...document.querySelectorAll('nav.notes a')].map(link => link.getAttribute('href')),
+    };
+  })()`);
+  const problems = [];
+
+  if (state.rows !== 11) {
+    problems.push(`sequence table has ${state.rows} rows instead of 11`);
+  }
+
+  if (state.newTerms.join() !== '10') {
+    problems.push(`terms marked new: ${state.newTerms.join(', ') || 'none'}`);
+  }
+
+  state.cells.forEach(([domino, domicule], n) => {
+    const dominoExpected = knownTerm(testCasesBigInt, 2 * n);
+    const domiculeExpected = knownTerm(testCasesDomicule, 2 * n);
+
+    if (domino !== dominoExpected || (domiculeExpected ? domicule !== domiculeExpected : !/^\d+$/.test(domicule))) {
+      problems.push(`row ${n} shows ${domino} and ${domicule}`);
+    }
+  });
+
+  if (state.overflow > 0) {
+    problems.push(`sequence table scrolls ${state.overflow} px sideways`);
+  }
+
+  if (state.notes.length !== NOTES.length) {
+    problems.push(`main page links ${state.notes.length} notes`);
+  }
+
+  return problems;
+}
+
+async function checkNotes(page, baseUrl, width) {
+  const problems = [];
+
+  for (const { slug, cells } of NOTES) {
+    const run = `run=${Date.now()}`;
+
+    await page.send('Emulation.setDeviceMetricsOverride', { width, height: VIEWPORT_HEIGHT, deviceScaleFactor: 1, mobile: width < 640 });
+    await page.send('Page.navigate', { url: `${baseUrl}/notes/${slug}.html?${run}` });
+    await page.waitFor(`location.search === '?${run}' && document.readyState === 'complete'`, `the ${slug} note`);
+    await page.settle();
+    const state = await page.evaluate(`(() => ({
+      cells: document.querySelectorAll('.cell').length,
+      outputs: [...document.querySelectorAll('.output td, pre.output')].map(cell => cell.textContent.trim()),
+      sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      unresolved: /undefined|\\u0000/.test(document.querySelector('article').textContent),
+      math: document.querySelectorAll('.math').length,
+      katex: document.querySelectorAll('.katex').length,
+    }))()`);
+
+    if (state.cells !== cells) {
+      problems.push(`${slug} has ${state.cells} cells instead of ${cells}`);
+    }
+
+    if (state.unresolved) {
+      problems.push(`${slug} shows an unresolved token`);
+    }
+
+    if (state.math && !state.katex) {
+      problems.push(`${slug} has ${state.math} formulas but KaTeX rendered none`);
+    }
+
+    if (state.outputs.some(text => NOTE_FAILURES.includes(text))) {
+      problems.push(`${slug} reports a mismatch`);
+    }
+
+    if (state.sideways > 0) {
+      problems.push(`${slug} scrolls ${state.sideways} px sideways`);
+    }
+  }
+
+  return problems;
+}
+
 async function checkBenchmark(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'benchmark');
   await page.waitFor(
@@ -416,6 +516,8 @@ const CHECKS = {
   picker: { label: 'board picker', run: checkPicker },
   confirmation: { label: '18x18 and 16x16 domicule confirmation', run: checkConfirmation },
   pieces: { label: 'straight and diagonal switch', run: checkPieces },
+  sequences: { label: 'sequence table', run: checkSequences },
+  notes: { label: 'notes', run: checkNotes },
   benchmark: { label: 'benchmark table', run: checkBenchmark },
 };
 

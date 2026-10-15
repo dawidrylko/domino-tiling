@@ -21,7 +21,7 @@ const DEFAULT_LIMIT = 1000;
 const MAX_TILINGS_FOR_ALL = BigInt(100000);
 const OUTPUT_DIRECTORY = 'output';
 const USAGE =
-  'Usage: node dominoTilingRenderer.js -r <rowCount> -c <colCount> [-l <limit>] [-o <offset>] [-i <number>] [--random] [--all] [--ascii] [--domicule]';
+  'Usage: node src/dominoTilingRenderer.js -r <rowCount> -c <colCount> [-l <limit>] [-o <offset>] [-i <number>] [--random] [--all] [--ascii] [--domicule]';
 const PIECES = {
   domino: {
     canUnrank,

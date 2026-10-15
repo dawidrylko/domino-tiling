@@ -1,7 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { parseArgs, exec } = require('./helpers');
+const { parseArgs, exec } = require('../src/helpers');
 const {
   filesInt,
   testCasesInt,
@@ -9,10 +9,10 @@ const {
   testCasesBigInt,
   filesDomicule,
   testCasesDomicule,
-} = require('./test-data');
+} = require('../data');
 
 const RUN_DATE = new Date().toISOString().slice(0, 10);
-const BENCHMARK_ROOT = process.env.BENCHMARK_ROOT || path.join(__dirname, 'benchmark');
+const BENCHMARK_ROOT = process.env.BENCHMARK_ROOT || path.join(__dirname, 'results');
 const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, RUN_DATE.slice(0, 7));
 const MACHINE_KEYS = ['node', 'platform', 'cpu'];
 const DOMICULE_BOARDS = [
@@ -20,10 +20,10 @@ const DOMICULE_BOARDS = [
   { rowCount: 20, colCount: 20 },
 ];
 const USAGE =
-  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>] [--domicule] [--force]';
+  'Usage: node benchmarks/benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>] [--domicule] [--force]';
 
 function displayPath(file) {
-  const relative = path.relative(__dirname, file);
+  const relative = path.relative(path.join(__dirname, '..'), file);
 
   return relative.startsWith('..') ? file : relative;
 }

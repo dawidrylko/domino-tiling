@@ -1,6 +1,6 @@
 const os = require('os');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 const MAX_SHORTER_SIDE = 30;
 const LARGEST_PRIME_BOUND = 2 ** 31;
@@ -190,7 +190,7 @@ async function countResidues(rows, cols, primes, jobs) {
  * @param {Object} options The board and the number of worker threads.
  * @returns {Promise<BigInt>} The number of tilings.
  */
-async function calculateTotalTilingCombinations({ rowCount, colCount, jobs }) {
+async function calculateTotalTilingCombinations({ rowCount, colCount, jobs = os.availableParallelism() }) {
   const rows = Math.max(rowCount, colCount);
   const cols = Math.min(rowCount, colCount);
 
@@ -221,7 +221,7 @@ async function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount) || !(jobs > 0)) {
     console.error(
-      'Usage: node domiculeTilingSolver-Modular.js -r <rowCount> -c <colCount> [-j <jobs>]',
+      'Usage: node src/solvers/domiculeTilingSolver-Modular.js -r <rowCount> -c <colCount> [-j <jobs>]',
     );
     process.exit(1);
   }
@@ -237,12 +237,14 @@ async function __main__() {
   console.log(result.toString());
 }
 
-if (isMainThread) {
+if (!isMainThread) {
+  const { rows, cols, prime } = workerData;
+  parentPort.postMessage(countModulo(rows, cols, prime));
+} else if (require.main === module) {
   __main__().catch(error => {
     console.error(error.message);
     process.exit(1);
   });
-} else {
-  const { rows, cols, prime } = workerData;
-  parentPort.postMessage(countModulo(rows, cols, prime));
 }
+
+module.exports = { calculateTotalTilingCombinations, calculateLog2Bound, listPrimes, countModulo, combineResidues };

@@ -1,4 +1,4 @@
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 const MAX_SHORTER_SIDE = 30;
 
@@ -30,8 +30,8 @@ function searchTileArrangements(params) {
     return;
   }
 
-  const currentBit = BigInt(1) << BigInt(colIndex);
-  const nextBit = BigInt(1) << BigInt(colIndex + 1);
+  const currentBit = 1 << colIndex;
+  const nextBit = 1 << (colIndex + 1);
 
   currentMask & currentBit
     ? searchTileArrangements({ ...params, colIndex: colIndex + 1 })
@@ -48,7 +48,7 @@ function searchTileArrangements(params) {
 
 function createInitialTilingMatrix(rowCount, colCount) {
   return Array.from({ length: rowCount + 1 }, () =>
-    new Array(1 << colCount).fill(BigInt(0)),
+    new Array(1 << colCount).fill(0),
   );
 }
 
@@ -56,7 +56,7 @@ function calculateTotalTilingCombinations(options) {
   const rowCount = Math.max(options.rowCount, options.colCount);
   const colCount = Math.min(options.rowCount, options.colCount);
   const tilingMatrix = createInitialTilingMatrix(rowCount, colCount);
-  tilingMatrix[0][0] = BigInt(1);
+  tilingMatrix[0][0] = 1;
 
   for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
     for (let currentMask = 0; currentMask < 1 << colCount; ++currentMask) {
@@ -66,8 +66,8 @@ function calculateTotalTilingCombinations(options) {
         colCount,
         rowIndex,
         colIndex: 0,
-        currentMask: BigInt(currentMask),
-        nextMask: BigInt(0),
+        currentMask,
+        nextMask: 0,
       });
     }
   }
@@ -85,7 +85,7 @@ function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
-      'Usage: node dominoTilingSolver-BigInt.js -r <rowCount> -c <colCount>',
+      'Usage: node src/solvers/dominoTilingSolver.js -r <rowCount> -c <colCount>',
     );
     process.exit(1);
   }
@@ -98,7 +98,17 @@ function __main__() {
   }
 
   const result = calculateTotalTilingCombinations(options);
-  console.log(result.toString());
+  console.log(result);
+
+  if (!Number.isSafeInteger(result)) {
+    console.error(
+      'Warning: the result is above 2^53, so it is not exact. Use dominoTilingSolver-BigInt.js for this board.',
+    );
+  }
 }
 
-__main__();
+if (require.main === module) {
+  __main__();
+}
+
+module.exports = { calculateTotalTilingCombinations };

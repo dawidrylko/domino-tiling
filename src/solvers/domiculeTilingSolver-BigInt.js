@@ -1,4 +1,4 @@
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 const MAX_SHORTER_SIDE = 29;
 
@@ -66,7 +66,7 @@ function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
-      'Usage: node domiculeTilingSolver-BigInt.js -r <rowCount> -c <colCount>',
+      'Usage: node src/solvers/domiculeTilingSolver-BigInt.js -r <rowCount> -c <colCount>',
     );
     process.exit(1);
   }
@@ -82,4 +82,8 @@ function __main__() {
   console.log(result.toString());
 }
 
-__main__();
+if (require.main === module) {
+  __main__();
+}
+
+module.exports = { calculateTotalTilingCombinations };

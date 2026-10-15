@@ -1,4 +1,5 @@
 const { spawnSync } = require('child_process');
+const path = require('path');
 const {
   enumerateTilings,
   renderSheet,
@@ -11,10 +12,10 @@ const {
   createDomiculeUnranker,
   unrankDomiculeTiling,
   sampleDomiculeTiling,
-} = require('./renderer');
+} = require('../src/renderer');
 const crypto = require('crypto');
-const { createRandom } = require('./renderer/cftp');
-const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('./test-data');
+const { createRandom } = require('../src/renderer/cftp');
+const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('../data');
 
 const MAX_CELLS = 36;
 const UNRANK_SAMPLE_SIZE = 1000;
@@ -461,8 +462,8 @@ function runDomiculeReachTest(testCase) {
 function runCliTest({ rowCount, colCount, args, env = {}, status, output }) {
   const result = spawnSync(
     process.execPath,
-    ['dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
-    { cwd: __dirname, encoding: 'utf-8', timeout: CLI_TIMEOUT, env: { ...process.env, ...env } },
+    ['src/dominoTilingRenderer.js', '-r', String(rowCount), '-c', String(colCount), ...args],
+    { cwd: path.join(__dirname, '..'), encoding: 'utf-8', timeout: CLI_TIMEOUT, env: { ...process.env, ...env } },
   );
 
   if (result.status !== status || !`${result.stdout}${result.stderr}`.includes(output)) {

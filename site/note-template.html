@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__ | Domino Tiling</title>
+<meta name="description" content="__DESCRIPTION__">
+<meta name="author" content="Dawid Ryłko">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="__URL__">
+<link rel="icon" href="../domino.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Domino Tiling">
+<meta property="og:url" content="__URL__">
+<meta property="og:title" content="__TITLE__">
+<meta property="og:description" content="__DESCRIPTION__">
+<meta property="og:image" content="__SITE_URL__og-image.png">
+<style>
+:root {
+  --bg: #ffffff; --fg: #111827; --muted: #6b7280; --border: #e5e7eb;
+  --surface: #f9fafb; --accent: #4f7cac;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1115; --fg: #e5e7eb; --muted: #9ca3af; --border: #262a33; --surface: #161a21; --accent: #7aa2cf; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-bottom: 24px; font-size: 14px; }
+header a { color: var(--muted); text-decoration: none; }
+header a:hover, header a[aria-current="page"] { color: var(--fg); }
+header nav { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+h1 { font-size: 28px; line-height: 1.25; margin: 0 0 16px; }
+h2 { font-size: 20px; margin: 36px 0 10px; }
+h3 { font-size: 16px; margin: 24px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 14px; }
+pre { margin: 0; overflow-x: auto; padding: 12px 14px; font-size: 13px; line-height: 1.5; }
+pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; }
+.cell { margin: 0 0 20px; }
+.cell pre.code { margin-bottom: 0; }
+.cell-label { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); margin: 0 0 4px; }
+.cell pre.code + .cell-label { margin-top: 8px; }
+.cell-label span { float: right; }
+pre.output { border-left: 3px solid var(--accent); white-space: pre-wrap; word-break: break-all; }
+.table-wrap { overflow-x: auto; margin: 0 0 14px; }
+.table-wrap.output { border-left: 3px solid var(--accent); padding-left: 8px; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.output td { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; white-space: nowrap; }
+.output td.long { white-space: normal; word-break: break-all; min-width: 16ch; }
+th { white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+.r { text-align: right; }
+.math.display { margin: 0 0 14px; overflow-x: auto; overflow-y: hidden; }
+blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--border); color: var(--muted); }
+.toc { font-size: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 10px 14px; margin: 0 0 24px; }
+.toc ol { margin: 4px 0 0; padding-left: 20px; }
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+footer p { margin: 0 0 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <a href="../">← Domino Tiling</a>
+    <nav aria-label="Notes">__NAV__</nav>
+  </header>
+  <article>
+    __CONTENT__
+  </article>
+  <footer>
+    <p>Built from <a href="__SOURCE_URL__">__SOURCE__</a> on __DATE__; every output on this page was computed during that build.</p>
+    <p>© <a href="https://dawidrylko.com" rel="author">Dawid Ryłko</a> · <a href="https://github.com/dawidrylko/domino-tiling/blob/master/LICENSE">MIT License</a></p>
+  </footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script>
+document.querySelectorAll('.math').forEach(element => {
+  if (window.katex) {
+    katex.render(element.dataset.tex, element, { displayMode: element.classList.contains('display'), throwOnError: false });
+  }
+});
+</script>
+</body>
+</html>
