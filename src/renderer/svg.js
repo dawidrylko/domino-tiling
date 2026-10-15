@@ -6,6 +6,9 @@ const STYLES = ['blocks', 'dimer', 'engraving'];
 const COLORS = { h: '#044cb6', v: '#5eaceb', d: '#ab3415', a: '#f09c17' };
 const BOARD_COLOR = '#f3f4f6';
 const INK = '#334155';
+const ENGRAVING_OUTLINE = 1;
+const ENGRAVING_HATCH_WIDTH = 1;
+const ENGRAVING_AXIS_WIDTH = 2.4;
 const COMMON_STYLE = [`.b{fill:${BOARD_COLOR}}`, 'text{font:11px monospace;fill:#4b5563;text-anchor:middle}'].join('');
 const SHEET_STYLES = {
   blocks: {
@@ -19,13 +22,13 @@ const SHEET_STYLES = {
   engraving: {
     straight: [`.h,.v{stroke:${INK};stroke-width:1}`, '.h{fill:#ffffff}', '.v{fill:#e8eef6}'].join(''),
     diagonal: [
-      `.cd,.ca{stroke:${INK};stroke-width:1}`,
-      '.cd{fill:#f1ebeb}',
-      '.ca{fill:#f5f2ec}',
-      '.d,.a{fill:none;stroke-width:1;stroke-linecap:butt}',
+      `.cd,.ca{stroke:${INK};stroke-width:${ENGRAVING_OUTLINE}}`,
+      '.cd{fill:#f3eded}',
+      '.ca{fill:#f6f2ed}',
+      `.d,.a{fill:none;stroke-width:${ENGRAVING_HATCH_WIDTH};stroke-linecap:butt}`,
       '.d{stroke:#753a32}',
       '.a{stroke:#9b7333}',
-      '.k{stroke-width:2.4}',
+      `.k{stroke-width:${ENGRAVING_AXIS_WIDTH}}`,
     ].join(''),
   },
 };
@@ -35,18 +38,11 @@ const DIAGONAL_WIDTH = 8;
 const DIMER_LINK_WIDTH = 5.5;
 const DIMER_RING_WIDTH = 8.5;
 const DIMER_DOT_RADIUS = 3.6;
-const ENGRAVING_OUTLINE = 1;
-const ENGRAVING_HATCH_WIDTH = 1;
-const ENGRAVING_AXIS_WIDTH = 2.4;
 
 function isDiagonal(piece) {
   return Boolean(piece.dr && piece.dc);
 }
 
-/**
- * Turns a domino { row, col, horizontal } or a domicule { row, col, dr, dc } into
- * { row, col, dr, dc, kind }, where kind is h, v, d (down-right) or a (down-left).
- */
 function normalize(piece) {
   const { row, col } = piece;
   const dr = piece.dr === undefined ? (piece.horizontal ? 0 : 1) : piece.dr;

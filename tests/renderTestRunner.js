@@ -53,9 +53,33 @@ const styleTestCases = [
   { rowCount: 2, colCount: 4, style: 'engraving', markers: ['class="engraving"', '<rect class="h"', '<rect class="cd"', '<rect class="ca"', '<path class="d k"', '<path class="a k"'] },
 ];
 const engravingContainmentTestCases = [
+  { rowCount: 2, colCount: 2, tiling: [{ row: 0, col: 0, dr: 1, dc: 1 }, { row: 0, col: 1, dr: 1, dc: -1 }] },
   { rowCount: 4, colCount: 4 },
   { rowCount: 6, colCount: 6 },
 ];
+const firstSegment = (sheet, kinds) => {
+  const match = sheet.match(new RegExp(`<path class="${kinds}" d="M([\\d.]+) ([\\d.]+)L([\\d.]+) ([\\d.]+)`));
+
+  return match ? { dx: Number(match[3]) - Number(match[1]), dy: Number(match[4]) - Number(match[2]) } : null;
+};
+const STYLE_GEOMETRY_CHECKS = {
+  blocks: {
+    'diagonal palette': sheet => sheet.includes('.d{fill:#ab3415}') && sheet.includes('.a{fill:#f09c17}'),
+    'straight before diagonal': sheet => sheet.lastIndexOf('class="h"') < sheet.indexOf('class="d"'),
+  },
+  dimer: {
+    'edges between cell centres': sheet => ['M20 20L36 20', 'M20 36L36 36', 'M52 20L68 36', 'M68 20L52 36'].every(edge => sheet.includes(`d="${edge}"`)),
+    'two dots per piece': sheet => ['h', 'd', 'a'].every(kind => (sheet.match(new RegExp(`class="${kind} o"`, 'g')) || []).length === (kind === 'h' ? 4 : 2)),
+    'ring in the board colour': sheet => sheet.includes('.r{fill:none;stroke:#f3f4f6'),
+  },
+  engraving: {
+    'hatch follows the piece': sheet => {
+      const down = firstSegment(sheet, 'd k');
+      const up = firstSegment(sheet, 'a k');
+      return Boolean(down && up) && down.dx > 0 && down.dy > 0 && up.dx < 0 && up.dy > 0;
+    },
+  },
+};
 const STYLE_TEST_TILING = [
   { row: 0, col: 0, dr: 0, dc: 1 },
   { row: 1, col: 0, dr: 0, dc: 1 },
@@ -456,7 +480,10 @@ function runDomiculeShapeTest({ piece, svg, rotation, ascii, ...options }) {
 
 function runStyleTest({ style, markers, ...options }) {
   const sheet = renderSheet([STYLE_TEST_TILING], 1, { ...options, style });
-  const missing = markers.filter(marker => !sheet.includes(marker));
+  const missing = [
+    ...markers.filter(marker => !sheet.includes(marker)),
+    ...Object.entries(STYLE_GEOMETRY_CHECKS[style]).filter(([, check]) => !check(sheet)).map(([name]) => name),
+  ];
   const others = renderSheet.STYLES.filter(other => other !== style);
 
   if (missing.length || others.some(other => sheet.includes(`class="${other}"`))) {
@@ -487,19 +514,36 @@ function runStyleTest({ style, markers, ...options }) {
   return true;
 }
 
-function runEngravingContainmentTest(options) {
-  const unranker = createDomiculeUnranker(options);
-  const tiling = unrankDomiculeTiling(unranker, unranker.total - BigInt(1));
+function readStrokeWidth(sheet, selector) {
+  const rule = sheet.match(new RegExp(`${selector.replace(/[.,]/g, '\\$&')}\\{[^}]*stroke-width:([\\d.]+)`));
+
+  return rule ? Number(rule[1]) : NaN;
+}
+
+function runEngravingContainmentTest({ tiling: fixed, ...options }) {
+  const unranker = fixed ? null : createDomiculeUnranker(options);
+  const tiling = fixed || unrankDomiculeTiling(unranker, unranker.total - BigInt(1));
   const sheet = renderSheet([tiling], 1, { ...options, style: 'engraving' });
-  const cells = [...sheet.matchAll(/<rect class="c[da]" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)].map(([, x, y, size]) => {
-    const inner = Number(size) - 1;
-    return { left: Number(x) + 0.5, top: Number(y) + 0.5, right: Number(x) + 0.5 + inner, bottom: Number(y) + 0.5 + inner };
+  const outline = readStrokeWidth(sheet, '.cd,.ca');
+  const widths = { hatch: readStrokeWidth(sheet, '.d,.a'), axis: readStrokeWidth(sheet, '.k') };
+  const cells = [...sheet.matchAll(/<rect class="c([da])" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)].map(([, kind, x, y, size]) => {
+    const left = Number(x) + outline / 2;
+    const top = Number(y) + outline / 2;
+    const inner = Number(size) - outline;
+    return { kind, left, top, right: left + inner, bottom: top + inner };
   });
   const roundCaps = /\.d,\.a\{[^}]*stroke-linecap:round/.test(sheet);
   const escaped = [];
+  const kinds = new Set(cells.map(cell => cell.kind));
+
+  if (![outline, widths.hatch, widths.axis].every(Number.isFinite) || (fixed && kinds.size !== 2)) {
+    console.error(`Failed! Engraving widths ${JSON.stringify({ outline, ...widths })} or cell kinds ${[...kinds]} are missing.`);
+
+    return false;
+  }
 
   for (const [, kinds, d] of sheet.matchAll(/<path class="([da](?: k)?)" d="([^"]+)"/g)) {
-    const half = (kinds.endsWith('k') ? 2.4 : 1) / 2;
+    const half = (kinds.endsWith('k') ? widths.axis : widths.hatch) / 2;
     const cap = roundCaps ? half : 0;
     const spread = half / Math.SQRT2;
 
