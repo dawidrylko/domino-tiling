@@ -58,6 +58,8 @@ const siteTestCases = [
   { width: 1440, check: 'confirmation' },
   { width: 1440, check: 'benchmark' },
   { width: 1440, check: 'pieces' },
+  { width: 1440, check: 'styles' },
+  { width: 375, check: 'styles' },
   { width: 1440, check: 'sequences' },
   { width: 1440, check: 'notes' },
   { width: 1440, check: 'chrome' },
@@ -403,6 +405,74 @@ async function checkPieces(page, baseUrl, width) {
   return problems;
 }
 
+async function checkStyles(page, baseUrl, width) {
+  const hash = 'gallery/4x4-diagonal/1/5';
+  const problems = [];
+  const read = () =>
+    page.evaluate(`(() => {
+      const probe = document.body.appendChild(document.createElement('i'));
+      probe.style.color = 'var(--h)';
+      const expected = getComputedStyle(probe).color;
+      probe.remove();
+      const piece = document.querySelector('#sheet svg .h');
+      const label = [...document.querySelectorAll('#sheet text')].find(text => text.textContent === '#5');
+      return {
+        svg: document.querySelector('#sheet svg').getAttribute('class'),
+        gallery: document.getElementById('gallery').dataset.style,
+        pressed: [...document.querySelectorAll('#styles button')].filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.dataset.style),
+        labels: document.querySelectorAll('#sheet text').length,
+        highlighted: Boolean(label) && label.style.fill === 'var(--hit)',
+        themed: getComputedStyle(piece)[document.querySelector('#sheet svg.blocks') ? 'fill' : 'stroke'] === expected,
+      };
+    })()`);
+  const reload = async description => {
+    await loadSite(page, baseUrl, width, hash);
+    await page.waitFor("document.querySelector('#sheet svg')", description);
+    return read();
+  };
+
+  try {
+    await loadSite(page, baseUrl, width, hash);
+    await page.evaluate("localStorage.setItem('domino-tiling-style', 'bogus')");
+    const initial = await reload('the 4x4 domicule sheet');
+
+    if (initial.svg !== 'blocks' || initial.gallery !== 'blocks' || initial.pressed.join() !== 'blocks' || !initial.highlighted || !initial.themed) {
+      problems.push(`an unknown saved style does not fall back to blocks: ${JSON.stringify(initial)}`);
+    }
+
+    for (const style of ['dimer', 'engraving']) {
+      await page.evaluate(`document.querySelector('#styles [data-style=${style}]').click()`);
+      const state = await read();
+
+      if (state.svg !== style || state.gallery !== style || state.pressed.join() !== style || state.labels !== initial.labels || !state.highlighted) {
+        problems.push(`after choosing ${style}: ${JSON.stringify(state)}`);
+      }
+    }
+
+    const reloaded = await reload('the reloaded sheet');
+
+    if (reloaded.svg !== 'engraving' || reloaded.pressed.join() !== 'engraving') {
+      problems.push(`the chosen style did not survive a reload: ${JSON.stringify(reloaded)}`);
+    }
+
+    await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'dark' }] });
+
+    for (const style of ['blocks', 'dimer']) {
+      await page.evaluate(`document.querySelector('#styles [data-style=${style}]').click()`);
+      const dark = await read();
+
+      if (!dark.themed) {
+        problems.push(`the ${style} sheet ignores the dark palette: ${JSON.stringify(dark)}`);
+      }
+    }
+  } finally {
+    await page.send('Emulation.setEmulatedMedia', { features: [] });
+    await page.evaluate("localStorage.removeItem('domino-tiling-style')");
+  }
+
+  return problems;
+}
+
 async function checkSequences(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'gallery/4x4/1');
   await page.settle();
@@ -599,6 +669,7 @@ const CHECKS = {
   picker: { label: 'board picker', run: checkPicker },
   confirmation: { label: '18x18 and 16x16 domicule confirmation', run: checkConfirmation },
   pieces: { label: 'straight and diagonal switch', run: checkPieces },
+  styles: { label: 'sheet style switch', run: checkStyles },
   sequences: { label: 'sequence table', run: checkSequences },
   notes: { label: 'notes', run: checkNotes },
   chrome: { label: 'shared header and footer', run: checkChrome },
