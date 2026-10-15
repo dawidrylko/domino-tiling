@@ -172,6 +172,9 @@ async function countResidues(rows, cols, primes, jobs) {
         const worker = new Worker(__filename, { workerData: { rows, cols, prime: primes[index] } });
         worker.once('message', resolve);
         worker.once('error', reject);
+        worker.once('exit', code =>
+          reject(new Error(`The worker for the prime ${primes[index]} stopped with exit code ${code} before it sent a result.`)),
+        );
       });
     }
   };

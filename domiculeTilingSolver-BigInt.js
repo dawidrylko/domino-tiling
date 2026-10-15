@@ -1,6 +1,6 @@
 const { parseArgs } = require('./helpers');
 
-const MAX_SHORTER_SIDE = 30;
+const MAX_SHORTER_SIDE = 29;
 
 /**
  * Counts the domicule tilings of a board (OEIS A239264), which are the perfect matchings
@@ -73,7 +73,7 @@ function __main__() {
 
   if (Math.min(options.rowCount, options.colCount) > MAX_SHORTER_SIDE) {
     console.error(
-      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because the states are indexed with 32-bit integers.`,
+      `The shorter side of the board can be at most ${MAX_SHORTER_SIDE}, because a JavaScript array holds fewer than 2^32 states.`,
     );
     process.exit(1);
   }

@@ -66,9 +66,8 @@ The published b-file (Alois P. Heinz) covers antidiagonals 0..36 (703 terms); [`
 
 - the 78 terms of the data section and the 134 data terms of the columns A239265-A239272 match;
 - every term equals its transpose, A(n, k) = A(k, n), although only one of them is counted;
-- the terms A(2n, 2n) match `b239273.txt`.
-
-Heinz's b-file is a Git LFS file that could not be downloaded here, so antidiagonals 0..36 have not been compared with it line by line; the editors' diff on the draft page shows any difference.
+- the terms A(2n, 2n) match `b239273.txt`;
+- antidiagonals 0..36 match Heinz's published b-file line by line (all 703 terms).
 
 ### Lines to paste into the draft of A239264
 
