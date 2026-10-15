@@ -21,7 +21,7 @@ a(n) = \prod_{j=1}^{n} \prod_{k=1}^{n} \left( 4\cos^2\frac{j\pi}{2n+1} + 4\cos^2
 tilings. Evaluated with floating-point cosines the product loses its last digits from $12 \times 12$ on, so the formula solver evaluates it exactly. The numbers $x_j = 4\cos^2(j\pi/(2n+1))$, $j = 1, \dots, n$, are the roots of a monic integer polynomial $P$ of degree $n$, and the double product over $x_j + x_k$ is, up to sign, the resultant of $P(x)$ and $P(-x)$:
 
 ```math
-a(n) = (-1)^n \operatorname{Res}\bigl(P(x), P(-x)\bigr), \qquad P(x^2) = U_{2n}(x/2)
+a(n) = (-1)^n \mathrm{Res}\bigl(P(x), P(-x)\bigr), \qquad P(x^2) = U_{2n}(x/2)
 ```
 
 where $U_{2n}$ is the Chebyshev polynomial of the second kind. The resultant is the determinant of the Sylvester matrix, an integer matrix of size $2n$, and fraction-free Bareiss elimination [3] keeps every intermediate value an integer. No square root is involved. Neither is floating point, and $20 \times 20$ takes milliseconds. The same formula is a two-line PARI/GP program in [`pari/A004003.gp`](../pari/A004003.gp).
