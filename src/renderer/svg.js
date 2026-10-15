@@ -6,6 +6,7 @@ const STYLES = ['blocks', 'dimer', 'engraving'];
 const COLORS = { h: '#044cb6', v: '#5eaceb', d: '#ab3415', a: '#f09c17' };
 const BOARD_COLOR = '#f3f4f6';
 const INK = '#334155';
+const EDGE = '#1f2937';
 const ENGRAVING_OUTLINE = 1;
 const ENGRAVING_HATCH_WIDTH = 1;
 const ENGRAVING_AXIS_WIDTH = 2.4;
@@ -16,7 +17,7 @@ const SHEET_STYLES = {
     diagonal: ['.d,.a{stroke:#1f2937;stroke-width:1}', `.d{fill:${COLORS.d}}`, `.a{fill:${COLORS.a}}`].join(''),
   },
   dimer: {
-    straight: ['.h,.v{stroke-linecap:round}', `.h{fill:${COLORS.h};stroke:${COLORS.h}}`, `.v{fill:${COLORS.v};stroke:${COLORS.v}}`, '.o{stroke:none}'].join(''),
+    straight: ['.h,.v,.e{stroke-linecap:round}', `.e{fill:${EDGE};stroke:${EDGE}}`, `.h{fill:${COLORS.h};stroke:${COLORS.h}}`, `.v{fill:${COLORS.v};stroke:${COLORS.v}}`, '.o{stroke:none}'].join(''),
     diagonal: ['.d,.a{stroke-linecap:round}', `.d{fill:${COLORS.d};stroke:${COLORS.d}}`, `.a{fill:${COLORS.a};stroke:${COLORS.a}}`, `.r{fill:none;stroke:${BOARD_COLOR};stroke-linecap:round}`, '.o{stroke:none}'].join(''),
   },
   engraving: {
@@ -38,6 +39,7 @@ const DIAGONAL_WIDTH = 8;
 const DIMER_LINK_WIDTH = 5.5;
 const DIMER_RING_WIDTH = 8.5;
 const DIMER_DOT_RADIUS = 3.6;
+const DIMER_OUTLINE = 1;
 
 function isDiagonal(piece) {
   return Boolean(piece.dr && piece.dc);
@@ -80,6 +82,9 @@ function renderDimer({ row, col, dr, dc, kind }, offsetX, offsetY) {
 
   return [
     ...(dr && dc ? [`<path class="r" d="${link}" stroke-width="${DIMER_RING_WIDTH}"/>`] : []),
+    `<path class="e" d="${link}" stroke-width="${DIMER_LINK_WIDTH + 2 * DIMER_OUTLINE}"/>`,
+    `<circle class="e" cx="${x1}" cy="${y1}" r="${DIMER_DOT_RADIUS + DIMER_OUTLINE}"/>`,
+    `<circle class="e" cx="${x2}" cy="${y2}" r="${DIMER_DOT_RADIUS + DIMER_OUTLINE}"/>`,
     `<path class="${kind}" d="${link}" stroke-width="${DIMER_LINK_WIDTH}"/>`,
     `<circle class="${kind} o" cx="${x1}" cy="${y1}" r="${DIMER_DOT_RADIUS}"/>`,
     `<circle class="${kind} o" cx="${x2}" cy="${y2}" r="${DIMER_DOT_RADIUS}"/>`,

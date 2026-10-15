@@ -71,6 +71,11 @@ const STYLE_GEOMETRY_CHECKS = {
     'edges between cell centres': sheet => ['M20 20L36 20', 'M20 36L36 36', 'M52 20L68 36', 'M68 20L52 36'].every(edge => sheet.includes(`d="${edge}"`)),
     'two dots per piece': sheet => ['h', 'd', 'a'].every(kind => (sheet.match(new RegExp(`class="${kind} o"`, 'g')) || []).length === (kind === 'h' ? 4 : 2)),
     'ring in the board colour': sheet => sheet.includes('.r{fill:none;stroke:#f3f4f6'),
+    'outline under every edge and dot': sheet =>
+      (sheet.match(/<path class="e"/g) || []).length === 4 &&
+      (sheet.match(/<circle class="e"/g) || []).length === 8 &&
+      sheet.indexOf('<path class="e"') < sheet.indexOf('<path class="h"') &&
+      sheet.includes('.e{fill:#1f2937;stroke:#1f2937}'),
   },
   engraving: {
     'hatch follows the piece': sheet => {
