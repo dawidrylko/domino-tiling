@@ -37,7 +37,7 @@ The notes are Markdown files with code cells. The site build runs every cell and
 
 ## Method in brief
 
-The numbers $4\cos^2(j\pi/(2n+1))$ in the domino product are the roots of a monic integer polynomial $P$ with $P(x^2) = U_{2n}(x/2)$. The product therefore equals $(-1)^n \operatorname{Res}(P(x), P(-x))$, the determinant of a $2n \times 2n$ integer matrix, which fraction-free Bareiss elimination [3] computes exactly.
+The numbers $4\cos^2(j\pi/(2n+1))$ in the domino product are the roots of a monic integer polynomial $P$ with $P(x^2) = U_{2n}(x/2)$. The product therefore equals $(-1)^n \mathrm{Res}(P(x), P(-x))$, the determinant of a $2n \times 2n$ integer matrix, which fraction-free Bareiss elimination [3] computes exactly.
 
 Both kinds of tilings are also counted by transfer. Dominoes go row by row with a bitmask of the next row. Domicules go cell by cell with a state of the next $w + 2$ cells, because a cell can be matched with its right, down-left, down or down-right neighbour. That transfer only adds, so it runs modulo primes below $2^{31}$ in `Uint32Array` tables, one worker thread per prime; the Kahn-Lovász bound [5] gives the number of primes, the Chinese remainder theorem rebuilds the count, and one more prime checks it.
 
