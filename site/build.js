@@ -1,20 +1,20 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, filesDomicule, testCasesDomicule } = require('../test-data');
-const { DOMICULE_SWEEPS } = require('../renderer');
+const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, filesDomicule, testCasesDomicule } = require('../data');
+const { DOMICULE_SWEEPS } = require('../src/renderer');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
 const ROOT_DIRECTORY = path.join(__dirname, '..');
 const OUTPUT_DIRECTORY = path.join(ROOT_DIRECTORY, 'dist', 'site');
-const BENCHMARK_ROOT = 'benchmark';
+const BENCHMARK_ROOT = 'benchmarks/results';
 const RESULT_FILE = /_(\d+)x(\d+)\.txt$/;
 const BENCHMARK_RUNS = listBenchmarkRuns();
 const BENCHMARK_RUN = findLatestCompleteRun();
 const BENCHMARK_DIRECTORY = path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, BENCHMARK_RUN);
-const BROWSER_SCRIPTS = ['renderer/svg.js'];
-const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'renderer/domicule.js', 'site/worker.js'];
+const BROWSER_SCRIPTS = ['src/renderer/svg.js'];
+const WORKER_SCRIPTS = ['src/renderer/unrank.js', 'src/renderer/cftp.js', 'src/renderer/domicule.js', 'site/worker.js'];
 const ASSETS = {
   'domino.svg': '.github/assets/domino.svg',
   'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
@@ -52,7 +52,7 @@ const DOMICULE_BOARDS = [
   { rowCount: 20, colCount: 20, mode: 'random' },
 ];
 const DEFAULT_BOARD = '4x4';
-const PARI_PROGRAM = 'oeis/A239273.gp';
+const PARI_PROGRAM = 'pari/A239273.gp';
 
 function listBenchmarkRuns() {
   return fs
@@ -159,7 +159,7 @@ function countDomiculeTilings(board) {
 
   return execFileSync(
     process.execPath,
-    [path.join(ROOT_DIRECTORY, 'domiculeTilingSolver-Modular.js'), '-r', String(board.rowCount), '-c', String(board.colCount)],
+    [path.join(ROOT_DIRECTORY, 'src', 'solvers', 'domiculeTilingSolver-Modular.js'), '-r', String(board.rowCount), '-c', String(board.colCount)],
     { encoding: 'utf-8' },
   ).trim();
 }

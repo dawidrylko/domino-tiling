@@ -1,4 +1,4 @@
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 const MAX_SHORTER_SIDE = 29;
 

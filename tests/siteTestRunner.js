@@ -4,7 +4,7 @@ const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const SITE_DIRECTORY = path.resolve(process.env.SITE_DIRECTORY || path.join(__dirname, 'dist', 'site'));
+const SITE_DIRECTORY = path.resolve(process.env.SITE_DIRECTORY || path.join(__dirname, '..', 'dist', 'site'));
 const CHROME_CANDIDATES = [
   '/usr/bin/google-chrome',
   '/usr/bin/chromium',

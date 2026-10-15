@@ -1,4 +1,4 @@
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 /**
  * Multiplies two polynomials given as coefficient arrays, from the constant term up.

@@ -1,10 +1,11 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { testCasesDomicule, testCasesDomiculeRectangles } = require('./test-data');
+const { testCasesDomicule, testCasesDomiculeRectangles } = require('../data');
 
-const PROGRAM_FILE = path.join(__dirname, 'oeis', 'A239273.gp');
-const README_FILE = path.join(__dirname, 'README.md');
+const ROOT_DIRECTORY = path.join(__dirname, '..');
+const PROGRAM_FILE = path.join(ROOT_DIRECTORY, 'pari', 'A239273.gp');
+const README_FILE = path.join(ROOT_DIRECTORY, 'README.md');
 const GP = process.env.GP_PATH || 'gp';
 const GP_TIMEOUT = 300000;
 const MAX_SQUARE_SIDE = 12;
@@ -26,7 +27,7 @@ function executeReadmeTest() {
   );
 
   if (blocks.length !== 1 || blocks[0] !== readProgram()) {
-    console.error(`Failed! The README must show ${path.relative(__dirname, PROGRAM_FILE)} in one gp block.`);
+    console.error(`Failed! The README must show ${path.relative(ROOT_DIRECTORY, PROGRAM_FILE)} in one gp block.`);
 
     return false;
   }

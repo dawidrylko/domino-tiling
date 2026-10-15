@@ -1,6 +1,6 @@
 const os = require('os');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-const { parseArgs } = require('./helpers');
+const { parseArgs } = require('../helpers');
 
 const MAX_SHORTER_SIDE = 30;
 const LARGEST_PRIME_BOUND = 2 ** 31;
