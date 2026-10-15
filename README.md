@@ -132,7 +132,35 @@ Two solvers count them with the same broken-profile dynamic programming: the cel
 node domiculeTilingSolver-Modular.js -r 20 -c 20    # a(10) of A239273
 ```
 
-`pnpm test` checks both solvers against A239273 up to 12×12 and a few rectangles from A239264; `node testRunner.js` runs all known terms. The [`oeis`](./oeis) directory holds the PARI program, the b-files built with `node oeis/buildBFiles.js` and the text of the OEIS submission.
+`pnpm test` checks both solvers against A239273 up to 12×12 and a few rectangles from A239264; `node testRunner.js` runs all known terms.
+
+The same dynamic programming fits in a few lines of PARI/GP, in [`oeis/A239273.gp`](./oeis/A239273.gp): `T(h, w)` is A239264 and `a(n)` is A239273.
+
+```gp
+T(h, w) = {
+  my(S = 2^(w+2), v = vector(S), u);
+  if (h*w == 0, return(1));
+  v[1] = 1;
+  for (p = 0, h*w-1,
+    my(r = p\w, c = p%w, d = []);
+    if (c+1 < w, d = concat(d, 1));
+    if (r+1 < h, if (c > 0, d = concat(d, w-1)); d = concat(d, w); if (c+1 < w, d = concat(d, w+1)));
+    u = vector(S);
+    for (s = 0, S-1,
+      my(x = v[s+1]);
+      if (x,
+        if (bitand(s, 1),
+          u[(s>>1) + 1] += x,
+          for (i = 1, #d, if (!bittest(s, d[i]), my(t = (s + 2^d[i])>>1); u[t+1] += x)))));
+    v = u);
+  v[1]
+};
+a(n) = T(2*n, 2*n);
+```
+
+```sh
+echo 'read("oeis/A239273.gp"); print(vector(7, n, a(n-1)))' | gp -q
+```
 
 ## 📜 License
 
