@@ -1,151 +1,52 @@
-# <img src=".github/assets/domino.svg" alt="" width="36" height="36"> Domino Tiling
+# <img src=".github/assets/domino.svg" alt="" width="36" height="36"> Domino and Domicule Tilings
 
 [![Continuous Integration](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml)
 [![Pages](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml)
-[![Gallery & benchmark](https://img.shields.io/badge/Gallery_%26_benchmark-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
+[![Site](https://img.shields.io/badge/Site_%26_notebooks-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
 [![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-e0a458?style=flat)](https://dawidrylko.com/domino-tiling/)
 
-> Number of domino tilings (or dimer coverings) of a 2n × 2n square, [OEIS A004003](https://oeis.org/A004003), for n = 0, 1, 2, ...:
->
-> 1, 2, 36, 6728, 12988816, 258584046368, 53060477521960000, 112202208776036178000000, 2444888770250892795802079170816, 548943583215388338077567813208427340288, 1269984011256235834242602753102293934298576249856
+## Abstract
 
-## 📖 Overview
+How many ways are there to cover a $2n \times 2n$ board with pieces that each cover two neighbouring cells, and what does any one of those coverings look like? For dominoes, which join cells that share a side, the count is [OEIS A004003](https://oeis.org/A004003) and has a closed form (Kasteleyn, Fisher, 1961). For domicules, which may also join cells that share only a corner, the count is [OEIS A239273](https://oeis.org/A239273) on squares and [A239264](https://oeis.org/A239264) on rectangles, and no closed form is used here. This repository counts both exactly, numbers every tiling so that any single one can be drawn from its number, and samples tilings of boards too large to number. It evaluates the domino product formula exactly as a resultant of two integer polynomials, counts domicule tilings with a cell-by-cell transfer that runs modulo primes in parallel and is rebuilt with the Chinese remainder theorem, and checks the solvers against each other, against the OEIS and against two PARI/GP programs run in CI. The results, the method and the computations are on the [project site](https://dawidrylko.github.io/domino-tiling/).
 
-This repository contains three JavaScript solvers for the domino tiling problem: two dynamic programming solvers, one based on the standard `Number` type and one based on `BigInt`, and an exact evaluation of the closed-form formula. All of them calculate the number of ways to tile a 2n × 2n board with 2×1 and 1×2 dominoes. The repository also includes a test suite, a benchmark runner and a renderer that draws any individual tiling.
+## Results
 
-## ❓ Problem Statement
+Both sequences up to $20 \times 20$. The term marked **new** is not in the OEIS yet; the site recounts it on every build and the modular solver checks it against an extra prime.
 
-The main problem tackled by this project is determining the number of different ways to completely cover an 8×8 board with 2×1 domino tiles. The answer is 12,988,816. The same solvers handle every board of the sequence, from the empty 0×0 board (exactly one tiling, the empty one) up to 20×20; `Number` stays exact up to 2<sup>53</sup> (10×10), while `BigInt` keeps the results exact for larger boards.
+| n | board | A004003 (dominoes) | A239273 (domicules) |
+| --: | --- | --: | --: |
+| 0 | 0×0 | 1 | 1 |
+| 1 | 2×2 | 2 | 3 |
+| 2 | 4×4 | 36 | 280 |
+| 3 | 6×6 | 6728 | 3037561 |
+| 4 | 8×8 | 12988816 | 3263262629905 |
+| 5 | 10×10 | 258584046368 | 326207195516663381931 |
+| 6 | 12×12 | 53060477521960000 | 3011882198082438957330143630563 |
+| 7 | 14×14 | 112202208776036178000000 | 2565014347691062208319404612723752103028288 |
+| 8 | 16×16 | 2444888770250892795802079170816 | 201442620359313683494245316355883565275531844406384955392 |
+| 9 | 18×18 | 548943583215388338077567813208427340288 | 1458834332808489549111708247664894524221330758005874053074138540424018259 |
+| 10 | 20×20 | 1269984011256235834242602753102293934298576249856 | 974206002957112698855240779762528002509423239819130603938953917534367085458193363176670427 **new** |
 
-## 💡 Solution
+## Notes
 
-The core of the solution lies in a recursive function named `searchTileArrangements`, combined with dynamic programming over row bitmasks. The board is processed row by row, and the number of ways to reach every possible occupancy pattern of the next row is accumulated in a table instead of enumerating whole tilings.
+The notes are Markdown files with code cells. The site build runs every cell and publishes the output under it, so the rendered pages are notebooks whose results are recomputed from this repository on every deploy.
 
-The closed-form formula from [OEIS A004003](https://oeis.org/A004003) gives the same numbers directly:
+- [Method](notes/01-method.md) ([rendered](https://dawidrylko.github.io/domino-tiling/notes/method.html)): the closed form and the resultant, transfer by rows and by cells, numbering, coupling from the past, counting modulo primes, the Markov chain for domicules, and how every number is verified.
+- [A004003 notebook](notes/02-a004003.md) ([rendered](https://dawidrylko.github.io/domino-tiling/notes/a004003.html)): three methods side by side, the floating-point error of the product, the polynomial behind the resultant, running times.
+- [A239273 notebook](notes/03-a239273.md) ([rendered](https://dawidrylko.github.io/domino-tiling/notes/a239273.html)): the sequence up to $20 \times 20$, the A239264 table, the Kahn-Lovász bound, the Chinese remainder theorem at work, a uniformity test of the Markov chain.
 
+## Method in brief
+
+- **Domino closed form.** The numbers $4\cos^2(j\pi/(2n+1))$ are the roots of a monic integer polynomial $P$ with $P(x^2) = U_{2n}(x/2)$, so $a(n) = (-1)^n \operatorname{Res}(P(x), P(-x))$, the determinant of a $2n \times 2n$ integer matrix, computed with fraction-free Bareiss elimination.
+- **Transfer.** Dominoes are counted row by row with a bitmask of the next row; domicules cell by cell, with a state of the next $w + 2$ cells, because a cell can be matched with its right, down-left, down or down-right neighbour.
+- **Modular counting.** The domicule transfer only adds, so it runs modulo primes below $2^{31}$ in `Uint32Array` tables, one worker thread per prime. The Kahn-Lovász bound on perfect matchings gives the number of primes, the Chinese remainder theorem rebuilds the count, and one more prime checks it.
+- **Numbering and sampling.** A table of completion counts turns a number into a tiling and back. Domino tilings too large to number are sampled exactly with monotone coupling from the past; domicule tilings with a symmetric Markov chain of pair swaps, which is approximately uniform.
+
+The PARI/GP programs, both run in CI against the known values:
+
+```gp
+a(n) = my(P = substpol(polchebyshev(2*n, 2, x/2), x^2, x)); (-1)^n * polresultant(P, subst(P, x, -x));
 ```
-a(n) = ∏_{j=1..n} ∏_{k=1..n} (4·cos²(jπ/(2n+1)) + 4·cos²(kπ/(2n+1)))
-```
-
-Evaluated with floating-point cosines it loses precision from n = 6 (12×12) on, so `dominoTilingSolver-Formula.js` evaluates it exactly with `BigInt` instead. The values `x_j = 4·cos²(jπ/(2n+1))` are the roots of an integer polynomial `P(x)` (built with a Chebyshev-like recurrence), which turns the double product into a resultant, `a(n) = (−1)^n · Res(P(x), P(−x))`. The resultant is the determinant of a 2n × 2n Sylvester matrix, computed with fraction-free Bareiss elimination. It needs milliseconds even for 20×20, but it only counts tilings; enumerating or drawing them still needs the dynamic programming approach.
-
-## 🧩 Key Components
-
-- **Parameters**: The function `searchTileArrangements` takes parameters such as `tilingMatrix`, `rowCount`, `colCount`, `rowIndex`, `colIndex`, `currentMask`, and `nextMask`.
-- **Function Flow**: The function walks through the cells of the current row. A cell that is already covered is skipped; a free cell is covered either by a vertical domino (which reaches into the next row) or by a horizontal domino (if the cell to its right is free as well).
-- **Bitwise Operations**: `currentMask` marks the cells of the current row that are already covered by vertical dominoes from the row above, and `nextMask` marks the cells of the next row that the current row's vertical dominoes reach into. With one bit per column, all occupancy patterns of a row fit in `2^colCount` table entries.
-- **Complexity**: The solvers walk along the longer side and use the shorter one as the row width, so the table has `(max(rowCount, colCount) + 1) × 2^min(rowCount, colCount)` entries. The running time grows linearly with the longer side and exponentially with the shorter one, which is why a 2×33 board takes milliseconds. The shorter side is capped at 30, because a row is stored as a 32-bit mask, but memory runs out much earlier: a 24×24 board already needs a table of about 420 million entries.
-
-## 📋 Requirements
-
-- [Node.js](https://nodejs.org/) 26 or newer. The major version is specified in the `.nvmrc` file (run `nvm use`).
-- [pnpm](https://pnpm.io/). The version is pinned in the `packageManager` field of `package.json`. Install it with `npm install -g pnpm` (Corepack is no longer bundled with Node.js 25 and newer).
-
-## 🚀 Getting Started
-
-1. Clone the repository:
-
-```sh
-git clone https://github.com/dawidrylko/domino-tiling.git
-cd domino-tiling
-```
-
-2. Install dependencies:
-
-```sh
-pnpm install
-```
-
-3. Run the project:
-
-```sh
-pnpm start
-```
-
-This command runs the first 7 benchmark cases (boards up to 10×10 for the `Number` solver and up to 12×12 for the others) 1000 times each and saves the results in a `benchmark/<year-month>` directory named after the month of the run (for example [`benchmark/2026-10`](./benchmark/2026-10)), together with a description of the machine in `environment.json`.
-
-The [benchmark page](https://dawidrylko.github.io/domino-tiling/#benchmark) shows the newest complete directory (one with `environment.json` and every solver's largest board), so a partial run such as `pnpm start` never replaces a full table. The full table is measured with `pnpm benchmark`. A single 20×20 run with `BigInt` takes more than four minutes even on an Apple M4, so the number of `BigInt` runs drops with the board size: 1000 up to 12×12, 10 for 14×14 and 16×16, and one for 18×18 and 20×20. The formula solver needs milliseconds and runs 1000 times on every board. Other runs stay in their own directories and are listed under the table, including [`benchmark/2024-03`](./benchmark/2024-03) (March 2024, up to 1,000 runs per board, machine not recorded) and [`benchmark/2024-04`](./benchmark/2024-04) (April 2024, 100,000 runs per board on an Intel Core i7-8700). Every directory has the same `environment.json`; a value that was not recorded at the time of the run is `null`.
-
-To run the benchmark with a different number of iterations or test cases, pass them with the `-n`, `-m` and `-o` arguments (`-o` skips the first test cases), and limit the run to one solver with `--only`. A run refuses to write into a month directory that holds results from another machine or Node.js version, unless you pass `--force`:
-
-```sh
-node benchmarkRunner.js -n <k> -m <m> -o <o> --only dominoTilingSolver-BigInt.js
-```
-
-4. Run tests:
-
-```sh
-pnpm test
-```
-
-By default, this command runs the first 7 test cases: boards up to 10×10 for the `Number` solver (it is not exact beyond that) and up to 12×12 for the `BigInt` and formula solvers. The same default is used in CI. Increasing this value may lead to a significantly longer test execution time. Every run also checks a few rectangular boards (3×4 and 2×33 in both orientations), the argument parser and the error messages for invalid arguments and boards above the size cap. The renderer tests (`pnpm test:render`) compare unranking with the enumeration, check the uniformity of random tilings with a chi-squared test at p = 0.001 and run the command line on boards without tilings.
-
-To run a different number of test cases, pass it with the `-m` argument:
-
-```sh
-node testRunner.js -m <m>
-```
-
-Replace `<m>` with the number of test cases you want to run.
-
-To run all available test cases, omit the argument:
-
-```sh
-node testRunner.js
-```
-
-## 🖼️ Visualization
-
-Rendering is a separate tool, so the solvers, tests and benchmarks are not affected by it. Every tiling has a fixed number, and any of them can be rebuilt directly from that number (unranking with a cell-by-cell variant of the solver's dynamic programming, also known as the broken-profile method), so even the 53,060,477,521,960,000th tiling of a 12×12 board renders instantly.
-
-```sh
-pnpm render -r 4 -c 4                       # all 36 tilings as SVG sheets in output/4x4/
-pnpm render -r 2 -c 2 --ascii               # print tilings in the terminal
-pnpm render -r 8 -c 8 -o 5000 -l 200        # tilings 5001-5200 of 12,988,816
-pnpm render -r 12 -c 12 -i 1000000000000    # one specific tiling
-pnpm render -r 10 -c 10 --random --ascii    # a random tiling
-pnpm render -r 20 -c 20 --random -l 12      # 12 uniformly random tilings of a 20×20 board
-```
-
-- `-l <limit>`: maximum number of tilings to render (default: 1000).
-- `-o <offset>`: number of tilings to skip, for paging through large boards.
-- `-i <number>`: render a single tiling by its 1-based number.
-- `--random`: render a single random tiling (with `-l`, several of them on boards too large to number).
-- `--all`: remove the limit; allowed only for boards with at most 100,000 tilings (6×6 and smaller squares), so it never fills the disk.
-
-Numbering needs a counting table of `(rowCount × colCount + 1) × 2^colCount` entries, which is about 250 MB for 16×16, 1.1 GB for 18×18 and several GB for 20×20. The command line numbers boards whose table has at most 4 million entries (up to 14×14). The table grows with the number of columns, so a 30×2 board can be numbered while the same board turned sideways (2×30) cannot. A board that cannot be numbered is still counted with the `BigInt` solver when its table, `(longer side + 1) × 2^shorter side`, has at most 4 million entries (2×100 or 16×16, for example); its tilings are then listed in order from the first one. For larger boards `--random` switches to monotone coupling from the past (Propp and Wilson), which samples tilings uniformly at random without any table.
-
-The [online gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser: it pages through every tiling of boards up to 18×18 and shows uniformly random tilings of a 20×20 board, without storing any images. The counting tables are built in a Web Worker that keeps only one large table in memory at a time, so the page stays responsive. It is built with `pnpm site:build` and deployed to GitHub Pages on every push to `master`. `pnpm test:site` loads the built page in headless Chrome at 1440, 786 and 375 px. It checks that the domino and domicule sheets up to 12×12 and of 20×20 (and of 18×18 for domicules) and both benchmark tables fit the page, and that the board picker fits at 1440 and 786 px (below 640 px it scrolls on purpose). It also checks that 18×18 and the 16×16 domicule board wait for confirmation and that the straight / diagonal switch keeps the board size; set `CHROME_PATH` when Chrome is not installed in a standard location.
-
-## 👑 Domicule Tilings
-
-A domicule covers two cells that share a side or a corner, so a domicule tiling is a perfect matching of the king's graph of the board. [OEIS A239264](https://oeis.org/A239264) counts them on rectangles and [OEIS A239273](https://oeis.org/A239273) on 2n × 2n squares:
-
-> 1, 3, 280, 3037561, 3263262629905, 326207195516663381931, 3011882198082438957330143630563, ...
-
-Two solvers count them with the same broken-profile dynamic programming: the cells are processed one by one in row-major order, and a free cell is matched with its right, down-left, down or down-right neighbour. The state remembers the `colCount + 2` cells ahead of the current one, so the table has `2^(min(rowCount, colCount) + 2)` entries.
-
-- `domiculeTilingSolver-BigInt.js` keeps the counts as `BigInt`. It is short and serves as the reference.
-- `domiculeTilingSolver-Modular.js` only ever adds counts, so it keeps them modulo primes below 2<sup>31</sup> in `Uint32Array` tables, one prime per worker thread (`-j <jobs>`, all cores by default). The number of primes follows from the Kahn–Lovász bound on the number of perfect matchings, the exact count is rebuilt with the Chinese remainder theorem and checked against one more prime.
-
-```sh
-node domiculeTilingSolver-Modular.js -r 20 -c 20    # a(10) of A239273
-```
-
-`pnpm test` checks both solvers against A239273 up to 12×12 and a few rectangles from A239264; `node testRunner.js` runs all known terms.
-
-The renderer draws domicules as well. `--domicule` numbers them with a table of `(rowCount × colCount + 1) × 2^(colCount + 2)` entries, four times wider than the domino one, so the command line numbers boards up to 12×12 and the gallery, under "Straight + diagonal", up to 16×16. A diagonal piece is a rounded bar from one cell centre to the other, so two crossing pieces in a 2×2 square show as an X; in ASCII it is `\` or `/` in both cells.
-
-```sh
-pnpm render -r 4 -c 4 --domicule --all            # all 280 domicule tilings of a 4×4 board
-pnpm render -r 20 -c 20 --domicule --random -l 6  # six random 20×20 domicule tilings
-```
-
-Coupling from the past relies on the lattice structure of domino tilings, which domicule tilings lack, so `--random` on boards too large to number runs a Markov chain instead: a step picks a cell and one of its eight neighbours and, when their partners are neighbours too, swaps the two pairs. The proposal is symmetric, so the uniform distribution is stationary, and on every board small enough to check (up to 4×5) the steps connect all tilings. A finite chain of 5,000 steps per cell is only approximately uniform, which the gallery and the command line say. `pnpm test:render` checks the domicule numbering against the solvers, every tiling of the small boards, the chain with a chi-squared test on 2×2 and 4×4, and that the chain reaches every tiling of the boards up to 4×5.
-
-`pnpm benchmark:domicule` times both solvers up to 16×16 (10 runs each) and the modular one on 18×18 and 20×20 (one run); the results sit next to the domino ones in [`benchmark/2026-10`](./benchmark/2026-10) and on the benchmark page.
-
-The same dynamic programming fits in a few lines of PARI/GP, in [`oeis/A239273.gp`](./oeis/A239273.gp): `T(h, w)` is A239264 and `a(n)` is A239273.
 
 ```gp
 T(h, w) = {
@@ -172,18 +73,85 @@ T(h, w) = {
 a(n) = T(2*n, 2*n);
 ```
 
-```sh
-echo 'read("oeis/A239273.gp"); print(vector(7, n, a(n-1)))' | gp -q
+The first is [`pari/A004003.gp`](pari/A004003.gp), the second [`pari/A239273.gp`](pari/A239273.gp), where `T(h, w)` is A239264 and `a(n)` is A239273.
+
+## Repository layout
+
+```text
+src/solvers/      command-line solvers, one file per method
+  dominoTilingSolver.js             dominoes, transfer by rows, Number (exact up to 10×10)
+  dominoTilingSolver-BigInt.js      dominoes, transfer by rows, BigInt
+  dominoTilingSolver-Formula.js     dominoes, the product formula as a resultant
+  domiculeTilingSolver-BigInt.js    domicules, transfer by cells, BigInt (reference)
+  domiculeTilingSolver-Modular.js   domicules, transfer modulo primes, worker threads, CRT
+src/renderer/     numbering, coupling from the past, the domicule chain, SVG and ASCII output
+src/dominoTilingRenderer.js         command line for drawing tilings
+pari/             PARI/GP programs
+notes/            the method and the notebooks, built into the site
+data/             known values the solvers, the PARI programs and the site are checked against
+tests/            test runners for the solvers, the renderer, the PARI programs and the site
+benchmarks/       the benchmark runner and its results, one directory per month and machine
+site/             the site: gallery, benchmark tables, notes
 ```
 
-`pnpm test:pari` runs the program against the same test data (A239273 up to 12×12 and the A239264 rectangles) and checks that the block above matches the file; CI installs `pari-gp` for it. Set `GP_PATH` when `gp` is not on the `PATH`.
+## Reproducing the results
 
-## 📜 License
+Requirements: [Node.js](https://nodejs.org/) 26 or newer (`.nvmrc`), [pnpm](https://pnpm.io/) (version pinned in `package.json`), and for the PARI tests [PARI/GP](https://pari.math.u-bordeaux.fr/) (`apt install pari-gp`, `brew install pari`; set `GP_PATH` when `gp` is not on the `PATH`).
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+```sh
+git clone https://github.com/dawidrylko/domino-tiling.git
+cd domino-tiling
+pnpm install
+```
 
-The formula on the gallery page is set in a subset of [STIX Two Math](https://github.com/stipub/stixfonts) 2.13 (tag `v2.13b171`, file `fonts/static_otf/STIXTwoMath-Regular.otf`), which is licensed under the SIL Open Font License 1.1, not MIT. The subset is a modified font and STIX Fonts is a trademark of the IEEE, so it is renamed Domino Tiling Math. The font and its license are in [site/fonts](./site/fonts). When the formula gains a character, add the code point the browser draws to `FORMULA` in `site/fonts/subset.py` (a single-letter `<mi>` is drawn in mathematical italic, so `m` becomes U+1D45A) and rebuild the font with `python3 site/fonts/subset.py STIXTwoMath-Regular.otf` (needs fontTools and brotli).
+Counting a single board:
 
-## 👨‍💻 Author
+```sh
+node src/solvers/dominoTilingSolver-Formula.js -r 20 -c 20
+node src/solvers/domiculeTilingSolver-Modular.js -r 20 -c 20    # -j <jobs> sets the number of worker threads
+```
 
-This project was created by [Dawid Ryłko](https://dawidrylko.com). The dynamic programming solver and the test and benchmark runners are described in two blog posts: 🇵🇱 [Domino Tiling](https://dawidrylko.com/domino-tiling/) and 🇵🇱 [Domino tiling library](https://dawidrylko.com/domino-tiling-library/).
+Verification:
+
+```sh
+pnpm test           # solvers against data/, up to 12×12 (node tests/testRunner.js runs every known term)
+pnpm test:render    # numbering, sampling and drawing
+pnpm test:pari      # both PARI/GP programs and their copies in this README
+pnpm site:build     # runs the notebooks and builds dist/site
+pnpm test:site      # the built site in headless Chrome at 1440, 786 and 375 px (set CHROME_PATH if needed)
+```
+
+Benchmarks:
+
+```sh
+pnpm benchmark            # domino solvers, results in benchmarks/results/<year-month>
+pnpm benchmark:domicule   # domicule solvers, 10 runs up to 16×16 and one modular run of 18×18 and 20×20
+```
+
+A run writes `environment.json` next to the timings and refuses to mix machines or Node.js versions in one month directory unless given `--force`. The site shows the newest directory that holds the largest board of every solver. Older runs stay in [`benchmarks/results`](benchmarks/results): March 2024 (machine not recorded) and April 2024 (100,000 runs per board on an Intel Core i7-8700).
+
+## Drawing tilings
+
+Every tiling has a number, and the renderer rebuilds any tiling from it without listing the ones before:
+
+```sh
+pnpm render -r 8 -c 8 -o 5000 -l 200              # tilings 5001-5200 of 12,988,816, as SVG sheets in output/8x8/
+pnpm render -r 12 -c 12 -i 1000000000000 --ascii  # one tiling, printed in the terminal
+pnpm render -r 20 -c 20 --random -l 12            # 12 uniformly random tilings (coupling from the past)
+pnpm render -r 4 -c 4 --domicule --all            # all 280 domicule tilings of a 4×4 board
+pnpm render -r 20 -c 20 --domicule --random -l 6  # six approximately uniform domicule tilings
+```
+
+`-l` limits the number of tilings (default 1000), `-o` skips tilings, `-i` draws one tiling by its 1-based number, `--random` samples, `--all` lifts the limit on boards with at most 100,000 tilings, `--ascii` prints instead of writing SVG. The command line numbers boards whose table has at most 4 million entries: dominoes up to 14×14, domicules up to 12×12. The [gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser, up to 18×18 for dominoes and 16×16 for domicules, with sampling above that.
+
+## Citation
+
+If you use the code or the numbers, cite the repository; [`CITATION.cff`](CITATION.cff) holds the metadata, and GitHub offers it as BibTeX under "Cite this repository".
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
+## Author
+
+[Dawid Ryłko](https://dawidrylko.com). The first version of the domino solvers and the test and benchmark runners is described in two blog posts (in Polish): [Domino Tiling](https://dawidrylko.com/domino-tiling/) and [Domino tiling library](https://dawidrylko.com/domino-tiling-library/).

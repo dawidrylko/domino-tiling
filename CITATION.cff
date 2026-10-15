@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: If you use this software or its results, please cite it as below.
+title: "Domino and Domicule Tilings: exact counts, numbering and sampling"
+abstract: >-
+  Exact counts of domino tilings (OEIS A004003) and domicule tilings (OEIS A239264, A239273)
+  of rectangular boards: the domino product formula evaluated as a resultant of integer
+  polynomials, transfer-matrix dynamic programming, a modular solver with the Chinese
+  remainder theorem, numbering and sampling of individual tilings, and PARI/GP programs.
+type: software
+authors:
+  - family-names: Ryłko
+    given-names: Dawid
+    website: https://dawidrylko.com
+repository-code: https://github.com/dawidrylko/domino-tiling
+url: https://dawidrylko.github.io/domino-tiling/
+license: MIT
+keywords:
+  - domino tiling
+  - dimer coverings
+  - domicule tiling
+  - king's graph
+  - perfect matchings
+  - OEIS A004003
+  - OEIS A239273
+  - OEIS A239264
+  - resultant
+  - transfer matrix
+  - Chinese remainder theorem
+  - PARI/GP

@@ -237,12 +237,14 @@ async function __main__() {
   console.log(result.toString());
 }
 
-if (isMainThread) {
+if (!isMainThread) {
+  const { rows, cols, prime } = workerData;
+  parentPort.postMessage(countModulo(rows, cols, prime));
+} else if (require.main === module) {
   __main__().catch(error => {
     console.error(error.message);
     process.exit(1);
   });
-} else {
-  const { rows, cols, prime } = workerData;
-  parentPort.postMessage(countModulo(rows, cols, prime));
 }
+
+module.exports = { calculateTotalTilingCombinations, calculateLog2Bound, listPrimes, countModulo, combineResidues };

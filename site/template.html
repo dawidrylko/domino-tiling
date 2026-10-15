@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Domino Tiling: every tiling of a 2n × 2n board | Dawid Ryłko</title>
-<meta name="description" content="Browse every domino tiling of boards up to 18×18 (all 12,988,816 tilings of a chessboard included), see the closed-form formula, sample uniformly random 20×20 tilings and compare three JavaScript solvers.">
+<meta name="description" content="Domino (OEIS A004003) and domicule (A239273) tilings of 2n×2n boards counted up to 20×20, with notebooks on the method, a gallery of every tiling up to 18×18 and solver benchmarks.">
 <meta name="author" content="Dawid Ryłko">
 <meta name="keywords" content="domino tiling, dimer coverings, OEIS A004003, domicule tiling, king's graph, perfect matchings, OEIS A239273, PARI/GP, chessboard, combinatorics, dynamic programming, bitmask, BigInt, JavaScript">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -19,14 +19,14 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:url" content="__SITE_URL__">
 <meta property="og:title" content="Domino Tiling: every tiling of a 2n × 2n board and a solver benchmark">
-<meta property="og:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
+<meta property="og:description" content="12,988,816 domino and 3,263,262,629,905 domicule tilings of a chessboard. Both sequences up to 20×20, notebooks on the method and a gallery of the tilings.">
 <meta property="og:image" content="__SITE_URL__og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Six of the 12,988,816 domino tilings of an 8×8 board">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Domino Tiling: every tiling of a 2n × 2n board and a solver benchmark">
-<meta name="twitter:description" content="12,988,816 ways to tile a chessboard with dominoes. Browse every one of them, from 2×2 up to 18×18.">
+<meta name="twitter:description" content="12,988,816 domino and 3,263,262,629,905 domicule tilings of a chessboard. Both sequences up to 20×20, notebooks on the method and a gallery of the tilings.">
 <meta name="twitter:image" content="__SITE_URL__og-image.png">
 <meta name="twitter:image:alt" content="Six of the 12,988,816 domino tilings of an 8×8 board">
 <script type="application/ld+json">__JSON_LD__</script>
@@ -108,8 +108,6 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .formula figcaption { color: var(--muted); }
 .formula figcaption p { margin: 0 0 12px; }
 .formula figcaption p:last-child { margin-bottom: 0; }
-.program pre { margin: 12px 0 0; padding: 12px 14px; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 1.45; }
-.program pre code { background: none; border: 0; padding: 0; }
 @media (max-width: 640px) { .formula math { font-size: 1.05em; } }
 .sheet svg { display: block; max-width: 100%; height: auto; }
 h1 { display: flex; align-items: center; gap: 10px; }
@@ -120,15 +118,24 @@ th:first-child, td:first-child { text-align: left; }
 th { color: var(--muted); font-weight: 600; font-size: 13px; }
 .table-wrap { overflow-x: auto; }
 @media (max-width: 720px) {
-  .table-wrap table { display: block; }
-  .table-wrap tbody { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; }
-  .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  .table-wrap tr { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); grid-template-columns: subgrid; row-gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .table-wrap td { padding: 0; border: 0; text-align: left; white-space: normal; }
-  .table-wrap td::before { content: attr(data-label); display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
-  .table-wrap td:last-child { grid-area: 1 / 3; }
+  #benchmark .table-wrap table { display: block; }
+  #benchmark .table-wrap tbody { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; }
+  #benchmark .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  #benchmark .table-wrap tr { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); grid-template-columns: subgrid; row-gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  #benchmark .table-wrap td { padding: 0; border: 0; text-align: left; white-space: normal; }
+  #benchmark .table-wrap td::before { content: attr(data-label); display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
+  #benchmark .table-wrap td:last-child { grid-area: 1 / 3; }
 }
 .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+.sequences td, .sequences th { white-space: normal; vertical-align: top; }
+.sequences td:nth-child(n+3) { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; word-break: break-all; }
+.sequences td:nth-child(2) { white-space: nowrap; }
+.badge { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font: 600 11px/1.6 system-ui, sans-serif; word-break: normal; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0 0 28px; }
+.notes a { display: block; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--fg); text-decoration: none; }
+.notes a:hover { border-color: var(--accent); }
+.notes strong { display: block; margin-bottom: 2px; }
+.notes span { color: var(--muted); font-size: 13px; }
 .table-title { font-size: 15px; margin: 0 0 8px; }
 .note + .table-title { margin-top: 28px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
@@ -154,10 +161,19 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
   </header>
   <p class="intro">
-    A chessboard can be covered with 32 dominoes in exactly <strong>12,988,816</strong> ways. A 20×20 board has about
-    1.27&nbsp;×&nbsp;10<sup>48</sup> tilings, so listing them one by one is out of the question. The project answers two
-    questions instead: how many tilings a 2n&nbsp;×&nbsp;2n board has, and what any single one of them looks like.
+    How many ways are there to cover a 2n&nbsp;×&nbsp;2n board with pieces that each cover two neighbouring cells, and what
+    does any one of those coverings look like? With dominoes, which join cells that share a side, the answer is
+    <a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>: a chessboard has 12,988,816 tilings. With domicules, which may
+    also join cells that share only a corner, it is <a href="https://oeis.org/A239273">OEIS&nbsp;A239273</a>, and the
+    chessboard has 3,263,262,629,905. Both sequences, counted here up to 20&nbsp;×&nbsp;20:
   </p>
+  <div class="table-wrap sequences">
+    <table>
+      <thead><tr><th>n</th><th>Board</th><th><a href="https://oeis.org/A004003">A004003</a> (dominoes)</th><th><a href="https://oeis.org/A239273">A239273</a> (domicules)</th></tr></thead>
+      <tbody>__SEQUENCE_ROWS__</tbody>
+    </table>
+  </div>
+  <p class="note">__SEQUENCE_NOTE__</p>
   <figure class="formula">
     <math display="block">
       <mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo>
@@ -176,35 +192,15 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     </math>
     <figcaption>
       <p>
-        The first answer is the product formula above (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>), derived in
-        1961 by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a> and by
-        <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. With floating-point cosines it goes wrong from 12×12
-        on, so the formula solver evaluates it exactly with BigInt, as the resultant of two integer polynomials, in
-        milliseconds even for 20×20.
-      </p>
-      <p>
-        The second one takes dynamic programming. Two solvers count the tilings by scanning the board with a bitmask of the
-        current row, and a finer table, filled one cell at a time, turns a tiling's number into the tiling itself. That is how
-        the gallery below shows every tiling up to 18×18 without storing a single image. 20×20 is different. Its table would
-        need several gigabytes, so the gallery draws uniformly random tilings with coupling from the past.
+        The product formula for A004003, found in 1961 by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a>
+        and by <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. The project evaluates it exactly as a resultant
+        of two integer polynomials and counts domicule tilings by dynamic programming.
       </p>
     </figcaption>
   </figure>
-  <figure class="formula program">
-    <figcaption>
-      <p>
-        Let a piece also lie diagonally, over two cells that share only a corner, and it becomes a domicule. A domicule
-        tiling is a perfect matching of the king's graph of the board: <a href="https://oeis.org/A239264">OEIS&nbsp;A239264</a>
-        counts them on rectangles and <a href="https://oeis.org/A239273">A239273</a> on 2n&nbsp;×&nbsp;2n squares, where a
-        chessboard already has 3,263,262,629,905 of them. They are counted with the same cell-by-cell dynamic programming,
-        except that a state has to remember the next 2n&nbsp;+&nbsp;2 cells, because a cell can be matched with its right,
-        down-left, down or down-right neighbour. Switch the gallery to diagonal pieces to browse them. The whole method fits
-        in a short <a href="__PARI_PROGRAM_URL__">PARI/GP program</a>, where <code>T(h, w)</code> is A239264 and
-        <code>a(n)</code> is A239273:
-      </p>
-    </figcaption>
-    <pre><code>__PARI_PROGRAM__</code></pre>
-  </figure>
+  <nav class="notes" aria-label="Notes">
+__NOTES_NAV__
+  </nav>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
     <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark">repository</a>.</p></noscript>
   <nav class="tabs">

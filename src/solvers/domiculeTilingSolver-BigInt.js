@@ -82,4 +82,8 @@ function __main__() {
   console.log(result.toString());
 }
 
-__main__();
+if (require.main === module) {
+  __main__();
+}
+
+module.exports = { calculateTotalTilingCombinations };

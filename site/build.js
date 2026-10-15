@@ -1,8 +1,10 @@
-const { execFileSync } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, filesDomicule, testCasesDomicule } = require('../data');
 const { DOMICULE_SWEEPS } = require('../src/renderer');
+const domiculeModular = require('../src/solvers/domiculeTilingSolver-Modular.js');
+const { renderNote, listNotes, NOTES_DIRECTORY } = require('./notes');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
@@ -52,7 +54,14 @@ const DOMICULE_BOARDS = [
   { rowCount: 20, colCount: 20, mode: 'random' },
 ];
 const DEFAULT_BOARD = '4x4';
-const PARI_PROGRAM = 'pari/A239273.gp';
+const REPOSITORY_BLOB_URL = 'https://github.com/dawidrylko/domino-tiling/blob/master';
+const SEQUENCE_TERMS = 10;
+const NOTE_LABELS = { method: 'Method', a004003: 'A004003 notebook', a239273: 'A239273 notebook' };
+const NOTE_SUMMARIES = {
+  method: 'How the tilings are counted, numbered and sampled, and how every number is checked.',
+  a004003: 'Notebook: domino tilings by three methods, the resultant and the running time.',
+  a239273: 'Notebook: domicule tilings up to 20 × 20, the modular solver and the Markov chain.',
+};
 
 function listBenchmarkRuns() {
   return fs
@@ -142,35 +151,31 @@ function countTilings(board) {
   return testCase.expectedResult;
 }
 
-/**
- * Counts the domicule tilings of a gallery board: from test-data when the term is known
- * there, otherwise with the modular solver at build time.
- * @param {Object} board The board.
- * @returns {string} The number of tilings.
- */
-function countDomiculeTilings(board) {
-  const testCase = testCasesDomicule.find(
-    t => t.rowCount === board.rowCount && t.colCount === board.colCount,
-  );
+const domiculeCounts = new Map();
 
-  if (testCase) {
-    return testCase.expectedResult;
+/**
+ * Counts the domicule tilings of a board once per build: from test-data when the term is
+ * known there, otherwise with the modular solver. The gallery and the notebooks share the result.
+ * @param {Object} board The board.
+ * @returns {Promise<string>} The number of tilings.
+ */
+function countDomiculeTilings({ rowCount, colCount }) {
+  const key = `${rowCount}x${colCount}`;
+
+  if (!domiculeCounts.has(key)) {
+    const known = testCasesDomicule.find(t => t.rowCount === rowCount && t.colCount === colCount);
+
+    domiculeCounts.set(
+      key,
+      known
+        ? Promise.resolve(known.expectedResult)
+        : domiculeModular
+            .calculateTotalTilingCombinations({ rowCount, colCount, jobs: os.availableParallelism() })
+            .then(String),
+    );
   }
 
-  return execFileSync(
-    process.execPath,
-    [path.join(ROOT_DIRECTORY, 'src', 'solvers', 'domiculeTilingSolver-Modular.js'), '-r', String(board.rowCount), '-c', String(board.colCount)],
-    { encoding: 'utf-8' },
-  ).trim();
-}
-
-function readPariProgram() {
-  return fs
-    .readFileSync(path.join(ROOT_DIRECTORY, PARI_PROGRAM), 'utf-8')
-    .split('\n')
-    .filter(line => !line.startsWith('\\\\'))
-    .join('\n')
-    .trim();
+  return domiculeCounts.get(key);
 }
 
 function escapeHtml(text) {
@@ -291,29 +296,107 @@ function buildJsonLd() {
   };
 }
 
-function buildSitemap() {
+function buildSitemap(notes) {
   const today = new Date().toISOString().slice(0, 10);
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    `  <url><loc>${SITE_URL}</loc><lastmod>${today}</lastmod></url>`,
+    ...['', ...notes.map(({ slug }) => `notes/${slug}.html`)].map(
+      page => `  <url><loc>${SITE_URL}${page}</loc><lastmod>${today}</lastmod></url>`,
+    ),
     '</urlset>',
     '',
   ].join('\n');
 }
 
-function __main__() {
+async function buildSequenceRows() {
+  const rows = [];
+
+  for (let n = 0; n <= SEQUENCE_TERMS; n++) {
+    const side = 2 * n;
+    const domino = countTilings({ rowCount: side, colCount: side });
+    const domicule = await countDomiculeTilings({ rowCount: side, colCount: side });
+    const published = testCasesDomicule.some(t => t.rowCount === side && t.colCount === side);
+
+    rows.push(
+      `<tr><td>${n}</td><td>${side}×${side}</td><td>${domino}</td><td>${domicule}${published ? '' : '<span class="badge">new</span>'}</td></tr>`,
+    );
+  }
+
+  return rows.join('');
+}
+
+function resolveNoteLink(target, notes) {
+  if (/^[a-z]+:/.test(target) || target.startsWith('#')) {
+    return target;
+  }
+
+  const note = notes.find(({ file }) => file === target);
+
+  if (note) {
+    return `${note.slug}.html`;
+  }
+
+  const file = path.posix.normalize(path.posix.join('notes', target));
+
+  return `${path.extname(file) ? REPOSITORY_BLOB_URL : REPOSITORY_TREE_URL}/${file}`;
+}
+
+async function buildNotes(notes, context) {
+  const template = fs.readFileSync(path.join(__dirname, 'note-template.html'), 'utf-8');
+  const directory = path.join(OUTPUT_DIRECTORY, 'notes');
+  const today = new Date().toISOString().slice(0, 10);
+  const rendered = [];
+
+  fs.mkdirSync(directory, { recursive: true });
+
+  for (const note of notes) {
+    const markdown = fs.readFileSync(path.join(NOTES_DIRECTORY, note.file), 'utf-8');
+    const { title, description, html, toc, cells } = await renderNote(markdown, {
+      resolveLink: target => resolveNoteLink(target, notes),
+      context,
+    });
+    rendered.push({ ...note, title });
+    const tocHtml = toc.length > 2 ? `<nav class="toc" aria-label="Contents"><strong>Contents</strong><ol>${toc.map(item => `<li><a href="#${item.id}">${item.title}</a></li>`).join('')}</ol></nav>` : '';
+    const page = template
+      .replace(/__TITLE__/g, () => escapeHtml(title))
+      .replace(/__DESCRIPTION__/g, () => escapeHtml(description))
+      .replace(/__URL__/g, `${SITE_URL}notes/${note.slug}.html`)
+      .replace(/__SITE_URL__/g, SITE_URL)
+      .replace('__CONTENT__', () => html.replace('</h1>', `</h1>\n${tocHtml}`))
+      .replace(/__SOURCE_URL__/g, `${REPOSITORY_BLOB_URL}/notes/${note.file}`)
+      .replace(/__SOURCE__/g, `notes/${note.file}`)
+      .replace('__DATE__', today)
+      .replace('__NAV__', () =>
+        notes
+          .map(other => `<a href="${other.slug}.html"${other === note ? ' aria-current="page"' : ''}>${escapeHtml(NOTE_LABELS[other.slug] || other.slug)}</a>`)
+          .join(''),
+      );
+
+    fs.writeFileSync(path.join(directory, `${note.slug}.html`), page);
+    console.log(`Note saved: ${path.relative(ROOT_DIRECTORY, path.join(directory, `${note.slug}.html`))} (${cells} cells)`);
+  }
+
+  return rendered;
+}
+
+async function __main__() {
   fs.rmSync(OUTPUT_DIRECTORY, { recursive: true, force: true });
   fs.mkdirSync(OUTPUT_DIRECTORY, { recursive: true });
 
-  const domiculeBoards = DOMICULE_BOARDS.map(board => ({
-    id: `${board.rowCount}x${board.colCount}-diagonal`,
-    pieces: 'domicule',
-    mode: 'pages',
-    ...board,
-    total: countDomiculeTilings(board),
-  }));
+  const domiculeBoards = [];
+
+  for (const board of DOMICULE_BOARDS) {
+    domiculeBoards.push({
+      id: `${board.rowCount}x${board.colCount}-diagonal`,
+      pieces: 'domicule',
+      mode: 'pages',
+      ...board,
+      total: await countDomiculeTilings(board),
+    });
+  }
+
   const domiculeTotals = new Map([
     ...testCasesDomicule.map(t => [`${t.rowCount}x${t.colCount}`, t.expectedResult]),
     ...domiculeBoards.map(b => [`${b.rowCount}x${b.colCount}`, b.total]),
@@ -334,6 +417,18 @@ function __main__() {
     domiculeBenchmark: buildDomiculeBenchmark(domiculeTotals),
     environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
+  const notes = listNotes();
+  const renderedNotes = await buildNotes(notes, {
+    root: ROOT_DIRECTORY,
+    benchmark: data.benchmark,
+    benchmarkRun: `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`,
+    domiculeBenchmark: data.domiculeBenchmark,
+    countDomicule: board => countDomiculeTilings(board).then(BigInt),
+  });
+  const sequenceRows = await buildSequenceRows();
+  const notesNav = renderedNotes
+    .map(({ slug, title }) => `    <a href="notes/${slug}.html"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(NOTE_SUMMARIES[slug] || '')}</span></a>`)
+    .join('\n');
   const readScripts = files => files.map(file => fs.readFileSync(path.join(ROOT_DIRECTORY, file), 'utf-8')).join('\n');
   const scripts = readScripts(BROWSER_SCRIPTS);
   const workerSource = readScripts(WORKER_SCRIPTS);
@@ -347,15 +442,23 @@ function __main__() {
     .replace(/__BENCHMARK_DIRECTORY__/g, `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`)
     .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks())
     .replace(/__DOMICULE_SWEEPS__/g, DOMICULE_SWEEPS.toLocaleString('en-US'))
-    .replace('__PARI_PROGRAM__', () => escapeHtml(readPariProgram()))
-    .replace(/__PARI_PROGRAM_URL__/g, `https://github.com/dawidrylko/domino-tiling/blob/master/${PARI_PROGRAM}`);
+    .replace('__SEQUENCE_ROWS__', () => sequenceRows)
+    .replace(
+      '__SEQUENCE_NOTE__',
+      'Terms marked <span class="badge">new</span> are not in the OEIS yet; they are counted with the modular solver when this page is built and checked against an extra prime. ' +
+        'The <a href="notes/a239273.html">A239273 notebook</a> shows the computation.',
+    )
+    .replace('__NOTES_NAV__', () => notesNav);
 
   Object.entries(ASSETS).forEach(([name, source]) =>
     fs.copyFileSync(path.join(ROOT_DIRECTORY, source), path.join(OUTPUT_DIRECTORY, name)),
   );
   fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'index.html'), html);
-  fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'sitemap.xml'), buildSitemap());
+  fs.writeFileSync(path.join(OUTPUT_DIRECTORY, 'sitemap.xml'), buildSitemap(notes));
   console.log(`Site saved: ${path.relative(ROOT_DIRECTORY, path.join(OUTPUT_DIRECTORY, 'index.html'))}`);
 }
 
-__main__();
+__main__().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

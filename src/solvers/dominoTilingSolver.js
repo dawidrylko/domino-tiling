@@ -107,4 +107,8 @@ function __main__() {
   }
 }
 
-__main__();
+if (require.main === module) {
+  __main__();
+}
+
+module.exports = { calculateTotalTilingCombinations };

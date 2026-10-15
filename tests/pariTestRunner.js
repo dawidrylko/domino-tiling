@@ -1,56 +1,68 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { testCasesDomicule, testCasesDomiculeRectangles } = require('../data');
+const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('../data');
 
 const ROOT_DIRECTORY = path.join(__dirname, '..');
-const PROGRAM_FILE = path.join(ROOT_DIRECTORY, 'pari', 'A239273.gp');
 const README_FILE = path.join(ROOT_DIRECTORY, 'README.md');
 const GP = process.env.GP_PATH || 'gp';
 const GP_TIMEOUT = 300000;
-const MAX_SQUARE_SIDE = 12;
+const MAX_DOMICULE_SQUARE_SIDE = 12;
+const PROGRAMS = [
+  {
+    file: 'pari/A004003.gp',
+    testCases: testCasesBigInt
+      .filter(({ rowCount, colCount }) => rowCount === colCount && rowCount % 2 === 0)
+      .map(({ rowCount, expectedResult }) => ({ call: `a(${rowCount / 2})`, expectedResult })),
+  },
+  {
+    file: 'pari/A239273.gp',
+    testCases: [
+      ...testCasesDomicule.filter(({ rowCount }) => rowCount <= MAX_DOMICULE_SQUARE_SIDE),
+      ...testCasesDomiculeRectangles,
+    ]
+      .map(({ rowCount, colCount, expectedResult }) => ({
+        call: `T(${Math.max(rowCount, colCount)}, ${Math.min(rowCount, colCount)})`,
+        expectedResult,
+      }))
+      .concat({ call: 'a(2)', expectedResult: '280' }),
+  },
+];
 
-function readProgram() {
+function readProgram(file) {
   return fs
-    .readFileSync(PROGRAM_FILE, 'utf-8')
+    .readFileSync(path.join(ROOT_DIRECTORY, file), 'utf-8')
     .split('\n')
     .filter(line => !line.startsWith('\\\\'))
     .join('\n')
     .trim();
 }
 
-function executeReadmeTest() {
-  process.stdout.write('Executing README test 1 of 1 for the PARI/GP program... ');
-
+function executeReadmeTests() {
   const blocks = [...fs.readFileSync(README_FILE, 'utf-8').matchAll(/```gp\n([\s\S]*?)```/g)].map(match =>
     match[1].trim(),
   );
 
-  if (blocks.length !== 1 || blocks[0] !== readProgram()) {
-    console.error(`Failed! The README must show ${path.relative(ROOT_DIRECTORY, PROGRAM_FILE)} in one gp block.`);
+  return PROGRAMS.every(({ file }, index) => {
+    process.stdout.write(`Executing README test ${index + 1} of ${PROGRAMS.length} for ${file}... `);
 
-    return false;
-  }
+    if (!blocks.includes(readProgram(file))) {
+      console.error(`Failed! The README must show ${file} in a gp block.`);
 
-  console.log('Passed!');
+      return false;
+    }
 
-  return true;
+    console.log('Passed!');
+
+    return true;
+  });
 }
 
-function executeGpTests() {
-  const testCases = [
-    ...testCasesDomicule.filter(({ rowCount }) => rowCount <= MAX_SQUARE_SIDE),
-    ...testCasesDomiculeRectangles,
-  ].map(({ rowCount, colCount, expectedResult }) => ({
-    rows: Math.max(rowCount, colCount),
-    cols: Math.min(rowCount, colCount),
-    expectedResult,
-  }));
+function executeGpTests({ file, testCases }) {
   const script = [
     'default(parisizemax, 10^9);',
-    `read("${PROGRAM_FILE.replace(/\\/g, '/')}");`,
-    ...testCases.map(({ rows, cols }) => `print(T(${rows}, ${cols}));`),
-    'print(a(2));',
+    `read("${path.join(ROOT_DIRECTORY, file).replace(/\\/g, '/')}");`,
+    ...testCases.map(({ call }) => `print(${call});`),
   ].join('\n');
   const { status, stdout, stderr, error } = spawnSync(GP, ['-q', '-f'], {
     input: script,
@@ -67,12 +79,9 @@ function executeGpTests() {
   }
 
   const results = stdout.trim().split('\n');
-  const expected = [...testCases.map(({ expectedResult }) => expectedResult), '280'];
 
-  return expected.every((expectedResult, index) => {
-    const label = index < testCases.length ? `T(${testCases[index].rows}, ${testCases[index].cols})` : 'a(2)';
-
-    process.stdout.write(`Executing PARI/GP test ${index + 1} of ${expected.length} for ${label}... `);
+  return testCases.every(({ call, expectedResult }, index) => {
+    process.stdout.write(`Executing PARI/GP test ${index + 1} of ${testCases.length} for ${file}: ${call}... `);
 
     if (results[index] !== expectedResult) {
       console.error(`Failed! Expected: ${expectedResult}, Actual: ${results[index]}`);
@@ -87,10 +96,10 @@ function executeGpTests() {
 }
 
 function __main__() {
-  const readmeTestPassed = executeReadmeTest();
-  const gpTestsPassed = executeGpTests();
+  const readmeTestsPassed = executeReadmeTests();
+  const gpTestsPassed = PROGRAMS.map(executeGpTests).every(Boolean);
 
-  if (readmeTestPassed && gpTestsPassed) {
+  if (readmeTestsPassed && gpTestsPassed) {
     console.log('All PARI/GP tests completed successfully.');
     process.exit(0);
   }
