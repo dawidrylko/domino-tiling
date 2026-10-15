@@ -7,11 +7,9 @@ const STYLE = [
   '.h,.v{stroke:#1f2937;stroke-width:1}',
   '.h{fill:#4f7cac}',
   '.v{fill:#e0a458}',
-  '.d,.a{stroke:#1f2937;stroke-width:1}',
-  '.d{fill:#5f9e6e}',
-  '.a{fill:#a06cb4}',
   'text{font:11px monospace;fill:#4b5563;text-anchor:middle}',
 ].join('');
+const DIAGONAL_STYLE = ['.d,.a{stroke:#1f2937;stroke-width:1}', '.d{fill:#5f9e6e}', '.a{fill:#a06cb4}'].join('');
 
 const DIAGONAL_LENGTH = Math.SQRT2 * CELL_SIZE + 10;
 const DIAGONAL_WIDTH = 8;
@@ -38,12 +36,16 @@ function renderDiagonal({ row, col, dc }, offsetX, offsetY) {
  * Renders one piece: a domino { row, col, horizontal } or a domicule { row, col, dr, dc },
  * which covers (row, col) and (row + dr, col + dc).
  */
+function isDiagonal(piece) {
+  return Boolean(piece.dr && piece.dc);
+}
+
 function renderPiece(piece, offsetX, offsetY) {
   if (piece.dr === undefined) {
     return renderDomino(piece, offsetX, offsetY);
   }
 
-  return piece.dr && piece.dc
+  return isDiagonal(piece)
     ? renderDiagonal(piece, offsetX, offsetY)
     : renderDomino({ row: piece.row, col: piece.col, horizontal: piece.dr === 0 }, offsetX, offsetY);
 }
@@ -55,8 +57,8 @@ function renderTiling(tiling, label, offsetX, offsetY, options) {
 
   return [
     `<rect class="b" x="${offsetX}" y="${offsetY}" width="${boardWidth}" height="${boardHeight}"/>`,
-    ...tiling.filter(piece => !(piece.dr && piece.dc)).map(piece => renderPiece(piece, offsetX, offsetY)),
-    ...tiling.filter(piece => piece.dr && piece.dc).map(piece => renderPiece(piece, offsetX, offsetY)),
+    ...tiling.filter(piece => !isDiagonal(piece)).map(piece => renderPiece(piece, offsetX, offsetY)),
+    ...tiling.filter(isDiagonal).map(piece => renderPiece(piece, offsetX, offsetY)),
     `<text x="${offsetX + boardWidth / 2}" y="${offsetY + boardHeight + LABEL_HEIGHT - 2}">${label}</text>`,
   ].join('');
 }
@@ -94,7 +96,7 @@ function renderSheet(tilings, firstNumber, options) {
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    `<style>${STYLE}</style>`,
+    `<style>${STYLE}${tilings.some(tiling => tiling.some(isDiagonal)) ? DIAGONAL_STYLE : ''}</style>`,
     '<rect class="bg" width="100%" height="100%" fill="#fff"/>',
     ...body,
     '</svg>',

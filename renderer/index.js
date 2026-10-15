@@ -11,6 +11,7 @@ const {
   createDomiculeUnranker,
   unrankDomiculeTiling,
   sampleDomiculeTiling,
+  DEFAULT_SWEEPS: DOMICULE_SWEEPS,
 } = require('./domicule');
 
 module.exports = {
@@ -29,4 +30,5 @@ module.exports = {
   createDomiculeUnranker,
   unrankDomiculeTiling,
   sampleDomiculeTiling,
+  DOMICULE_SWEEPS,
 };

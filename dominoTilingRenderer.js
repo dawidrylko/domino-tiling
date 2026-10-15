@@ -219,7 +219,11 @@ function __main__() {
     const isOdd = (rowCount * colCount) % 2 !== 0;
 
     if (domicule && !unranker && !isOdd) {
-      throw new Error('--domicule lists tilings only when their numbering table fits in memory; use --random instead.');
+      throw new Error(
+        pieces.canUnrank({ rowCount: colCount, colCount: rowCount })
+          ? `--domicule needs a numbering table, which grows with the number of columns; use -r ${colCount} -c ${rowCount} instead.`
+          : '--domicule lists tilings only when their numbering table fits in memory; use --random instead.',
+      );
     }
 
     const counted = isOdd ? 0 : unranker ? unranker.total : countTilings(options);

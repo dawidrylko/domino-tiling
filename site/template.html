@@ -481,7 +481,7 @@ async function renderGallery(state) {
     $('gallery-meta').innerHTML =
       `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · too many to number in a browser, ` +
       (board.pieces === 'domicule'
-        ? `so these are ${RANDOM_SAMPLE_SIZE} approximately uniform random ones (a Markov chain of 5,000 steps per cell)`
+        ? `so these are ${RANDOM_SAMPLE_SIZE} approximately uniform random ones (a Markov chain of __DOMICULE_SWEEPS__ steps per cell)`
         : `so these are ${RANDOM_SAMPLE_SIZE} uniformly random ones (coupling from the past)`);
     $('status').textContent = 'Sampling random tilings...';
     const tilings = await requestTilings({ type: 'random', board, count: RANDOM_SAMPLE_SIZE });

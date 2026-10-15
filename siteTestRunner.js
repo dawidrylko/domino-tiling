@@ -35,7 +35,9 @@ const SHEET_BOARDS = [
   '20x20',
   '2x2-diagonal',
   '4x4-diagonal',
+  '6x6-diagonal',
   '8x8-diagonal',
+  '10x10-diagonal',
   '12x12-diagonal',
   '18x18-diagonal',
   '20x20-diagonal',
@@ -283,9 +285,10 @@ async function checkSheets(page, baseUrl, width) {
 
   for (const board of SHEET_BOARDS) {
     const [, rowCount, colCount] = board.match(/^(\d+)x(\d+)/);
+    const label = `${board.endsWith('-diagonal') ? 'Domicule' : 'Domino'} tilings of a ${rowCount} by ${colCount}`;
     await page.evaluate(`location.hash = 'gallery/${board}/1'`);
     await page.waitFor(
-      `(document.querySelector('#sheet svg')?.getAttribute('aria-label') || '').includes('${rowCount} by ${colCount}')`,
+      `(document.querySelector('#sheet svg')?.getAttribute('aria-label') || '').includes('${label}')`,
       `the ${board} sheet`,
     );
     await page.settle();

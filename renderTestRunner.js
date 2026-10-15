@@ -12,6 +12,7 @@ const {
   unrankDomiculeTiling,
   sampleDomiculeTiling,
 } = require('./renderer');
+const crypto = require('crypto');
 const { createRandom } = require('./renderer/cftp');
 const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('./test-data');
 
@@ -28,7 +29,23 @@ const randomValidityTestCases = [
   { rowCount: 20, colCount: 20 },
   { rowCount: 30, colCount: 30 },
 ];
+const DOMINO_OUTPUT_HASHES = {
+  svg: '96c9ec62458a6f5677a6400d3ded94931182af97bee7ce4c1cffc5bb3c8fd777',
+  ascii: '3bbf6c1dc91ec1980e1b71fa58ff4796d0f87123a57ca282b46d71dd9677afc7',
+};
 const DOMICULE_FULL_CHECK_LIMIT = BigInt(5000);
+const DOMICULE_REACH_SWEEPS = 20;
+const DOMICULE_REACH_SAMPLES_PER_TILING = 30;
+const domiculeReachTestCases = [
+  { rowCount: 2, colCount: 3, expectedResult: 5 },
+  { rowCount: 3, colCount: 4, expectedResult: 43 },
+  { rowCount: 4, colCount: 5, expectedResult: 1563 },
+  { rowCount: 5, colCount: 4, expectedResult: 1563 },
+];
+const domiculeShapeTestCases = [
+  { rowCount: 2, colCount: 2, piece: { row: 0, col: 0, dr: 1, dc: 1 }, svg: 'class="d"', rotation: 'rotate(45 ', ascii: '\\ .\n. \\' },
+  { rowCount: 2, colCount: 2, piece: { row: 0, col: 1, dr: 1, dc: -1 }, svg: 'class="a"', rotation: 'rotate(-45 ', ascii: '. /\n/ .' },
+];
 const DOMICULE_TEST_SWEEPS = 200;
 const domiculeRandomTestCases = [
   { rowCount: 2, colCount: 2, expectedResult: 3, criticalValue: 13.82 },
@@ -61,6 +78,7 @@ const cliTestCases = [
   { rowCount: 4, colCount: 4, args: ['-i', '280', '--ascii', '--domicule'], status: 0, output: 'Board 4x4: 280 tilings.' },
   { rowCount: 3, colCount: 3, args: ['--ascii', '--domicule'], status: 0, output: 'Nothing to render.' },
   { rowCount: 20, colCount: 20, args: ['--ascii', '--domicule'], status: 1, output: 'use --random instead' },
+  { rowCount: 2, colCount: 20, args: ['-i', '1', '--ascii', '--domicule'], status: 1, output: 'use -r 20 -c 2 instead' },
   { rowCount: 20, colCount: 20, args: ['--random', '--ascii', '--domicule'], status: 0, output: 'approximately uniformly' },
   {
     rowCount: 2,
@@ -387,6 +405,59 @@ function runDomiculeValidityTest(testCase) {
   return true;
 }
 
+function runDominoOutputTest() {
+  const options = { rowCount: 4, colCount: 4 };
+  const tilings = [...enumerateTilings(options)].slice(0, 12);
+  const hash = text => crypto.createHash('sha256').update(text).digest('hex');
+  const svg = hash(renderSheet(tilings, 1, options));
+  const ascii = hash(tilings.map(tiling => renderAscii(tiling, options)).join('\n'));
+
+  if (svg !== DOMINO_OUTPUT_HASHES.svg || ascii !== DOMINO_OUTPUT_HASHES.ascii) {
+    console.error(`Failed! Domino output changed: svg ${svg}, ascii ${ascii}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeShapeTest({ piece, svg, rotation, ascii, ...options }) {
+  const sheet = renderSheet([[piece]], 1, options);
+  const text = renderAscii([piece], options);
+
+  if (!sheet.includes(svg) || !sheet.includes(rotation) || !sheet.includes('.d{fill') || text !== ascii) {
+    console.error(`Failed! Diagonal ${piece.dc > 0 ? 'down-right' : 'down-left'} renders as ${JSON.stringify(text)}.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeReachTest(testCase) {
+  const random = createRandom(RANDOM_SEED);
+  const seen = new Set();
+  const samples = testCase.expectedResult * DOMICULE_REACH_SAMPLES_PER_TILING;
+
+  for (let i = 0; i < samples && seen.size < testCase.expectedResult; i++) {
+    seen.add(serializeDomiculeTiling(sampleDomiculeTiling(testCase, random, DOMICULE_REACH_SWEEPS)));
+  }
+
+  if (seen.size !== testCase.expectedResult) {
+    console.error(`Failed! The chain reached ${seen.size} of ${testCase.expectedResult} tilings.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function runCliTest({ rowCount, colCount, args, env = {}, status, output }) {
   const result = spawnSync(
     process.execPath,
@@ -436,6 +507,8 @@ function __main__() {
     domiculeTestCases,
     domiculeRandomTestCases,
     domiculeRandomValidityTestCases,
+    domiculeReachTestCases,
+    domiculeShapeTestCases,
     cliTestCases,
   ].reduce(
     (sum, suite) => sum + suite.length,
@@ -452,6 +525,9 @@ function __main__() {
     runSuite('domicule unrank', domiculeTestCases, runDomiculeUnrankTest),
     runSuite('domicule random uniformity', domiculeRandomTestCases, runDomiculeUniformityTest),
     runSuite('domicule random validity', domiculeRandomValidityTestCases, runDomiculeValidityTest),
+    runSuite('domicule chain reach', domiculeReachTestCases, runDomiculeReachTest),
+    runSuite('domicule shape', domiculeShapeTestCases, runDomiculeShapeTest),
+    runSuite('domino output', [{ rowCount: 4, colCount: 4 }], runDominoOutputTest),
     runSuite('command line', cliTestCases, runCliTest),
   ];
 

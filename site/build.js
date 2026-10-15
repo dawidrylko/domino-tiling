@@ -1,7 +1,8 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, testCasesDomicule } = require('../test-data');
+const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, filesDomicule, testCasesDomicule } = require('../test-data');
+const { DOMICULE_SWEEPS } = require('../renderer');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
@@ -72,6 +73,8 @@ function isCompleteRun(run) {
     'environment.json',
     ...filesInt.map(fileName => resultFileName(fileName, lastInt)),
     ...filesBigInt.map(fileName => resultFileName(fileName, lastBigInt)),
+    ...filesDomicule.map(fileName => resultFileName(fileName, { rowCount: 16, colCount: 16 })),
+    resultFileName('domiculeTilingSolver-Modular.js', { rowCount: 20, colCount: 20 }),
   ];
 
   return requiredFiles.every(file => fs.existsSync(path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, run, file)));
@@ -343,6 +346,7 @@ function __main__() {
     .replace(/__SITE_URL__/g, SITE_URL)
     .replace(/__BENCHMARK_DIRECTORY__/g, `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`)
     .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks())
+    .replace(/__DOMICULE_SWEEPS__/g, DOMICULE_SWEEPS.toLocaleString('en-US'))
     .replace('__PARI_PROGRAM__', () => escapeHtml(readPariProgram()))
     .replace(/__PARI_PROGRAM_URL__/g, `https://github.com/dawidrylko/domino-tiling/blob/master/${PARI_PROGRAM}`);
 

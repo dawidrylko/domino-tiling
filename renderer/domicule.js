@@ -227,5 +227,6 @@ if (typeof module !== 'undefined') {
     createDomiculeUnranker,
     unrankDomiculeTiling,
     sampleDomiculeTiling,
+    DEFAULT_SWEEPS,
   };
 }
