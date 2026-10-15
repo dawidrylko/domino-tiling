@@ -62,7 +62,9 @@ const siteTestCases = [
   { width: 375, check: 'styles' },
   { width: 1440, check: 'sequences' },
   { width: 1440, check: 'notes' },
+  { width: 1440, check: 'chrome' },
   { width: 786, check: 'notes' },
+  { width: 786, check: 'chrome' },
   { width: 786, check: 'sheets' },
   { width: 786, check: 'picker' },
   { width: 786, check: 'confirmation' },
@@ -73,6 +75,7 @@ const siteTestCases = [
   { width: 375, check: 'pieces' },
   { width: 375, check: 'sequences' },
   { width: 375, check: 'notes' },
+  { width: 375, check: 'chrome' },
 ];
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -557,6 +560,86 @@ async function checkNotes(page, baseUrl, width) {
   return problems;
 }
 
+const READ_CHROME = `(() => {
+  const header = document.querySelector('main > header');
+  const footer = document.querySelector('main > footer');
+  const style = element => {
+    const computed = element && getComputedStyle(element);
+    return computed && [computed.fontSize, computed.fontWeight, computed.lineHeight, computed.color].join(' ');
+  };
+  const brand = header && header.firstElementChild;
+  const nav = header ? [...header.querySelectorAll('nav a')] : [];
+  return {
+    brand: brand && brand.textContent.trim(),
+    brandTag: brand && brand.tagName,
+    headings: document.querySelectorAll('h1').length,
+    brandStyle: style(brand),
+    brandHome: brand && (brand.tagName === 'H1' ? location.origin + location.pathname : brand.href),
+    logo: brand && brand.querySelector('img') ? brand.querySelector('img').getBoundingClientRect().width : 0,
+    height: header ? Math.round(header.getBoundingClientRect().height) : 0,
+    nav: nav.map(link => link.textContent.trim() + ' ' + link.href).join(' | '),
+    navStyle: style(nav.find(link => !link.hasAttribute('aria-current'))),
+    navBoxes: nav.map(link => Math.round(link.getBoundingClientRect().left) + ',' + Math.round(link.getBoundingClientRect().top)).join(' '),
+    current: nav.filter(link => link.getAttribute('aria-current') === 'page').map(link => link.href),
+    back: header ? [...header.querySelectorAll('a')].some(link => link.textContent.includes('←')) : false,
+    footer: footer ? [...footer.querySelectorAll('.site-links a')].map(link => link.textContent.trim() + ' ' + link.href).join(' | ') : '',
+    footerStyle: footer && [style(footer), getComputedStyle(footer).borderTop, style(footer.lastElementChild), getComputedStyle(footer.lastElementChild).margin].join(' '),
+  };
+})()`;
+
+async function checkChrome(page, baseUrl, width) {
+  const problems = [];
+  await loadSite(page, baseUrl, width, 'gallery/4x4/1');
+  await page.settle();
+  const home = await page.evaluate(READ_CHROME);
+  const homeUrl = `${baseUrl}/`;
+
+  if (home.brand !== 'Domino Tiling' || !home.logo || !home.nav || !home.footer) {
+    problems.push(`the main page header or footer is incomplete: ${JSON.stringify(home)}`);
+  }
+
+  if (home.brandTag !== 'H1' || home.headings !== 1) {
+    problems.push(`the main page has ${home.headings} h1 and its site name is a ${home.brandTag}`);
+  }
+
+  if (home.current.join() !== homeUrl) {
+    problems.push(`the main page marks ${home.current.join() || 'no link'} as current`);
+  }
+
+  for (const { slug } of NOTES) {
+    const run = `run=${Date.now()}`;
+
+    await page.send('Page.navigate', { url: `${baseUrl}/notes/${slug}.html?${run}` });
+    await page.waitFor(`location.search === '?${run}' && document.readyState === 'complete'`, `the ${slug} note`);
+    await page.settle();
+    const note = await page.evaluate(READ_CHROME);
+
+    ['brand', 'brandStyle', 'logo', 'height', 'nav', 'navStyle', 'navBoxes', 'footer', 'footerStyle'].forEach(key => {
+      if (note[key] !== home[key]) {
+        problems.push(`${slug} ${key} is ${JSON.stringify(note[key])} instead of ${JSON.stringify(home[key])}`);
+      }
+    });
+
+    if (note.brandTag !== 'A' || note.headings !== 1) {
+      problems.push(`${slug} has ${note.headings} h1 and its site name is a ${note.brandTag}`);
+    }
+
+    if (note.brandHome !== homeUrl) {
+      problems.push(`${slug} brand links to ${note.brandHome} instead of ${homeUrl}`);
+    }
+
+    if (note.current.join() !== `${baseUrl}/notes/${slug}.html`) {
+      problems.push(`${slug} marks ${note.current.join() || 'no link'} as current`);
+    }
+
+    if (note.back) {
+      problems.push(`${slug} still has a back link`);
+    }
+  }
+
+  return problems;
+}
+
 async function checkBenchmark(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'benchmark');
   await page.waitFor(
@@ -589,6 +672,7 @@ const CHECKS = {
   styles: { label: 'sheet style switch', run: checkStyles },
   sequences: { label: 'sequence table', run: checkSequences },
   notes: { label: 'notes', run: checkNotes },
+  chrome: { label: 'shared header and footer', run: checkChrome },
   benchmark: { label: 'benchmark table', run: checkBenchmark },
 };
 
