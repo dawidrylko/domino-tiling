@@ -5,6 +5,7 @@ const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, filesDomicule, tes
 const { DOMICULE_SWEEPS } = require('../src/renderer');
 const domiculeModular = require('../src/solvers/domiculeTilingSolver-Modular.js');
 const { renderNote, listNotes, NOTES_DIRECTORY } = require('./notes');
+const { CHROME_CSS, renderHeader, renderFooter } = require('./chrome');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
@@ -56,7 +57,6 @@ const DOMICULE_BOARDS = [
 const DEFAULT_BOARD = '4x4';
 const REPOSITORY_BLOB_URL = 'https://github.com/dawidrylko/domino-tiling/blob/master';
 const SEQUENCE_TERMS = 10;
-const NOTE_LABELS = { method: 'Method', a004003: 'A004003 notebook', a239273: 'A239273 notebook' };
 const NOTE_SUMMARIES = {
   method: 'How the tilings are counted, numbered and sampled, and how every number is checked.',
   a004003: 'Notebook: domino tilings by three methods, the resultant and the running time.',
@@ -365,13 +365,12 @@ async function buildNotes(notes, context) {
       .replace(/__URL__/g, `${SITE_URL}notes/${note.slug}.html`)
       .replace(/__SITE_URL__/g, SITE_URL)
       .replace('__CONTENT__', () => html.replace('</h1>', `</h1>\n${tocHtml}`))
-      .replace(/__SOURCE_URL__/g, `${REPOSITORY_BLOB_URL}/notes/${note.file}`)
-      .replace(/__SOURCE__/g, `notes/${note.file}`)
-      .replace('__DATE__', today)
-      .replace('__NAV__', () =>
-        notes
-          .map(other => `<a href="${other.slug}.html"${other === note ? ' aria-current="page"' : ''}>${escapeHtml(NOTE_LABELS[other.slug] || other.slug)}</a>`)
-          .join(''),
+      .replace('__CHROME_CSS__', () => CHROME_CSS)
+      .replace('__SITE_HEADER__', () => renderHeader({ root: '../', current: note.slug, notes }))
+      .replace('__SITE_FOOTER__', () =>
+        renderFooter([
+          `Built from <a href="${REPOSITORY_BLOB_URL}/notes/${note.file}">notes/${note.file}</a> on ${today}; every output on this page was computed during that build.`,
+        ]),
       );
 
     fs.writeFileSync(path.join(directory, `${note.slug}.html`), page);
@@ -448,7 +447,10 @@ async function __main__() {
       'Terms marked <span class="badge">new</span> are not in the OEIS yet; they are counted with the modular solver when this page is built and checked against an extra prime. ' +
         'The <a href="notes/a239273.html">A239273 notebook</a> shows the computation.',
     )
-    .replace('__NOTES_NAV__', () => notesNav);
+    .replace('__NOTES_NAV__', () => notesNav)
+    .replace('__CHROME_CSS__', () => CHROME_CSS)
+    .replace('__SITE_HEADER__', () => renderHeader({ root: '', current: 'home', notes }))
+    .replace('__SITE_FOOTER__', () => renderFooter());
 
   Object.entries(ASSETS).forEach(([name, source]) =>
     fs.copyFileSync(path.join(ROOT_DIRECTORY, source), path.join(OUTPUT_DIRECTORY, name)),
