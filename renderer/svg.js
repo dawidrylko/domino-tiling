@@ -9,6 +9,10 @@ const STYLE = [
   '.v{fill:#e0a458}',
   'text{font:11px monospace;fill:#4b5563;text-anchor:middle}',
 ].join('');
+const DIAGONAL_STYLE = ['.d,.a{stroke:#1f2937;stroke-width:1}', '.d{fill:#5f9e6e}', '.a{fill:#a06cb4}'].join('');
+
+const DIAGONAL_LENGTH = Math.SQRT2 * CELL_SIZE + 10;
+const DIAGONAL_WIDTH = 8;
 
 function renderDomino({ row, col, horizontal }, offsetX, offsetY) {
   const x = offsetX + col * CELL_SIZE + 1;
@@ -19,6 +23,33 @@ function renderDomino({ row, col, horizontal }, offsetX, offsetY) {
   return `<rect class="${horizontal ? 'h' : 'v'}" x="${x}" y="${y}" width="${width}" height="${height}" rx="3"/>`;
 }
 
+function renderDiagonal({ row, col, dc }, offsetX, offsetY) {
+  const cx = offsetX + (col + 0.5 + dc / 2) * CELL_SIZE;
+  const cy = offsetY + (row + 1) * CELL_SIZE;
+  const x = (cx - DIAGONAL_LENGTH / 2).toFixed(2);
+  const y = cy - DIAGONAL_WIDTH / 2;
+
+  return `<rect class="${dc > 0 ? 'd' : 'a'}" x="${x}" y="${y}" width="${DIAGONAL_LENGTH.toFixed(2)}" height="${DIAGONAL_WIDTH}" rx="${DIAGONAL_WIDTH / 2}" transform="rotate(${dc > 0 ? 45 : -45} ${cx} ${cy})"/>`;
+}
+
+/**
+ * Renders one piece: a domino { row, col, horizontal } or a domicule { row, col, dr, dc },
+ * which covers (row, col) and (row + dr, col + dc).
+ */
+function isDiagonal(piece) {
+  return Boolean(piece.dr && piece.dc);
+}
+
+function renderPiece(piece, offsetX, offsetY) {
+  if (piece.dr === undefined) {
+    return renderDomino(piece, offsetX, offsetY);
+  }
+
+  return isDiagonal(piece)
+    ? renderDiagonal(piece, offsetX, offsetY)
+    : renderDomino({ row: piece.row, col: piece.col, horizontal: piece.dr === 0 }, offsetX, offsetY);
+}
+
 function renderTiling(tiling, label, offsetX, offsetY, options) {
   const { rowCount, colCount } = options;
   const boardWidth = colCount * CELL_SIZE;
@@ -26,7 +57,8 @@ function renderTiling(tiling, label, offsetX, offsetY, options) {
 
   return [
     `<rect class="b" x="${offsetX}" y="${offsetY}" width="${boardWidth}" height="${boardHeight}"/>`,
-    ...tiling.map(domino => renderDomino(domino, offsetX, offsetY)),
+    ...tiling.filter(piece => !isDiagonal(piece)).map(piece => renderPiece(piece, offsetX, offsetY)),
+    ...tiling.filter(isDiagonal).map(piece => renderPiece(piece, offsetX, offsetY)),
     `<text x="${offsetX + boardWidth / 2}" y="${offsetY + boardHeight + LABEL_HEIGHT - 2}">${label}</text>`,
   ].join('');
 }
@@ -64,7 +96,7 @@ function renderSheet(tilings, firstNumber, options) {
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    `<style>${STYLE}</style>`,
+    `<style>${STYLE}${tilings.some(tiling => tiling.some(isDiagonal)) ? DIAGONAL_STYLE : ''}</style>`,
     '<rect class="bg" width="100%" height="100%" fill="#fff"/>',
     ...body,
     '</svg>',

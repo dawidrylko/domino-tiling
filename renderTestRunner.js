@@ -7,9 +7,14 @@ const {
   createUnranker,
   unrankTiling,
   sampleRandomTiling,
+  canUnrankDomicule,
+  createDomiculeUnranker,
+  unrankDomiculeTiling,
+  sampleDomiculeTiling,
 } = require('./renderer');
+const crypto = require('crypto');
 const { createRandom } = require('./renderer/cftp');
-const { testCasesBigInt } = require('./test-data');
+const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('./test-data');
 
 const MAX_CELLS = 36;
 const UNRANK_SAMPLE_SIZE = 1000;
@@ -21,6 +26,35 @@ const randomTestCases = [
   { rowCount: 4, colCount: 4, expectedResult: 36, criticalValue: 66.62 },
 ];
 const randomValidityTestCases = [
+  { rowCount: 20, colCount: 20 },
+  { rowCount: 30, colCount: 30 },
+];
+const DOMINO_OUTPUT_HASHES = {
+  svg: '96c9ec62458a6f5677a6400d3ded94931182af97bee7ce4c1cffc5bb3c8fd777',
+  ascii: '3bbf6c1dc91ec1980e1b71fa58ff4796d0f87123a57ca282b46d71dd9677afc7',
+};
+const DOMICULE_FULL_CHECK_LIMIT = BigInt(5000);
+const DOMICULE_REACH_SWEEPS = 20;
+const DOMICULE_REACH_SAMPLES_PER_TILING = 30;
+const domiculeReachTestCases = [
+  { rowCount: 2, colCount: 3, expectedResult: 5 },
+  { rowCount: 3, colCount: 4, expectedResult: 43 },
+  { rowCount: 4, colCount: 5, expectedResult: 1563 },
+  { rowCount: 5, colCount: 4, expectedResult: 1563 },
+];
+const domiculeShapeTestCases = [
+  { rowCount: 2, colCount: 2, piece: { row: 0, col: 0, dr: 1, dc: 1 }, svg: 'class="d"', rotation: 'rotate(45 ', ascii: '\\ .\n. \\' },
+  { rowCount: 2, colCount: 2, piece: { row: 0, col: 1, dr: 1, dc: -1 }, svg: 'class="a"', rotation: 'rotate(-45 ', ascii: '. /\n/ .' },
+];
+const DOMICULE_TEST_SWEEPS = 200;
+const domiculeRandomTestCases = [
+  { rowCount: 2, colCount: 2, expectedResult: 3, criticalValue: 13.82 },
+  { rowCount: 4, colCount: 4, expectedResult: 280, criticalValue: 357.8 },
+];
+const domiculeRandomValidityTestCases = [
+  { rowCount: 1, colCount: 2 },
+  { rowCount: 4, colCount: 5 },
+  { rowCount: 5, colCount: 4 },
   { rowCount: 20, colCount: 20 },
   { rowCount: 30, colCount: 30 },
 ];
@@ -40,6 +74,12 @@ const cliTestCases = [
   { rowCount: 30, colCount: 2, args: ['-i', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
   { rowCount: 2, colCount: 30, args: ['-i', '1', '--ascii'], status: 1, output: 'use -r 30 -c 2 instead' },
   { rowCount: 2, colCount: 20000, args: ['-l', '1', '--ascii'], status: 0, output: 'Rendered tilings 1-1.' },
+  { rowCount: 2, colCount: 2, args: ['--all', '--ascii', '--domicule'], status: 0, output: 'Rendered tilings 1-3.' },
+  { rowCount: 4, colCount: 4, args: ['-i', '280', '--ascii', '--domicule'], status: 0, output: 'Board 4x4: 280 tilings.' },
+  { rowCount: 3, colCount: 3, args: ['--ascii', '--domicule'], status: 0, output: 'Nothing to render.' },
+  { rowCount: 20, colCount: 20, args: ['--ascii', '--domicule'], status: 1, output: 'use --random instead' },
+  { rowCount: 2, colCount: 20, args: ['-i', '1', '--ascii', '--domicule'], status: 1, output: 'use -r 20 -c 2 instead' },
+  { rowCount: 20, colCount: 20, args: ['--random', '--ascii', '--domicule'], status: 0, output: 'approximately uniformly' },
   {
     rowCount: 2,
     colCount: 100000,
@@ -54,6 +94,35 @@ function serializeTiling(tiling) {
   return tiling
     .map(({ row, col, horizontal }) => `${row},${col},${horizontal ? 'h' : 'v'}`)
     .join(';');
+}
+
+function serializeDomiculeTiling(tiling) {
+  return tiling.map(({ row, col, dr, dc }) => `${row},${col},${dr},${dc}`).join(';');
+}
+
+function findDomiculeCoverageError(tiling, { rowCount, colCount }) {
+  const covered = new Uint8Array(rowCount * colCount);
+
+  for (const { row, col, dr, dc } of tiling) {
+    if (![0, 1].includes(dr) || ![-1, 0, 1].includes(dc) || (dr === 0 && dc !== 1)) {
+      return `invalid domicule direction ${dr},${dc} at ${row},${col}`;
+    }
+
+    for (const [r, c] of [
+      [row, col],
+      [row + dr, col + dc],
+    ]) {
+      if (r >= rowCount || c < 0 || c >= colCount) {
+        return `domicule outside the board at ${r},${c}`;
+      }
+
+      if (covered[r * colCount + c]++) {
+        return `overlapping domicules at ${r},${c}`;
+      }
+    }
+  }
+
+  return covered.every(Boolean) ? null : 'board not fully covered';
 }
 
 function findCoverageError(tiling, { rowCount, colCount }) {
@@ -229,6 +298,166 @@ function runRandomValidityTest(testCase) {
   return true;
 }
 
+function runDomiculeUnrankTest(testCase) {
+  const unranker = createDomiculeUnranker(testCase);
+
+  if (unranker.total !== BigInt(testCase.expectedResult)) {
+    console.error(`Failed! Expected: ${testCase.expectedResult}, Actual: ${unranker.total}`);
+
+    return false;
+  }
+
+  if (unranker.total === BigInt(0)) {
+    console.log('Passed!');
+
+    return true;
+  }
+
+  const ranks =
+    unranker.total <= DOMICULE_FULL_CHECK_LIMIT
+      ? Array.from({ length: Number(unranker.total) }, (_, i) => BigInt(i))
+      : Array.from({ length: UNRANK_SAMPLE_SIZE }, (_, i) => (unranker.total * BigInt(i)) / BigInt(UNRANK_SAMPLE_SIZE));
+  const seen = new Set();
+
+  for (const rank of [...ranks, unranker.total - BigInt(1)]) {
+    const tiling = unrankDomiculeTiling(unranker, rank);
+    const error = findDomiculeCoverageError(tiling, testCase);
+
+    if (error) {
+      console.error(`Failed! Invalid tiling #${rank + BigInt(1)}: ${error}`);
+
+      return false;
+    }
+
+    seen.add(serializeDomiculeTiling(tiling));
+  }
+
+  if (seen.size !== new Set([...ranks, unranker.total - BigInt(1)]).size) {
+    console.error(`Failed! ${seen.size} distinct tilings for ${new Set(ranks).size} ranks.`);
+
+    return false;
+  }
+
+  const svg = renderSheet([unrankDomiculeTiling(unranker, unranker.total - BigInt(1))], 1, testCase);
+  const ascii = renderAscii(unrankDomiculeTiling(unranker, unranker.total - BigInt(1)), testCase);
+
+  if (!svg.startsWith('<svg') || (testCase.rowCount * testCase.colCount && ascii.includes('.'))) {
+    console.error('Failed! Rendering produced invalid output.');
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeUniformityTest(testCase) {
+  const { expectedResult, criticalValue } = testCase;
+  const random = createRandom(RANDOM_SEED);
+  const sampleCount = expectedResult * SAMPLES_PER_TILING;
+  const frequencies = new Map();
+
+  for (let i = 0; i < sampleCount; i++) {
+    const tiling = sampleDomiculeTiling(testCase, random, DOMICULE_TEST_SWEEPS);
+    const error = findDomiculeCoverageError(tiling, testCase);
+
+    if (error) {
+      console.error(`Failed! Invalid random tiling: ${error}`);
+
+      return false;
+    }
+
+    const key = serializeDomiculeTiling(tiling);
+    frequencies.set(key, (frequencies.get(key) || 0) + 1);
+  }
+
+  const expected = sampleCount / expectedResult;
+  const chiSquared = [...frequencies.values()].reduce(
+    (sum, observed) => sum + (observed - expected) ** 2 / expected,
+    (expectedResult - frequencies.size) * expected,
+  );
+
+  if (frequencies.size !== expectedResult || chiSquared > criticalValue) {
+    console.error(
+      `Failed! Distinct: ${frequencies.size}/${expectedResult}, chi-squared: ${chiSquared.toFixed(2)} (limit ${criticalValue})`,
+    );
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeValidityTest(testCase) {
+  const error = findDomiculeCoverageError(sampleDomiculeTiling(testCase, createRandom(RANDOM_SEED)), testCase);
+
+  if (error) {
+    console.error(`Failed! Invalid random tiling: ${error}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDominoOutputTest() {
+  const options = { rowCount: 4, colCount: 4 };
+  const tilings = [...enumerateTilings(options)].slice(0, 12);
+  const hash = text => crypto.createHash('sha256').update(text).digest('hex');
+  const svg = hash(renderSheet(tilings, 1, options));
+  const ascii = hash(tilings.map(tiling => renderAscii(tiling, options)).join('\n'));
+
+  if (svg !== DOMINO_OUTPUT_HASHES.svg || ascii !== DOMINO_OUTPUT_HASHES.ascii) {
+    console.error(`Failed! Domino output changed: svg ${svg}, ascii ${ascii}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeShapeTest({ piece, svg, rotation, ascii, ...options }) {
+  const sheet = renderSheet([[piece]], 1, options);
+  const text = renderAscii([piece], options);
+
+  if (!sheet.includes(svg) || !sheet.includes(rotation) || !sheet.includes('.d{fill') || text !== ascii) {
+    console.error(`Failed! Diagonal ${piece.dc > 0 ? 'down-right' : 'down-left'} renders as ${JSON.stringify(text)}.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runDomiculeReachTest(testCase) {
+  const random = createRandom(RANDOM_SEED);
+  const seen = new Set();
+  const samples = testCase.expectedResult * DOMICULE_REACH_SAMPLES_PER_TILING;
+
+  for (let i = 0; i < samples && seen.size < testCase.expectedResult; i++) {
+    seen.add(serializeDomiculeTiling(sampleDomiculeTiling(testCase, random, DOMICULE_REACH_SWEEPS)));
+  }
+
+  if (seen.size !== testCase.expectedResult) {
+    console.error(`Failed! The chain reached ${seen.size} of ${testCase.expectedResult} tilings.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function runCliTest({ rowCount, colCount, args, env = {}, status, output }) {
   const result = spawnSync(
     process.execPath,
@@ -269,7 +498,19 @@ function __main__() {
       rowCount * colCount > MAX_CELLS && canUnrank({ rowCount, colCount }),
   );
 
-  const total = [testCases, unrankTestCases, randomTestCases, randomValidityTestCases, cliTestCases].reduce(
+  const domiculeTestCases = [...testCasesDomicule, ...testCasesDomiculeRectangles].filter(canUnrankDomicule);
+  const total = [
+    testCases,
+    unrankTestCases,
+    randomTestCases,
+    randomValidityTestCases,
+    domiculeTestCases,
+    domiculeRandomTestCases,
+    domiculeRandomValidityTestCases,
+    domiculeReachTestCases,
+    domiculeShapeTestCases,
+    cliTestCases,
+  ].reduce(
     (sum, suite) => sum + suite.length,
     0,
   );
@@ -281,6 +522,12 @@ function __main__() {
     runSuite('unrank', unrankTestCases, runUnrankTest),
     runSuite('random uniformity', randomTestCases, runRandomUniformityTest),
     runSuite('random validity', randomValidityTestCases, runRandomValidityTest),
+    runSuite('domicule unrank', domiculeTestCases, runDomiculeUnrankTest),
+    runSuite('domicule random uniformity', domiculeRandomTestCases, runDomiculeUniformityTest),
+    runSuite('domicule random validity', domiculeRandomValidityTestCases, runDomiculeValidityTest),
+    runSuite('domicule chain reach', domiculeReachTestCases, runDomiculeReachTest),
+    runSuite('domicule shape', domiculeShapeTestCases, runDomiculeShapeTest),
+    runSuite('domino output', [{ rowCount: 4, colCount: 4 }], runDominoOutputTest),
     runSuite('command line', cliTestCases, runCliTest),
   ];
 

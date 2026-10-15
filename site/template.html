@@ -6,7 +6,7 @@
 <title>Domino Tiling: every tiling of a 2n × 2n board | Dawid Ryłko</title>
 <meta name="description" content="Browse every domino tiling of boards up to 18×18 (all 12,988,816 tilings of a chessboard included), see the closed-form formula, sample uniformly random 20×20 tilings and compare three JavaScript solvers.">
 <meta name="author" content="Dawid Ryłko">
-<meta name="keywords" content="domino tiling, dimer coverings, OEIS A004003, chessboard, combinatorics, dynamic programming, bitmask, BigInt, JavaScript">
+<meta name="keywords" content="domino tiling, dimer coverings, OEIS A004003, domicule tiling, king's graph, perfect matchings, OEIS A239273, PARI/GP, chessboard, combinatorics, dynamic programming, bitmask, BigInt, JavaScript">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
@@ -34,7 +34,7 @@
 :root {
   --bg: #ffffff; --fg: #111827; --muted: #6b7280; --border: #e5e7eb;
   --surface: #f9fafb; --accent: #4f7cac; --accent-fg: #ffffff;
-  --h: #4f7cac; --v: #e0a458;
+  --h: #4f7cac; --v: #e0a458; --d: #5f9e6e; --a: #a06cb4;
   --sheet: #ffffff; --board: #f3f4f6; --edge: #1f2937; --label: #4b5563; --hit: #dc2626;
   color-scheme: light dark;
 }
@@ -60,10 +60,11 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .picker { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; min-width: 0; }
 .picker .label { flex: none; }
 .label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.boards { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; padding: 2px; }
-.boards button { flex: none; font: inherit; font-variant-numeric: tabular-nums; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--fg); cursor: pointer; }
-.boards button:hover { border-color: var(--accent); }
-.boards button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.boards, .pieces { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; padding: 2px; }
+.pieces { flex: none; }
+.boards button, .pieces button { flex: none; font: inherit; font-variant-numeric: tabular-nums; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--fg); cursor: pointer; }
+.boards button:hover, .pieces button:hover { border-color: var(--accent); }
+.boards button[aria-pressed="true"], .pieces button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); margin-bottom: 12px; }
 .toolbar .group { display: flex; align-items: center; gap: 6px; }
 .toolbar .group.end { margin-left: auto; }
@@ -74,7 +75,7 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .btn:disabled, .field:disabled { opacity: .35; cursor: default; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .field { height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; min-width: 0; }
-.field:focus, .btn:focus-visible, .boards button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field:focus, .btn:focus-visible, .boards button:focus-visible, .pieces button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 #page { flex: 0 1 auto; max-width: 100%; text-align: center; }
 .toolbar .group.pages { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
 .range { font-variant-numeric: tabular-nums; word-break: break-all; }
@@ -93,12 +94,13 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
   #tiling { flex: 1; width: auto; }
 }
 .meta { color: var(--muted); margin: 0 0 12px; }
-.legend { display: inline-flex; gap: 14px; color: var(--muted); font-size: 13px; }
+.legend { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 13px; }
+.legend > span { white-space: nowrap; }
 .legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
 .sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--sheet); }
 .sheet .bg { fill: var(--sheet); }
 .sheet .b { fill: var(--board); }
-.sheet .h, .sheet .v { stroke: var(--edge); }
+.sheet .h, .sheet .v, .sheet .d, .sheet .a { stroke: var(--edge); }
 .sheet text { fill: var(--label); }
 .formula { margin: 0 0 24px; overflow-x: auto; }
 @font-face { font-family: "Domino Tiling Math"; src: url(domino-tiling-math.woff2) format("woff2"); }
@@ -106,6 +108,8 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .formula figcaption { color: var(--muted); }
 .formula figcaption p { margin: 0 0 12px; }
 .formula figcaption p:last-child { margin-bottom: 0; }
+.program pre { margin: 12px 0 0; padding: 12px 14px; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 13px; line-height: 1.45; }
+.program pre code { background: none; border: 0; padding: 0; }
 @media (max-width: 640px) { .formula math { font-size: 1.05em; } }
 .sheet svg { display: block; max-width: 100%; height: auto; }
 h1 { display: flex; align-items: center; gap: 10px; }
@@ -125,6 +129,8 @@ th { color: var(--muted); font-weight: 600; font-size: 13px; }
   .table-wrap td:last-child { grid-area: 1 / 3; }
 }
 .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+.table-title { font-size: 15px; margin: 0 0 8px; }
+.note + .table-title { margin-top: 28px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
@@ -184,6 +190,21 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
       </p>
     </figcaption>
   </figure>
+  <figure class="formula program">
+    <figcaption>
+      <p>
+        Let a piece also lie diagonally, over two cells that share only a corner, and it becomes a domicule. A domicule
+        tiling is a perfect matching of the king's graph of the board: <a href="https://oeis.org/A239264">OEIS&nbsp;A239264</a>
+        counts them on rectangles and <a href="https://oeis.org/A239273">A239273</a> on 2n&nbsp;×&nbsp;2n squares, where a
+        chessboard already has 3,263,262,629,905 of them. They are counted with the same cell-by-cell dynamic programming,
+        except that a state has to remember the next 2n&nbsp;+&nbsp;2 cells, because a cell can be matched with its right,
+        down-left, down or down-right neighbour. Switch the gallery to diagonal pieces to browse them. The whole method fits
+        in a short <a href="__PARI_PROGRAM_URL__">PARI/GP program</a>, where <code>T(h, w)</code> is A239264 and
+        <code>a(n)</code> is A239273:
+      </p>
+    </figcaption>
+    <pre><code>__PARI_PROGRAM__</code></pre>
+  </figure>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
     <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmark">repository</a>.</p></noscript>
   <nav class="tabs">
@@ -192,6 +213,13 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
   </nav>
 
   <section id="gallery">
+    <div class="picker">
+      <span class="label" id="pieces-label">Pieces</span>
+      <div class="pieces" id="pieces" role="group" aria-labelledby="pieces-label">
+        <button type="button" data-pieces="domino">Straight</button>
+        <button type="button" data-pieces="domicule">Straight + diagonal</button>
+      </div>
+    </div>
     <div class="picker">
       <span class="label" id="boards-label">Board</span>
       <div class="boards" id="boards" role="group" aria-labelledby="boards-label"></div>
@@ -219,7 +247,7 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
     <div class="summary">
       <p class="meta" id="gallery-meta"></p>
-      <span class="legend"><span><i style="background:var(--h)"></i>horizontal</span><span><i style="background:var(--v)"></i>vertical</span></span>
+      <span class="legend"><span><i style="background:var(--h)"></i>horizontal</span><span><i style="background:var(--v)"></i>vertical</span><span class="diagonal"><i style="background:var(--d)"></i>diagonal ↘</span><span class="diagonal"><i style="background:var(--a)"></i>diagonal ↙</span></span>
     </div>
     <div class="notice" id="notice" hidden>
       <p id="notice-text"></p>
@@ -230,8 +258,9 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
   </section>
 
   <section id="benchmark" hidden>
+    <h2 class="table-title">Dominoes (A004003)</h2>
     <div class="table-wrap">
-      <table role="table">
+      <table role="table" id="domino-benchmark">
         <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">Number (avg)</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Formula (avg)</th><th role="columnheader">Runs</th></tr></thead>
         <tbody id="benchmark-rows" role="rowgroup"></tbody>
       </table>
@@ -244,6 +273,19 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
       <span id="environment"></span>
       __OLDER_BENCHMARKS__
       Re-run with <code>pnpm benchmark</code> and rebuild the site to refresh this table.
+    </p>
+    <h2 class="table-title">Domicules (A239273)</h2>
+    <div class="table-wrap">
+      <table role="table" id="domicule-benchmark">
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Modular (avg)</th><th role="columnheader">Runs</th></tr></thead>
+        <tbody id="domicule-benchmark-rows" role="rowgroup"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      Same machine and Node.js version as above. The BigInt solver keeps exact counts; the modular one counts modulo
+      primes below 2<sup>31</sup> in parallel worker threads, rebuilds the result with the Chinese remainder theorem and
+      checks it against one more prime. 18×18 and 20×20 were measured once, with the modular solver only. Re-run with
+      <code>pnpm benchmark:domicule</code>.
     </p>
   </section>
   <footer>
@@ -384,7 +426,7 @@ function showSheet(board, tilings, first, labels) {
   $('sheet').innerHTML = renderSheet(tilings, first, { ...board, columns: shownSheet.columns, labels });
   const svg = $('sheet').querySelector('svg');
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', `Domino tilings of a ${board.rowCount} by ${board.colCount} board`);
+  svg.setAttribute('aria-label', `${board.pieces === 'domicule' ? 'Domicule' : 'Domino'} tilings of a ${board.rowCount} by ${board.colCount} board`);
 }
 
 function highlightTiling(number) {
@@ -401,7 +443,12 @@ function highlightTiling(number) {
 function updateControls({ board, page }) {
   const pages = board.mode === 'pages';
 
-  $('boards').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === board.id));
+  $('pieces').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.pieces === board.pieces));
+  $('boards').querySelectorAll('button').forEach(b => {
+    b.hidden = DATA.boards.find(other => other.id === b.dataset.id).pieces !== board.pieces;
+    b.setAttribute('aria-pressed', b.dataset.id === board.id);
+  });
+  document.querySelectorAll('.legend .diagonal').forEach(item => (item.hidden = board.pieces !== 'domicule'));
   $('page-controls').hidden = !pages;
   $('sample-controls').hidden = pages;
 
@@ -433,7 +480,9 @@ async function renderGallery(state) {
   if (board.mode === 'random') {
     $('gallery-meta').innerHTML =
       `<strong>${board.rowCount}×${board.colCount}</strong> · ${num(board.total)} tilings · too many to number in a browser, ` +
-      `so these are ${RANDOM_SAMPLE_SIZE} uniformly random ones (coupling from the past)`;
+      (board.pieces === 'domicule'
+        ? `so these are ${RANDOM_SAMPLE_SIZE} approximately uniform random ones (a Markov chain of __DOMICULE_SWEEPS__ steps per cell)`
+        : `so these are ${RANDOM_SAMPLE_SIZE} uniformly random ones (coupling from the past)`);
     $('status').textContent = 'Sampling random tilings...';
     const tilings = await requestTilings({ type: 'random', board, count: RANDOM_SAMPLE_SIZE });
     if (!isCurrent()) return;
@@ -497,6 +546,13 @@ function render() {
 $('boards').innerHTML = DATA.boards
   .map(b => `<button type="button" data-id="${b.id}">${b.rowCount}×${b.colCount}</button>`)
   .join('');
+$('pieces').addEventListener('click', e => {
+  const button = e.target.closest('button');
+  if (!button) return;
+  const { board } = parseHash();
+  const boards = DATA.boards.filter(b => b.pieces === button.dataset.pieces);
+  go(boards.find(b => b.rowCount === board.rowCount && b.colCount === board.colCount) || boards[0], ONE);
+});
 $('boards').addEventListener('click', e => {
   const button = e.target.closest('button');
   if (button) go(DATA.boards.find(b => b.id === button.dataset.id), ONE);
@@ -534,11 +590,24 @@ function runsLabel(row) {
     : `<span title="Number / BigInt / Formula">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
 }
 
-const benchmarkColumns = [...document.querySelectorAll('#benchmark thead th')].map(th => th.textContent);
+const benchmarkColumns = [...document.querySelectorAll('#domino-benchmark thead th')].map(th => th.textContent);
+const domiculeBenchmarkColumns = [...document.querySelectorAll('#domicule-benchmark thead th')].map(th => th.textContent);
 
 $('benchmark-rows').innerHTML = DATA.benchmark
   .map(r => [`${r.rowCount}×${r.colCount}`, r.tilings === null ? '-' : num(r.tilings), ms(r.number), ms(r.bigint), ms(r.formula), runsLabel(r)])
   .map(cells => `<tr role="row">${cells.map((cell, i) => `<td role="cell" data-label="${benchmarkColumns[i]}">${cell}</td>`).join('')}</tr>`)
+  .join('');
+
+$('domicule-benchmark-rows').innerHTML = DATA.domiculeBenchmark
+  .map(r => {
+    const runs = [r.bigint, r.modular].map(result => (result ? result.runs : null));
+    const measured = runs.filter(count => count !== null);
+    const runsCell = measured.every(count => count === measured[0])
+      ? fmt(measured[0])
+      : `<span title="BigInt / Modular">${runs.map(count => (count === null ? '-' : fmt(count))).join(' / ')}</span>`;
+    return [`${r.rowCount}×${r.colCount}`, r.tilings === null ? '-' : num(r.tilings), ms(r.bigint), ms(r.modular), runsCell];
+  })
+  .map(cells => `<tr role="row">${cells.map((cell, i) => `<td role="cell" data-label="${domiculeBenchmarkColumns[i]}">${cell}</td>`).join('')}</tr>`)
   .join('');
 
 if (DATA.environment) {

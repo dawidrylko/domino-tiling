@@ -11,13 +11,35 @@ const {
   createUnranker,
   unrankTiling,
   sampleRandomTiling,
+  canUnrankDomicule,
+  createDomiculeUnranker,
+  unrankDomiculeTiling,
+  sampleDomiculeTiling,
 } = require('./renderer');
 
 const DEFAULT_LIMIT = 1000;
 const MAX_TILINGS_FOR_ALL = BigInt(100000);
 const OUTPUT_DIRECTORY = 'output';
 const USAGE =
-  'Usage: node dominoTilingRenderer.js -r <rowCount> -c <colCount> [-l <limit>] [-o <offset>] [-i <number>] [--random] [--all] [--ascii]';
+  'Usage: node dominoTilingRenderer.js -r <rowCount> -c <colCount> [-l <limit>] [-o <offset>] [-i <number>] [--random] [--all] [--ascii] [--domicule]';
+const PIECES = {
+  domino: {
+    canUnrank,
+    createUnranker,
+    unrankTiling,
+    sample: options => sampleRandomTiling(options),
+    sampling: 'uniformly at random',
+    directorySuffix: '',
+  },
+  domicule: {
+    canUnrank: canUnrankDomicule,
+    createUnranker: createDomiculeUnranker,
+    unrankTiling: unrankDomiculeTiling,
+    sample: options => sampleDomiculeTiling(options),
+    sampling: 'approximately uniformly at random (Markov chain)',
+    directorySuffix: '-diagonal',
+  },
+};
 
 function readBigIntArg(argv, flag) {
   const index = argv.indexOf(flag);
@@ -39,19 +61,19 @@ function randomBigInt(below) {
   return BigInt(`0x${bytes.toString('hex')}`) % below;
 }
 
-function* unrankRange(unranker, offset, count) {
+function* unrankRange(pieces, unranker, offset, count) {
   for (let i = BigInt(0); i < count; i++) {
-    yield unrankTiling(unranker, offset + i);
+    yield pieces.unrankTiling(unranker, offset + i);
   }
 }
 
-function* sampleRandomTilings(options, count) {
+function* sampleRandomTilings(pieces, options, count) {
   for (let i = 0; i < count; i++) {
-    yield sampleRandomTiling(options);
+    yield pieces.sample(options);
   }
 }
 
-function selectTilings(argv, options, unranker, total) {
+function selectTilings(argv, options, pieces, unranker, total) {
   const index = readBigIntArg(argv, '-i');
   const offset = readBigIntArg(argv, '-o') || BigInt(0);
   const random = argv.includes('--random');
@@ -65,7 +87,7 @@ function selectTilings(argv, options, unranker, total) {
       const swapped = { rowCount: options.colCount, colCount: options.rowCount };
 
       throw new Error(
-        canUnrank(swapped)
+        pieces.canUnrank(swapped)
           ? `-i needs a numbering table, which grows with the number of columns; use -r ${options.colCount} -c ${options.rowCount} instead.`
           : '-i needs a numbering table, which does not fit in memory for this board; use --random instead.',
       );
@@ -115,8 +137,8 @@ function printAscii(tilings, { offset, labels, ...options }) {
 }
 
 function saveSvgSheets(tilings, options) {
-  const { rowCount, colCount } = options;
-  const directory = path.join(OUTPUT_DIRECTORY, `${rowCount}x${colCount}`);
+  const { rowCount, colCount, directorySuffix = '' } = options;
+  const directory = path.join(OUTPUT_DIRECTORY, `${rowCount}x${colCount}${directorySuffix}`);
   const sheets = writeSvgSheets(tilings, { ...options, directory });
 
   sheets.forEach(({ file }) => console.log(`File saved: ${file}`));
@@ -127,7 +149,7 @@ function saveSvgSheets(tilings, options) {
   );
 }
 
-function renderRandomSample(argv, options) {
+function renderRandomSample(argv, options, pieces) {
   const { rowCount, colCount } = options;
 
   if ((rowCount * colCount) % 2 !== 0) {
@@ -138,7 +160,7 @@ function renderRandomSample(argv, options) {
 
   const count = options.limit || 1;
   const labels = Array.from({ length: count }, (_, i) => `random ${i + 1}`);
-  const tilings = sampleRandomTilings(options, count);
+  const tilings = sampleRandomTilings(pieces, options, count);
   const renderOptions = {
     rowCount,
     colCount,
@@ -146,10 +168,11 @@ function renderRandomSample(argv, options) {
     lastNumber: null,
     labels,
     filePrefix: `random-${Date.now()}`,
+    directorySuffix: pieces.directorySuffix,
   };
 
   console.log(
-    `Board ${rowCount}x${colCount}: too large to number its tilings, sampling ${count} uniformly at random.`,
+    `Board ${rowCount}x${colCount}: too large to number its tilings, sampling ${count} ${pieces.sampling}.`,
   );
 
   if (argv.includes('--ascii')) {
@@ -184,20 +207,31 @@ function __main__() {
       throw new Error('--all and -l cannot be combined.');
     }
 
-    const unranker = canUnrank(options) ? createUnranker(options) : null;
+    const domicule = argv.includes('--domicule');
+    const pieces = domicule ? PIECES.domicule : PIECES.domino;
+    const unranker = pieces.canUnrank(options) ? pieces.createUnranker(options) : null;
 
     if (!unranker && argv.includes('--random') && readBigIntArg(argv, '-i') === null) {
-      renderRandomSample(argv, options);
+      renderRandomSample(argv, options, pieces);
       return;
     }
 
     const isOdd = (rowCount * colCount) % 2 !== 0;
+
+    if (domicule && !unranker && !isOdd) {
+      throw new Error(
+        pieces.canUnrank({ rowCount: colCount, colCount: rowCount })
+          ? `--domicule needs a numbering table, which grows with the number of columns; use -r ${colCount} -c ${rowCount} instead.`
+          : '--domicule lists tilings only when their numbering table fits in memory; use --random instead.',
+      );
+    }
+
     const counted = isOdd ? 0 : unranker ? unranker.total : countTilings(options);
     const total = counted === null ? null : BigInt(counted);
 
     console.log(`Board ${rowCount}x${colCount}: ${describeTotal(total)}.`);
 
-    const { offset, count } = selectTilings(argv, options, unranker, total);
+    const { offset, count } = selectTilings(argv, options, pieces, unranker, total);
 
     if (count <= BigInt(0)) {
       console.log('Nothing to render.');
@@ -205,13 +239,14 @@ function __main__() {
     }
 
     const tilings = unranker
-      ? unrankRange(unranker, offset, count)
+      ? unrankRange(pieces, unranker, offset, count)
       : takeRange(enumerateTilings(options), Number(offset), Number(count));
     const renderOptions = {
       rowCount,
       colCount,
       offset,
       lastNumber: total === null ? null : offset + count,
+      directorySuffix: pieces.directorySuffix,
     };
     const rendered = argv.includes('--ascii')
       ? printAscii(tilings, renderOptions)

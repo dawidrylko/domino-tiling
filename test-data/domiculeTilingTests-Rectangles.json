@@ -1,0 +1,40 @@
+{
+  "files": ["domiculeTilingSolver-BigInt.js", "domiculeTilingSolver-Modular.js"],
+  "testCases": [
+    {
+      "rowCount": 4,
+      "colCount": 5,
+      "expectedResult": "1563"
+    },
+    {
+      "rowCount": 5,
+      "colCount": 4,
+      "expectedResult": "1563"
+    },
+    {
+      "rowCount": 7,
+      "colCount": 6,
+      "expectedResult": "55263473"
+    },
+    {
+      "rowCount": 3,
+      "colCount": 1,
+      "expectedResult": "0"
+    },
+    {
+      "rowCount": 4,
+      "colCount": 22,
+      "expectedResult": "23114817718082715"
+    },
+    {
+      "rowCount": 2,
+      "colCount": 40,
+      "expectedResult": "733007751851"
+    },
+    {
+      "rowCount": 40,
+      "colCount": 2,
+      "expectedResult": "733007751851"
+    }
+  ]
+}

@@ -7,14 +7,20 @@ const {
   testCasesInt,
   filesBigInt,
   testCasesBigInt,
+  filesDomicule,
+  testCasesDomicule,
 } = require('./test-data');
 
 const RUN_DATE = new Date().toISOString().slice(0, 10);
 const BENCHMARK_ROOT = process.env.BENCHMARK_ROOT || path.join(__dirname, 'benchmark');
 const BENCHMARK_DIRECTORY = path.join(BENCHMARK_ROOT, RUN_DATE.slice(0, 7));
 const MACHINE_KEYS = ['node', 'platform', 'cpu'];
+const DOMICULE_BOARDS = [
+  ...testCasesDomicule.map(({ rowCount, colCount }) => ({ rowCount, colCount })),
+  { rowCount: 20, colCount: 20 },
+];
 const USAGE =
-  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>] [--force]';
+  'Usage: node benchmarkRunner.js -n <numberOfExecutions> [-m <maxSize>] [-o <offset>] [--only <solver file>] [--domicule] [--force]';
 
 function displayPath(file) {
   const relative = path.relative(__dirname, file);
@@ -174,26 +180,30 @@ function __main__() {
       offset = 0,
     } = parseArgs(argv, argsSchema);
     const only = readOnlyArg(argv);
+    const domicule = argv.includes('--domicule');
+    const groups = domicule
+      ? [{ files: filesDomicule, testCases: DOMICULE_BOARDS }]
+      : [
+          { files: filesInt, testCases: testCasesInt },
+          { files: filesBigInt, testCases: testCasesBigInt },
+        ];
 
     if (
       !(numberOfExecutions > 0) ||
       (maxSize !== undefined && !(maxSize > 0)) ||
       !(offset >= 0) ||
-      (only !== null && ![...filesInt, ...filesBigInt].includes(only))
+      (only !== null && !groups.some(({ files }) => files.includes(only)))
     ) {
       throw new Error(USAGE);
     }
 
     const options = { numberOfExecutions };
-    const filesToRunInt = selectFiles(filesInt, only);
-    const filesToRunBigInt = selectFiles(filesBigInt, only);
-    const testCasesToRunInt = selectTestCases(testCasesInt, offset, maxSize);
-    const testCasesToRunBigInt = selectTestCases(testCasesBigInt, offset, maxSize);
+    const runs = groups.map(({ files, testCases }) => ({
+      files: selectFiles(files, only),
+      testCases: selectTestCases(testCases, offset, maxSize),
+    }));
 
-    if (
-      !(filesToRunInt.length && testCasesToRunInt.length) &&
-      !(filesToRunBigInt.length && testCasesToRunBigInt.length)
-    ) {
+    if (!runs.some(({ files, testCases }) => files.length && testCases.length)) {
       throw new Error(`No test cases from test case ${offset + 1}. ${USAGE}`);
     }
 
@@ -206,14 +216,9 @@ function __main__() {
     checkDirectory(environment, argv.includes('--force'));
     saveEnvironment(environment);
 
-    const allPassedInt = executeBenchmark(options, filesToRunInt, testCasesToRunInt);
-    const allPassedBigInt = executeBenchmark(
-      options,
-      filesToRunBigInt,
-      testCasesToRunBigInt,
-    );
+    const results = runs.map(({ files, testCases }) => executeBenchmark(options, files, testCases));
 
-    if (allPassedInt && allPassedBigInt) {
+    if (results.every(Boolean)) {
       console.log('All benchmarks completed successfully.');
       process.exit(0);
     } else {
