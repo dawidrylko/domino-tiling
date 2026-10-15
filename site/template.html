@@ -34,7 +34,8 @@
 :root {
   --bg: #ffffff; --fg: #111827; --muted: #6b7280; --border: #e5e7eb;
   --surface: #f9fafb; --accent: #4f7cac; --accent-fg: #ffffff;
-  --h: #4f7cac; --v: #e0a458; --d: #5f9e6e; --a: #a06cb4;
+  --h: #044cb6; --v: #5eaceb; --d: #ab3415; --a: #f09c17;
+  --paper-h: #ffffff; --paper-v: #e8eef6; --ink: #334155;
   --sheet: #ffffff; --board: #f3f4f6; --edge: #1f2937; --label: #4b5563; --hit: #dc2626;
   color-scheme: light dark;
 }
@@ -42,6 +43,8 @@
   :root {
     --bg: #0f1115; --fg: #e5e7eb; --muted: #9ca3af; --border: #262a33;
     --surface: #161a21; --accent: #7aa2cf; --accent-fg: #0f1115;
+    --h: #5590f3; --v: #3b5d96; --d: #f0a53a; --a: #d9601e;
+    --paper-h: #1f2530; --paper-v: #283142; --ink: #8b95a5;
     --sheet: #161a21; --board: #232833; --edge: #0b0d11; --label: #9ca3af; --hit: #f87171;
   }
 }
@@ -96,12 +99,30 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .meta { color: var(--muted); margin: 0 0 12px; }
 .legend { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 13px; }
 .legend > span { white-space: nowrap; }
-.legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
+.legend i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; background: var(--k); }
+.legend i.h { --k: var(--h); } .legend i.v { --k: var(--v); } .legend i.d { --k: var(--d); } .legend i.a { --k: var(--a); }
+[data-style="dimer"] .legend i { height: 8px; border-radius: 0; vertical-align: 1px; background: radial-gradient(circle at 4px 50%, var(--k) 3.5px, transparent 4px), radial-gradient(circle at calc(100% - 4px) 50%, var(--k) 3.5px, transparent 4px), linear-gradient(var(--k), var(--k)) center / calc(100% - 8px) 3px no-repeat; }
+[data-style="engraving"] .legend i { border: 1px solid var(--ink); border-radius: 1.5px; }
+[data-style="engraving"] .legend i.h { background: var(--paper-h); }
+[data-style="engraving"] .legend i.v { background: var(--paper-v); }
+[data-style="engraving"] .legend i.d { background: repeating-linear-gradient(45deg, var(--ed) 0 1px, color-mix(in srgb, var(--ed) 9%, var(--paper-h)) 1px 4px); }
+[data-style="engraving"] .legend i.a { background: repeating-linear-gradient(-45deg, var(--ea) 0 1px, color-mix(in srgb, var(--ea) 9%, var(--paper-h)) 1px 4px); }
 .sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--sheet); }
 .sheet .bg { fill: var(--sheet); }
 .sheet .b { fill: var(--board); }
-.sheet .h, .sheet .v, .sheet .d, .sheet .a { stroke: var(--edge); }
 .sheet text { fill: var(--label); }
+.sheet .blocks .h, .sheet .blocks .v, .sheet .blocks .d, .sheet .blocks .a { stroke: var(--edge); }
+.sheet .blocks .h { fill: var(--h); } .sheet .blocks .v { fill: var(--v); } .sheet .blocks .d { fill: var(--d); } .sheet .blocks .a { fill: var(--a); }
+.sheet .dimer .h { fill: var(--h); stroke: var(--h); } .sheet .dimer .v { fill: var(--v); stroke: var(--v); }
+.sheet .dimer .d { fill: var(--d); stroke: var(--d); } .sheet .dimer .a { fill: var(--a); stroke: var(--a); }
+.sheet .dimer .o { stroke: none; }
+.sheet .dimer .r { stroke: var(--board); }
+.sheet .engraving .h, .sheet .engraving .v, .sheet .engraving .cd, .sheet .engraving .ca { stroke: var(--ink); }
+.sheet .engraving .h { fill: var(--paper-h); } .sheet .engraving .v { fill: var(--paper-v); }
+:root { --ed: color-mix(in srgb, var(--d) 55%, var(--ink)); --ea: color-mix(in srgb, var(--a) 55%, var(--ink)); }
+.sheet .engraving .cd { fill: color-mix(in srgb, var(--ed) 9%, var(--paper-h)); }
+.sheet .engraving .ca { fill: color-mix(in srgb, var(--ea) 9%, var(--paper-h)); }
+.sheet .engraving .d { stroke: var(--ed); } .sheet .engraving .a { stroke: var(--ea); }
 .formula { margin: 0 0 24px; overflow-x: auto; }
 @font-face { font-family: "Domino Tiling Math"; src: url(domino-tiling-math.woff2) format("woff2"); }
 .formula math { font-family: "Domino Tiling Math", "STIX Two Math", "Cambria Math", "Latin Modern Math", math; font-size: 1.3em; margin: 0 0 8px; }
@@ -220,6 +241,14 @@ __NOTES_NAV__
       <span class="label" id="boards-label">Board</span>
       <div class="boards" id="boards" role="group" aria-labelledby="boards-label"></div>
     </div>
+    <div class="picker">
+      <span class="label" id="styles-label">Style</span>
+      <div class="pieces" id="styles" role="group" aria-labelledby="styles-label">
+        <button type="button" data-style="blocks">Blocks</button>
+        <button type="button" data-style="dimer">Dimer graph</button>
+        <button type="button" data-style="engraving">Engraving</button>
+      </div>
+    </div>
     <div class="toolbar" id="page-controls">
       <div class="group pages" role="group" aria-label="Pages">
         <button class="btn icon" id="first" title="First page" aria-label="First page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 8 8l4 4M6 4v8"/></svg></button>
@@ -243,7 +272,7 @@ __NOTES_NAV__
     </div>
     <div class="summary">
       <p class="meta" id="gallery-meta"></p>
-      <span class="legend"><span><i style="background:var(--h)"></i>horizontal</span><span><i style="background:var(--v)"></i>vertical</span><span class="diagonal"><i style="background:var(--d)"></i>diagonal ↘</span><span class="diagonal"><i style="background:var(--a)"></i>diagonal ↙</span></span>
+      <span class="legend"><span><i class="h"></i>horizontal</span><span><i class="v"></i>vertical</span><span class="diagonal"><i class="d"></i>diagonal ↘</span><span class="diagonal"><i class="a"></i>diagonal ↙</span></span>
     </div>
     <div class="notice" id="notice" hidden>
       <p id="notice-text"></p>
@@ -328,6 +357,34 @@ let requestId = 0;
 let renderId = 0;
 let shownBoardId = null;
 let shownSheet = null;
+let sheetStyle = readStyle();
+
+function readStyle() {
+  try {
+    const saved = localStorage.getItem('domino-tiling-style');
+    return renderSheet.STYLES.includes(saved) ? saved : renderSheet.STYLES[0];
+  } catch {
+    return renderSheet.STYLES[0];
+  }
+}
+
+function setStyle(style) {
+  sheetStyle = style;
+  try {
+    localStorage.setItem('domino-tiling-style', style);
+  } catch {}
+  showStyle();
+  if (!shownSheet || !$('sheet').firstChild) return;
+  const { board, tilings, first, labels } = shownSheet;
+  const { highlight } = parseHash();
+  showSheet(board, tilings, first, labels);
+  if (highlight) highlightTiling(highlight);
+}
+
+function showStyle() {
+  $('gallery').dataset.style = sheetStyle;
+  $('styles').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.style === sheetStyle));
+}
 
 function getWorker() {
   if (!worker) {
@@ -419,7 +476,7 @@ function sheetColumns(board) {
 
 function showSheet(board, tilings, first, labels) {
   shownSheet = { board, tilings, first, labels, columns: sheetColumns(board) };
-  $('sheet').innerHTML = renderSheet(tilings, first, { ...board, columns: shownSheet.columns, labels });
+  $('sheet').innerHTML = renderSheet(tilings, first, { ...board, columns: shownSheet.columns, labels, style: sheetStyle });
   const svg = $('sheet').querySelector('svg');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', `${board.pieces === 'domicule' ? 'Domicule' : 'Domino'} tilings of a ${board.rowCount} by ${board.colCount} board`);
@@ -553,6 +610,11 @@ $('boards').addEventListener('click', e => {
   const button = e.target.closest('button');
   if (button) go(DATA.boards.find(b => b.id === button.dataset.id), ONE);
 });
+$('styles').addEventListener('click', e => {
+  const button = e.target.closest('button');
+  if (button) setStyle(button.dataset.style);
+});
+showStyle();
 $('first').addEventListener('click', () => go(parseHash().board, ONE));
 $('prev').addEventListener('click', () => { const s = parseHash(); go(s.board, s.page - ONE); });
 $('next').addEventListener('click', () => { const s = parseHash(); go(s.board, s.page + ONE); });

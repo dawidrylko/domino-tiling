@@ -31,7 +31,7 @@ const randomValidityTestCases = [
   { rowCount: 30, colCount: 30 },
 ];
 const DOMINO_OUTPUT_HASHES = {
-  svg: '96c9ec62458a6f5677a6400d3ded94931182af97bee7ce4c1cffc5bb3c8fd777',
+  svg: '03747e1b113b2eead3aaba260a1da9773169027c21346ad1dcdf77d707a83f50',
   ascii: '3bbf6c1dc91ec1980e1b71fa58ff4796d0f87123a57ca282b46d71dd9677afc7',
 };
 const DOMICULE_FULL_CHECK_LIMIT = BigInt(5000);
@@ -46,6 +46,21 @@ const domiculeReachTestCases = [
 const domiculeShapeTestCases = [
   { rowCount: 2, colCount: 2, piece: { row: 0, col: 0, dr: 1, dc: 1 }, svg: 'class="d"', rotation: 'rotate(45 ', ascii: '\\ .\n. \\' },
   { rowCount: 2, colCount: 2, piece: { row: 0, col: 1, dr: 1, dc: -1 }, svg: 'class="a"', rotation: 'rotate(-45 ', ascii: '. /\n/ .' },
+];
+const styleTestCases = [
+  { rowCount: 2, colCount: 4, style: 'blocks', markers: ['class="blocks"', '<rect class="h"', '<rect class="d"', 'rotate(45 ', '.a{fill'] },
+  { rowCount: 2, colCount: 4, style: 'dimer', markers: ['class="dimer"', '<path class="h"', '<path class="r"', '<circle class="d o"', '<circle class="a o"', '.r{fill:none'] },
+  { rowCount: 2, colCount: 4, style: 'engraving', markers: ['class="engraving"', '<rect class="h"', '<rect class="cd"', '<rect class="ca"', '<path class="d k"', '<path class="a k"'] },
+];
+const engravingContainmentTestCases = [
+  { rowCount: 4, colCount: 4 },
+  { rowCount: 6, colCount: 6 },
+];
+const STYLE_TEST_TILING = [
+  { row: 0, col: 0, dr: 0, dc: 1 },
+  { row: 1, col: 0, dr: 0, dc: 1 },
+  { row: 0, col: 2, dr: 1, dc: 1 },
+  { row: 0, col: 3, dr: 1, dc: -1 },
 ];
 const DOMICULE_TEST_SWEEPS = 200;
 const domiculeRandomTestCases = [
@@ -439,6 +454,82 @@ function runDomiculeShapeTest({ piece, svg, rotation, ascii, ...options }) {
   return true;
 }
 
+function runStyleTest({ style, markers, ...options }) {
+  const sheet = renderSheet([STYLE_TEST_TILING], 1, { ...options, style });
+  const missing = markers.filter(marker => !sheet.includes(marker));
+  const others = renderSheet.STYLES.filter(other => other !== style);
+
+  if (missing.length || others.some(other => sheet.includes(`class="${other}"`))) {
+    console.error(`Failed! The ${style} sheet lacks ${missing.join(', ') || 'nothing'} or names another style.`);
+
+    return false;
+  }
+
+  if (style === renderSheet.STYLES[0] && renderSheet([STYLE_TEST_TILING], 1, options) !== sheet) {
+    console.error(`Failed! A sheet without a style is not drawn as ${style}.`);
+
+    return false;
+  }
+
+  try {
+    renderSheet([STYLE_TEST_TILING], 1, { ...options, style: `${style}-unknown` });
+    console.error('Failed! An unknown style was accepted.');
+
+    return false;
+  } catch (error) {
+    if (!error.message.startsWith('Unknown style')) {
+      throw error;
+    }
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
+function runEngravingContainmentTest(options) {
+  const unranker = createDomiculeUnranker(options);
+  const tiling = unrankDomiculeTiling(unranker, unranker.total - BigInt(1));
+  const sheet = renderSheet([tiling], 1, { ...options, style: 'engraving' });
+  const cells = [...sheet.matchAll(/<rect class="c[da]" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/g)].map(([, x, y, size]) => {
+    const inner = Number(size) - 1;
+    return { left: Number(x) + 0.5, top: Number(y) + 0.5, right: Number(x) + 0.5 + inner, bottom: Number(y) + 0.5 + inner };
+  });
+  const roundCaps = /\.d,\.a\{[^}]*stroke-linecap:round/.test(sheet);
+  const escaped = [];
+
+  for (const [, kinds, d] of sheet.matchAll(/<path class="([da](?: k)?)" d="([^"]+)"/g)) {
+    const half = (kinds.endsWith('k') ? 2.4 : 1) / 2;
+    const cap = roundCaps ? half : 0;
+    const spread = half / Math.SQRT2;
+
+    for (const [, x1, y1, x2, y2] of d.matchAll(/M([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)/g)) {
+      const points = [[x1, y1], [x2, y2]].map(point => point.map(Number));
+      const [[ax, ay], [bx, by]] = points;
+      const length = Math.hypot(bx - ax, by - ay);
+      const ux = (bx - ax) / length;
+      const uy = (by - ay) / length;
+      const ends = [[ax - ux * cap, ay - uy * cap], [bx + ux * cap, by + uy * cap]];
+      const corners = ends.flatMap(([px, py]) => [[px + uy * half, py - ux * half], [px - uy * half, py + ux * half]]);
+      const inside = cells.some(cell => corners.every(([px, py]) => px >= cell.left - 1e-6 && px <= cell.right + 1e-6 && py >= cell.top - 1e-6 && py <= cell.bottom + 1e-6));
+
+      if (!inside) {
+        escaped.push(`${kinds} M${x1} ${y1}L${x2} ${y2}`);
+      }
+    }
+  }
+
+  if (!cells.length || escaped.length) {
+    console.error(`Failed! ${escaped.length} engraving strokes leave their cell, e.g. ${escaped[0]}.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function runDomiculeReachTest(testCase) {
   const random = createRandom(RANDOM_SEED);
   const seen = new Set();
@@ -510,6 +601,8 @@ function __main__() {
     domiculeRandomValidityTestCases,
     domiculeReachTestCases,
     domiculeShapeTestCases,
+    styleTestCases,
+    engravingContainmentTestCases,
     cliTestCases,
   ].reduce(
     (sum, suite) => sum + suite.length,
@@ -528,6 +621,8 @@ function __main__() {
     runSuite('domicule random validity', domiculeRandomValidityTestCases, runDomiculeValidityTest),
     runSuite('domicule chain reach', domiculeReachTestCases, runDomiculeReachTest),
     runSuite('domicule shape', domiculeShapeTestCases, runDomiculeShapeTest),
+    runSuite('sheet style', styleTestCases, runStyleTest),
+    runSuite('engraving containment', engravingContainmentTestCases, runEngravingContainmentTest),
     runSuite('domino output', [{ rowCount: 4, colCount: 4 }], runDominoOutputTest),
     runSuite('command line', cliTestCases, runCliTest),
   ];

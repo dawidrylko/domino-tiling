@@ -58,6 +58,8 @@ const siteTestCases = [
   { width: 1440, check: 'confirmation' },
   { width: 1440, check: 'benchmark' },
   { width: 1440, check: 'pieces' },
+  { width: 1440, check: 'styles' },
+  { width: 375, check: 'styles' },
   { width: 1440, check: 'sequences' },
   { width: 1440, check: 'notes' },
   { width: 786, check: 'notes' },
@@ -400,6 +402,47 @@ async function checkPieces(page, baseUrl, width) {
   return problems;
 }
 
+async function checkStyles(page, baseUrl, width) {
+  await loadSite(page, baseUrl, width, 'gallery/4x4-diagonal/1');
+  await page.evaluate("localStorage.removeItem('domino-tiling-style')");
+  await loadSite(page, baseUrl, width, 'gallery/4x4-diagonal/1');
+  await page.waitFor("document.querySelector('#sheet svg')", 'the 4x4 domicule sheet');
+  const problems = [];
+  const read = () =>
+    page.evaluate(`(() => ({
+      svg: document.querySelector('#sheet svg').getAttribute('class'),
+      gallery: document.getElementById('gallery').dataset.style,
+      pressed: [...document.querySelectorAll('#styles button')].filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.dataset.style),
+      labels: document.querySelectorAll('#sheet text').length,
+    }))()`);
+  const initial = await read();
+
+  if (initial.svg !== 'blocks' || initial.gallery !== 'blocks' || initial.pressed.join() !== 'blocks') {
+    problems.push(`default style is ${JSON.stringify(initial)}`);
+  }
+
+  for (const style of ['dimer', 'engraving']) {
+    await page.evaluate(`document.querySelector('#styles [data-style=${style}]').click()`);
+    const state = await read();
+
+    if (state.svg !== style || state.gallery !== style || state.pressed.join() !== style || state.labels !== initial.labels) {
+      problems.push(`after choosing ${style}: ${JSON.stringify(state)}`);
+    }
+  }
+
+  await loadSite(page, baseUrl, width, 'gallery/4x4-diagonal/1');
+  await page.waitFor("document.querySelector('#sheet svg')", 'the reloaded sheet');
+  const reloaded = await read();
+
+  if (reloaded.svg !== 'engraving' || reloaded.pressed.join() !== 'engraving') {
+    problems.push(`the chosen style did not survive a reload: ${JSON.stringify(reloaded)}`);
+  }
+
+  await page.evaluate("localStorage.removeItem('domino-tiling-style')");
+
+  return problems;
+}
+
 async function checkSequences(page, baseUrl, width) {
   await loadSite(page, baseUrl, width, 'gallery/4x4/1');
   await page.settle();
@@ -516,6 +559,7 @@ const CHECKS = {
   picker: { label: 'board picker', run: checkPicker },
   confirmation: { label: '18x18 and 16x16 domicule confirmation', run: checkConfirmation },
   pieces: { label: 'straight and diagonal switch', run: checkPieces },
+  styles: { label: 'sheet style switch', run: checkStyles },
   sequences: { label: 'sequence table', run: checkSequences },
   notes: { label: 'notes', run: checkNotes },
   benchmark: { label: 'benchmark table', run: checkBenchmark },
