@@ -46,6 +46,30 @@ const rejectionTestCases = [
   { args: ['benchmarks/benchmarkRunner.js', '-n', '1', '--domicule', '--only', 'dominoTilingSolver.js'], message: 'Usage' },
 ];
 
+function executeReadmeResultsTest() {
+  process.stdout.write('Executing README results test 1 of 1 for the sequence table... ');
+
+  const readme = fs.readFileSync(path.join(ROOT_DIRECTORY, 'README.md'), 'utf-8');
+  const rows = [...readme.matchAll(/^\| (\d+) \| \d+×\d+ \| (\d+) \| (\d+)(?: \*\*new\*\*)? \|$/gm)];
+  const known = (testCases, side) => testCases.find(t => t.rowCount === side && t.colCount === side)?.expectedResult;
+  const wrong = rows.filter(([, n, domino, domicule]) => {
+    const side = 2 * Number(n);
+    const domiculeExpected = known(testCasesDomicule, side);
+
+    return domino !== known(testCasesBigInt, side) || (domiculeExpected !== undefined && domicule !== domiculeExpected);
+  });
+
+  if (rows.length !== 11 || wrong.length) {
+    console.error(`Failed! ${rows.length} rows, wrong: ${wrong.map(([, n]) => n).join(', ')}`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function executeExecutorTest() {
   process.stdout.write('Executing executor test 1 of 1 for the Node.js binary... ');
 
@@ -251,6 +275,7 @@ function __main__() {
     const allParserTestsPassed = executeParserTests();
     const allRejectionTestsPassed = executeRejectionTests();
     const executorTestPassed = executeExecutorTest();
+    const readmeResultsTestPassed = executeReadmeResultsTest();
     const benchmarkGuardTestPassed = executeBenchmarkGuardTest();
     const precisionWarningTestsPassed = executePrecisionWarningTests();
 
@@ -263,6 +288,7 @@ function __main__() {
       allParserTestsPassed &&
       allRejectionTestsPassed &&
       executorTestPassed &&
+      readmeResultsTestPassed &&
       benchmarkGuardTestPassed &&
       precisionWarningTestsPassed
     ) {

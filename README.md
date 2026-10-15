@@ -7,7 +7,7 @@
 
 ## Abstract
 
-How many ways are there to cover a $2n \times 2n$ board with pieces that each cover two neighbouring cells, and what does any one of those coverings look like? For dominoes, which join cells that share a side, the count is [OEIS A004003](https://oeis.org/A004003) and has a closed form (Kasteleyn, Fisher, 1961). For domicules, which may also join cells that share only a corner, the count is [OEIS A239273](https://oeis.org/A239273) on squares and [A239264](https://oeis.org/A239264) on rectangles, and no closed form is used here. This repository counts both exactly, numbers every tiling so that any single one can be drawn from its number, and samples tilings of boards too large to number. It evaluates the domino product formula exactly as a resultant of two integer polynomials, counts domicule tilings with a cell-by-cell transfer that runs modulo primes in parallel and is rebuilt with the Chinese remainder theorem, and checks the solvers against each other, against the OEIS and against two PARI/GP programs run in CI. The results, the method and the computations are on the [project site](https://dawidrylko.github.io/domino-tiling/).
+How many ways are there to cover a $2n \times 2n$ board with pieces that each cover two neighbouring cells, and what does any one of those coverings look like? For dominoes, which join cells that share a side, the count is [OEIS A004003](https://oeis.org/A004003) and has a closed form found by Kasteleyn [1] and Fisher [2] in 1961. For domicules, which may also join cells that share only a corner, the count is [OEIS A239273](https://oeis.org/A239273) on squares and [A239264](https://oeis.org/A239264) on rectangles [6], and no closed form is used here. This repository counts both exactly, numbers every tiling so that any single one can be drawn from its number, and samples tilings of boards too large to number. It evaluates the domino product formula exactly as a resultant of two integer polynomials, counts domicule tilings with a cell-by-cell transfer that runs modulo primes in parallel and is rebuilt with the Chinese remainder theorem, and checks the solvers against each other, against the OEIS and against two PARI/GP programs run in CI. The results, the method and the computations are on the [project site](https://dawidrylko.github.io/domino-tiling/).
 
 ## Results
 
@@ -37,10 +37,11 @@ The notes are Markdown files with code cells. The site build runs every cell and
 
 ## Method in brief
 
-- **Domino closed form.** The numbers $4\cos^2(j\pi/(2n+1))$ are the roots of a monic integer polynomial $P$ with $P(x^2) = U_{2n}(x/2)$, so $a(n) = (-1)^n \operatorname{Res}(P(x), P(-x))$, the determinant of a $2n \times 2n$ integer matrix, computed with fraction-free Bareiss elimination.
-- **Transfer.** Dominoes are counted row by row with a bitmask of the next row; domicules cell by cell, with a state of the next $w + 2$ cells, because a cell can be matched with its right, down-left, down or down-right neighbour.
-- **Modular counting.** The domicule transfer only adds, so it runs modulo primes below $2^{31}$ in `Uint32Array` tables, one worker thread per prime. The Kahn-Lovász bound on perfect matchings gives the number of primes, the Chinese remainder theorem rebuilds the count, and one more prime checks it.
-- **Numbering and sampling.** A table of completion counts turns a number into a tiling and back. Domino tilings too large to number are sampled exactly with monotone coupling from the past; domicule tilings with a symmetric Markov chain of pair swaps, which is approximately uniform.
+The numbers $4\cos^2(j\pi/(2n+1))$ in the domino product are the roots of a monic integer polynomial $P$ with $P(x^2) = U_{2n}(x/2)$. The product therefore equals $(-1)^n \operatorname{Res}(P(x), P(-x))$, the determinant of a $2n \times 2n$ integer matrix, which fraction-free Bareiss elimination [3] computes exactly.
+
+Both kinds of tilings are also counted by transfer. Dominoes go row by row with a bitmask of the next row. Domicules go cell by cell with a state of the next $w + 2$ cells, because a cell can be matched with its right, down-left, down or down-right neighbour. That transfer only adds, so it runs modulo primes below $2^{31}$ in `Uint32Array` tables, one worker thread per prime; the Kahn-Lovász bound [5] gives the number of primes, the Chinese remainder theorem rebuilds the count, and one more prime checks it.
+
+A table of completion counts turns a number into a tiling. Domino tilings too large to number are sampled exactly with monotone coupling from the past [4]. Domicule tilings are sampled with a symmetric Markov chain of pair swaps, which is only approximately uniform.
 
 The PARI/GP programs, both run in CI against the known values:
 
@@ -143,6 +144,15 @@ pnpm render -r 20 -c 20 --domicule --random -l 6  # six approximately uniform do
 ```
 
 `-l` limits the number of tilings (default 1000), `-o` skips tilings, `-i` draws one tiling by its 1-based number, `--random` samples, `--all` lifts the limit on boards with at most 100,000 tilings, `--ascii` prints instead of writing SVG. The command line numbers boards whose table has at most 4 million entries: dominoes up to 14×14, domicules up to 12×12. The [gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser, up to 18×18 for dominoes and 16×16 for domicules, with sampling above that.
+
+## References
+
+1. P. W. Kasteleyn. The statistics of dimers on a lattice. *Physica* 27(12):1209-1225, 1961. [doi:10.1016/0031-8914(61)90063-5](https://doi.org/10.1016/0031-8914%2861%2990063-5)
+2. M. E. Fisher. Statistical mechanics of dimers on a plane lattice. *Physical Review* 124(6):1664-1672, 1961. [doi:10.1103/PhysRev.124.1664](https://doi.org/10.1103/PhysRev.124.1664)
+3. E. H. Bareiss. Sylvester's identity and multistep integer-preserving Gaussian elimination. *Mathematics of Computation* 22(103):565-578, 1968. [doi:10.1090/S0025-5718-1968-0226829-0](https://doi.org/10.1090/S0025-5718-1968-0226829-0)
+4. J. G. Propp and D. B. Wilson. Exact sampling with coupled Markov chains and applications to statistical mechanics. *Random Structures and Algorithms* 9(1-2):223-252, 1996. [doi:10.1002/(SICI)1098-2418(199608/09)9:1/2<223::AID-RSA14>3.0.CO;2-O](https://doi.org/10.1002/%28SICI%291098-2418%28199608/09%299:1/2%3C223::AID-RSA14%3E3.0.CO;2-O)
+5. N. Alon and S. Friedland. The maximum number of perfect matchings in graphs with a given degree sequence. *Electronic Journal of Combinatorics* 15:N13, 2008. [doi:10.37236/888](https://doi.org/10.37236/888)
+6. OEIS Foundation Inc. The On-Line Encyclopedia of Integer Sequences, entries [A004003](https://oeis.org/A004003), [A239264](https://oeis.org/A239264) and [A239273](https://oeis.org/A239273). [oeis.org](https://oeis.org)
 
 ## Citation
 

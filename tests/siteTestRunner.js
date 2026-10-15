@@ -49,6 +49,8 @@ const NOTES = [
   { slug: 'a239273', cells: 8 },
 ];
 const NOTE_FAILURES = ['NO', 'DIFFERS FROM OEIS'];
+const { testCasesBigInt, testCasesDomicule } = require('../data');
+const knownTerm = (testCases, side) => testCases.find(t => t.rowCount === side && t.colCount === side)?.expectedResult;
 const PAGE_CONTROLS = '#page-controls button, #page-controls input';
 const siteTestCases = [
   { width: 1440, check: 'sheets' },
@@ -407,6 +409,7 @@ async function checkSequences(page, baseUrl, width) {
     return {
       rows: rows.length,
       newTerms: rows.filter(row => row.querySelector('.badge')).map(row => row.cells[0].textContent),
+      cells: rows.map(row => [row.cells[2].textContent, row.cells[3].firstChild.textContent]),
       overflow: wrap.scrollWidth - wrap.clientWidth,
       notes: [...document.querySelectorAll('nav.notes a')].map(link => link.getAttribute('href')),
     };
@@ -420,6 +423,15 @@ async function checkSequences(page, baseUrl, width) {
   if (state.newTerms.join() !== '10') {
     problems.push(`terms marked new: ${state.newTerms.join(', ') || 'none'}`);
   }
+
+  state.cells.forEach(([domino, domicule], n) => {
+    const dominoExpected = knownTerm(testCasesBigInt, 2 * n);
+    const domiculeExpected = knownTerm(testCasesDomicule, 2 * n);
+
+    if (domino !== dominoExpected || (domiculeExpected ? domicule !== domiculeExpected : !/^\d+$/.test(domicule))) {
+      problems.push(`row ${n} shows ${domino} and ${domicule}`);
+    }
+  });
 
   if (state.overflow > 0) {
     problems.push(`sequence table scrolls ${state.overflow} px sideways`);
@@ -446,10 +458,21 @@ async function checkNotes(page, baseUrl, width) {
       cells: document.querySelectorAll('.cell').length,
       outputs: [...document.querySelectorAll('.output td, pre.output')].map(cell => cell.textContent.trim()),
       sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      unresolved: /undefined|\\u0000/.test(document.querySelector('article').textContent),
+      math: document.querySelectorAll('.math').length,
+      katex: document.querySelectorAll('.katex').length,
     }))()`);
 
     if (state.cells !== cells) {
       problems.push(`${slug} has ${state.cells} cells instead of ${cells}`);
+    }
+
+    if (state.unresolved) {
+      problems.push(`${slug} shows an unresolved token`);
+    }
+
+    if (state.math && !state.katex) {
+      problems.push(`${slug} has ${state.math} formulas but KaTeX rendered none`);
     }
 
     if (state.outputs.some(text => NOTE_FAILURES.includes(text))) {

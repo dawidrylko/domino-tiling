@@ -190,7 +190,7 @@ async function countResidues(rows, cols, primes, jobs) {
  * @param {Object} options The board and the number of worker threads.
  * @returns {Promise<BigInt>} The number of tilings.
  */
-async function calculateTotalTilingCombinations({ rowCount, colCount, jobs }) {
+async function calculateTotalTilingCombinations({ rowCount, colCount, jobs = os.availableParallelism() }) {
   const rows = Math.max(rowCount, colCount);
   const cols = Math.min(rowCount, colCount);
 
@@ -221,7 +221,7 @@ async function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount) || !(jobs > 0)) {
     console.error(
-      'Usage: node domiculeTilingSolver-Modular.js -r <rowCount> -c <colCount> [-j <jobs>]',
+      'Usage: node src/solvers/domiculeTilingSolver-Modular.js -r <rowCount> -c <colCount> [-j <jobs>]',
     );
     process.exit(1);
   }

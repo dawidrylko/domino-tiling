@@ -27,3 +27,71 @@ keywords:
   - transfer matrix
   - Chinese remainder theorem
   - PARI/GP
+references:
+  - type: article
+    authors:
+      - family-names: Kasteleyn
+        given-names: P. W.
+    title: The statistics of dimers on a lattice
+    journal: Physica
+    volume: 27
+    issue: 12
+    start: 1209
+    end: 1225
+    year: 1961
+    doi: 10.1016/0031-8914(61)90063-5
+  - type: article
+    authors:
+      - family-names: Fisher
+        given-names: M. E.
+    title: Statistical mechanics of dimers on a plane lattice
+    journal: Physical Review
+    volume: 124
+    issue: 6
+    start: 1664
+    end: 1672
+    year: 1961
+    doi: 10.1103/PhysRev.124.1664
+  - type: article
+    authors:
+      - family-names: Bareiss
+        given-names: E. H.
+    title: Sylvester's identity and multistep integer-preserving Gaussian elimination
+    journal: Mathematics of Computation
+    volume: 22
+    issue: 103
+    start: 565
+    end: 578
+    year: 1968
+    doi: 10.1090/S0025-5718-1968-0226829-0
+  - type: article
+    authors:
+      - family-names: Propp
+        given-names: J. G.
+      - family-names: Wilson
+        given-names: D. B.
+    title: Exact sampling with coupled Markov chains and applications to statistical mechanics
+    journal: Random Structures and Algorithms
+    volume: 9
+    issue: 1-2
+    start: 223
+    end: 252
+    year: 1996
+    url: https://doi.org/10.1002/%28SICI%291098-2418%28199608/09%299:1/2%3C223::AID-RSA14%3E3.0.CO;2-O
+  - type: article
+    authors:
+      - family-names: Alon
+        given-names: N.
+      - family-names: Friedland
+        given-names: S.
+    title: The maximum number of perfect matchings in graphs with a given degree sequence
+    journal: Electronic Journal of Combinatorics
+    volume: 15
+    issue: N13
+    year: 2008
+    doi: 10.37236/888
+  - type: database
+    authors:
+      - name: OEIS Foundation Inc.
+    title: The On-Line Encyclopedia of Integer Sequences
+    url: https://oeis.org

@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="__URL__">
 <link rel="icon" href="../domino.svg" type="image/svg+xml">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Domino Tiling">
 <meta property="og:url" content="__URL__">
@@ -29,7 +29,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; overflow-wrap: anywhere; }
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; overflow-wrap: anywhere; }
 a { color: var(--accent); }
 header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-bottom: 24px; font-size: 14px; }
 header a { color: var(--muted); text-decoration: none; }
@@ -63,6 +63,7 @@ blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--
 .toc { font-size: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 10px 14px; margin: 0 0 24px; }
 .toc ol { margin: 4px 0 0; padding-left: 20px; }
 footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+footer p { margin: 0 0 4px; }
 </style>
 </head>
 <body>
@@ -75,12 +76,11 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
     __CONTENT__
   </article>
   <footer>
-    Built from <a href="__SOURCE_URL__">__SOURCE__</a> on __DATE__; every output on this page was computed during that build.
-    © <a href="https://dawidrylko.com" rel="author">Dawid Ryłko</a> ·
-    <a href="https://github.com/dawidrylko/domino-tiling/blob/master/LICENSE">MIT License</a>
+    <p>Built from <a href="__SOURCE_URL__">__SOURCE__</a> on __DATE__; every output on this page was computed during that build.</p>
+    <p>© <a href="https://dawidrylko.com" rel="author">Dawid Ryłko</a> · <a href="https://github.com/dawidrylko/domino-tiling/blob/master/LICENSE">MIT License</a></p>
   </footer>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 <script>
 document.querySelectorAll('.math').forEach(element => {
   if (window.katex) {

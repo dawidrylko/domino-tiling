@@ -21,23 +21,38 @@ function slugify(text) {
 
 /**
  * Renders inline Markdown: code spans, $math$, links and bold text.
+ * Code and math are set aside as tokens first; a link label is rendered with the same
+ * tokens, and the tokens are expanded until none is left.
  * @param {string} text The Markdown text of one paragraph, list item or table cell.
  * @param {function(string): string} resolveLink Maps a Markdown link target to the site URL.
+ * @param {string[]} [tokens] The tokens of the enclosing call.
  * @returns {string} The HTML.
  */
-function renderInline(text, resolveLink) {
-  const tokens = [];
-  const keep = html => `\u0000${tokens.push(html) - 1}\u0000`;
+function renderInline(text, resolveLink, tokens = null) {
+  const shared = tokens || [];
+  const keep = html => `\u0000${shared.push(html) - 1}\u0000`;
   const html = escapeHtml(
     text
       .replace(/`([^`]+)`/g, (_, code) => keep(`<code>${escapeHtml(code)}</code>`))
-      .replace(/\$([^$\n]+)\$/g, (_, tex) => keep(`<span class="math" data-tex="${escapeHtml(tex)}">${escapeHtml(tex)}</span>`))
+      .replace(/\$([^$\s](?:[^$\n]*?[^$\s])?)\$(?!\d)/g, (_, tex) => keep(`<span class="math" data-tex="${escapeHtml(tex)}">${escapeHtml(tex)}</span>`))
       .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, href) =>
-        keep(`<a href="${escapeHtml(resolveLink(href))}">${renderInline(label, resolveLink)}</a>`),
+        keep(`<a href="${escapeHtml(resolveLink(href))}">${renderInline(label, resolveLink, shared)}</a>`),
       ),
-  ).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  )
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*\s][^*]*?)\*/g, '<em>$1</em>');
 
-  return html.replace(/\u0000(\d+)\u0000/g, (_, index) => tokens[Number(index)]);
+  if (tokens) {
+    return html;
+  }
+
+  let expanded = html;
+
+  while (expanded.includes('\u0000')) {
+    expanded = expanded.replace(/\u0000(\d+)\u0000/g, (_, index) => shared[Number(index)]);
+  }
+
+  return expanded;
 }
 
 function renderTable(rows, resolveLink) {
@@ -48,11 +63,12 @@ function renderTable(rows, resolveLink) {
       .map(cell => cell.trim());
   const [head, separator, ...body] = rows;
   const align = cells(separator).map(cell => (cell.endsWith(':') ? ' class="r"' : ''));
+  const alignment = i => align[i] || '';
 
   return [
     '<div class="table-wrap"><table>',
-    `<thead><tr>${cells(head).map((cell, i) => `<th${align[i]}>${renderInline(cell, resolveLink)}</th>`).join('')}</tr></thead>`,
-    `<tbody>${body.map(row => `<tr>${cells(row).map((cell, i) => `<td${align[i]}>${renderInline(cell, resolveLink)}</td>`).join('')}</tr>`).join('')}</tbody>`,
+    `<thead><tr>${cells(head).map((cell, i) => `<th${alignment(i)}>${renderInline(cell, resolveLink)}</th>`).join('')}</tr></thead>`,
+    `<tbody>${body.map(row => `<tr>${cells(row).map((cell, i) => `<td${alignment(i)}>${renderInline(cell, resolveLink)}</td>`).join('')}</tr>`).join('')}</tbody>`,
     '</table></div>',
   ].join('');
 }
@@ -229,7 +245,13 @@ async function renderNote(markdown, { resolveLink, context }) {
     html.push(`<p>${renderInline(text, resolveLink)}</p>`);
   }
 
-  return { title, description, html: html.join('\n'), toc, cells };
+  const output = html.join('\n');
+
+  if (output.includes('\u0000') || />undefined</.test(output)) {
+    throw new Error(`Note "${title}" rendered an unresolved inline token.`);
+  }
+
+  return { title, description, html: output, toc, cells };
 }
 
 /**

@@ -94,7 +94,7 @@ function findLatestCompleteRun() {
 
   if (!run) {
     throw new Error(
-      `No complete benchmark/YYYY-MM directory: one needs environment.json and every solver's largest board.`,
+      `No complete benchmarks/results/YYYY-MM directory: one needs environment.json and every solver's largest board.`,
     );
   }
 
@@ -145,7 +145,7 @@ function countTilings(board) {
   );
 
   if (!testCase) {
-    throw new Error(`No expected result in test-data for ${board.rowCount}x${board.colCount}.`);
+    throw new Error(`No expected result in data/ for ${board.rowCount}x${board.colCount}.`);
   }
 
   return testCase.expectedResult;
@@ -154,7 +154,7 @@ function countTilings(board) {
 const domiculeCounts = new Map();
 
 /**
- * Counts the domicule tilings of a board once per build: from test-data when the term is
+ * Counts the domicule tilings of a board once per build: from data/ when the term is
  * known there, otherwise with the modular solver. The gallery and the notebooks share the result.
  * @param {Object} board The board.
  * @returns {Promise<string>} The number of tilings.
@@ -179,7 +179,7 @@ function countDomiculeTilings({ rowCount, colCount }) {
 }
 
 function escapeHtml(text) {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function readAverageTime(directory, fileName) {
@@ -277,12 +277,12 @@ function buildJsonLd() {
         '@type': 'SoftwareSourceCode',
         name: 'Domino Tiling',
         description:
-          'JavaScript solvers that count domino tilings of 2n×2n boards (OEIS A004003) with bitmask dynamic programming and an exact closed-form formula, plus a renderer for every tiling.',
+          'Exact counts, numbering and sampling of domino tilings (OEIS A004003) and domicule tilings (OEIS A239264, A239273) of 2n×2n boards: a resultant form of the product formula, transfer-matrix solvers, a modular solver with the Chinese remainder theorem, PARI/GP programs and notebooks.',
         codeRepository: 'https://github.com/dawidrylko/domino-tiling',
         programmingLanguage: 'JavaScript',
         runtimePlatform: 'Node.js',
         license: 'https://opensource.org/licenses/MIT',
-        keywords: 'domino tiling, dimer coverings, OEIS A004003, combinatorics',
+        keywords: 'domino tiling, dimer coverings, domicule tiling, perfect matchings, OEIS A004003, OEIS A239264, OEIS A239273, combinatorics',
         author: AUTHOR,
         isBasedOn: 'https://oeis.org/A004003',
         subjectOf: {
@@ -361,7 +361,7 @@ async function buildNotes(notes, context) {
     const tocHtml = toc.length > 2 ? `<nav class="toc" aria-label="Contents"><strong>Contents</strong><ol>${toc.map(item => `<li><a href="#${item.id}">${item.title}</a></li>`).join('')}</ol></nav>` : '';
     const page = template
       .replace(/__TITLE__/g, () => escapeHtml(title))
-      .replace(/__DESCRIPTION__/g, () => escapeHtml(description))
+      .replace(/__DESCRIPTION__/g, () => escapeHtml(NOTE_SUMMARIES[note.slug] || description))
       .replace(/__URL__/g, `${SITE_URL}notes/${note.slug}.html`)
       .replace(/__SITE_URL__/g, SITE_URL)
       .replace('__CONTENT__', () => html.replace('</h1>', `</h1>\n${tocHtml}`))

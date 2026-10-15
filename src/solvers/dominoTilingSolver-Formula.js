@@ -130,7 +130,7 @@ function __main__() {
 
   if (!isValidSize(options.rowCount) || !isValidSize(options.colCount)) {
     console.error(
-      'Usage: node dominoTilingSolver-Formula.js -r <rowCount> -c <colCount>',
+      'Usage: node src/solvers/dominoTilingSolver-Formula.js -r <rowCount> -c <colCount>',
     );
     process.exit(1);
   }
