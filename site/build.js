@@ -1,6 +1,7 @@
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { filesInt, testCasesInt, filesBigInt, testCasesBigInt } = require('../test-data');
+const { filesInt, testCasesInt, filesBigInt, testCasesBigInt, testCasesDomicule } = require('../test-data');
 
 const SITE_URL = 'https://dawidrylko.github.io/domino-tiling/';
 const REPOSITORY_TREE_URL = 'https://github.com/dawidrylko/domino-tiling/tree/master';
@@ -12,7 +13,7 @@ const BENCHMARK_RUNS = listBenchmarkRuns();
 const BENCHMARK_RUN = findLatestCompleteRun();
 const BENCHMARK_DIRECTORY = path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, BENCHMARK_RUN);
 const BROWSER_SCRIPTS = ['renderer/svg.js'];
-const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'site/worker.js'];
+const WORKER_SCRIPTS = ['renderer/unrank.js', 'renderer/cftp.js', 'renderer/domicule.js', 'site/worker.js'];
 const ASSETS = {
   'domino.svg': '.github/assets/domino.svg',
   'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
@@ -37,7 +38,20 @@ const GALLERY_BOARDS = [
   { rowCount: 18, colCount: 18, memory: '1.1 GB', confirm: true },
   { rowCount: 20, colCount: 20, mode: 'random' },
 ];
+const DOMICULE_BOARDS = [
+  { rowCount: 2, colCount: 2 },
+  { rowCount: 4, colCount: 4 },
+  { rowCount: 6, colCount: 6 },
+  { rowCount: 8, colCount: 8 },
+  { rowCount: 10, colCount: 10 },
+  { rowCount: 12, colCount: 12 },
+  { rowCount: 14, colCount: 14, memory: '200 MB' },
+  { rowCount: 16, colCount: 16, memory: '1 GB', confirm: true },
+  { rowCount: 18, colCount: 18, mode: 'random' },
+  { rowCount: 20, colCount: 20, mode: 'random' },
+];
 const DEFAULT_BOARD = '4x4';
+const PARI_PROGRAM = 'oeis/A239273.gp';
 
 function listBenchmarkRuns() {
   return fs
@@ -123,6 +137,41 @@ function countTilings(board) {
   }
 
   return testCase.expectedResult;
+}
+
+/**
+ * Counts the domicule tilings of a gallery board: from test-data when the term is known
+ * there, otherwise with the modular solver at build time.
+ * @param {Object} board The board.
+ * @returns {string} The number of tilings.
+ */
+function countDomiculeTilings(board) {
+  const testCase = testCasesDomicule.find(
+    t => t.rowCount === board.rowCount && t.colCount === board.colCount,
+  );
+
+  if (testCase) {
+    return testCase.expectedResult;
+  }
+
+  return execFileSync(
+    process.execPath,
+    [path.join(ROOT_DIRECTORY, 'domiculeTilingSolver-Modular.js'), '-r', String(board.rowCount), '-c', String(board.colCount)],
+    { encoding: 'utf-8' },
+  ).trim();
+}
+
+function readPariProgram() {
+  return fs
+    .readFileSync(path.join(ROOT_DIRECTORY, PARI_PROGRAM), 'utf-8')
+    .split('\n')
+    .filter(line => !line.startsWith('\\\\'))
+    .join('\n')
+    .trim();
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function readAverageTime(directory, fileName) {
@@ -233,12 +282,22 @@ function __main__() {
 
   const data = {
     defaultBoard: DEFAULT_BOARD,
-    boards: GALLERY_BOARDS.map(board => ({
-      id: `${board.rowCount}x${board.colCount}`,
-      mode: 'pages',
-      ...board,
-      total: countTilings(board),
-    })),
+    boards: [
+      ...GALLERY_BOARDS.map(board => ({
+        id: `${board.rowCount}x${board.colCount}`,
+        pieces: 'domino',
+        mode: 'pages',
+        ...board,
+        total: countTilings(board),
+      })),
+      ...DOMICULE_BOARDS.map(board => ({
+        id: `${board.rowCount}x${board.colCount}-diagonal`,
+        pieces: 'domicule',
+        mode: 'pages',
+        ...board,
+        total: countDomiculeTilings(board),
+      })),
+    ],
     benchmark: buildBenchmark(),
     environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
@@ -253,7 +312,9 @@ function __main__() {
     .replace('__JSON_LD__', () => JSON.stringify(buildJsonLd()).replace(/</g, '\\u003c'))
     .replace(/__SITE_URL__/g, SITE_URL)
     .replace(/__BENCHMARK_DIRECTORY__/g, `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`)
-    .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks());
+    .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks())
+    .replace('__PARI_PROGRAM__', () => escapeHtml(readPariProgram()))
+    .replace(/__PARI_PROGRAM_URL__/g, `https://github.com/dawidrylko/domino-tiling/blob/master/${PARI_PROGRAM}`);
 
   Object.entries(ASSETS).forEach(([name, source]) =>
     fs.copyFileSync(path.join(ROOT_DIRECTORY, source), path.join(OUTPUT_DIRECTORY, name)),

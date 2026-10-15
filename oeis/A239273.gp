@@ -8,7 +8,10 @@ T(h, w) = {
   for (p = 0, h*w-1,
     my(r = p\w, c = p%w, d = []);
     if (c+1 < w, d = concat(d, 1));
-    if (r+1 < h, if (c > 0, d = concat(d, w-1)); d = concat(d, w); if (c+1 < w, d = concat(d, w+1)));
+    if (r+1 < h,
+      if (c > 0, d = concat(d, w-1));
+      d = concat(d, w);
+      if (c+1 < w, d = concat(d, w+1)));
     u = vector(S);
     for (s = 0, S-1,
       my(x = v[s+1]);

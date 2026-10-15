@@ -27,6 +27,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm test:render
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends pari-gp
+      - run: pnpm test:pari
       - run: pnpm site:build
       - run: pnpm test:site
         timeout-minutes: 10

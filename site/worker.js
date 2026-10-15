@@ -1,23 +1,42 @@
 const unrankers = new Map();
 
+const PIECES = {
+  domino: {
+    canUnrank,
+    createUnranker,
+    unrankTiling,
+    sample: board => sampleRandomTiling(board),
+  },
+  domicule: {
+    canUnrank: canUnrankDomicule,
+    createUnranker: createDomiculeUnranker,
+    unrankTiling: unrankDomiculeTiling,
+    sample: board => sampleDomiculeTiling(board),
+  },
+};
+
 function getUnranker(board, id) {
-  const key = `${board.rowCount}x${board.colCount}`;
+  const pieces = PIECES[board.pieces];
+  const key = board.id;
 
   if (!unrankers.has(key)) {
-    if (!canUnrank(board)) {
+    if (!pieces.canUnrank(board)) {
       [...unrankers.keys()]
-        .filter(other => !canUnrank(unrankers.get(other)))
+        .filter(other => {
+          const { board: otherBoard } = unrankers.get(other);
+          return !PIECES[otherBoard.pieces].canUnrank(otherBoard);
+        })
         .forEach(other => unrankers.delete(other));
     }
 
-    const unranker = createUnranker(board, progress =>
+    const unranker = pieces.createUnranker(board, progress =>
       postMessage({ id, type: 'progress', progress }),
     );
 
-    unrankers.set(key, unranker);
+    unrankers.set(key, { board, unranker });
   }
 
-  return unrankers.get(key);
+  return unrankers.get(key).unranker;
 }
 
 onmessage = ({ data }) => {
@@ -33,11 +52,11 @@ onmessage = ({ data }) => {
       const last = end < unranker.total ? end : unranker.total;
 
       for (let rank = first; rank < last; rank++) {
-        tilings.push(unrankTiling(unranker, rank));
+        tilings.push(PIECES[board.pieces].unrankTiling(unranker, rank));
       }
     } else if (type === 'random') {
       for (let i = 0; i < data.count; i++) {
-        tilings.push(sampleRandomTiling(board));
+        tilings.push(PIECES[board.pieces].sample(board));
       }
     }
 

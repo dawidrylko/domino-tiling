@@ -6,6 +6,12 @@ const takeRange = require('./range');
 const { canCount, countTilings } = require('./count');
 const { canUnrank, createUnranker, unrankTiling } = require('./unrank');
 const { sampleRandomTiling } = require('./cftp');
+const {
+  canUnrankDomicule,
+  createDomiculeUnranker,
+  unrankDomiculeTiling,
+  sampleDomiculeTiling,
+} = require('./domicule');
 
 module.exports = {
   enumerateTilings,
@@ -19,4 +25,8 @@ module.exports = {
   createUnranker,
   unrankTiling,
   sampleRandomTiling,
+  canUnrankDomicule,
+  createDomiculeUnranker,
+  unrankDomiculeTiling,
+  sampleDomiculeTiling,
 };
