@@ -126,7 +126,7 @@ Benchmarks:
 
 ```sh
 pnpm benchmark            # domino solvers, results in benchmarks/results/<year-month>
-pnpm benchmark:domicule   # domicule solvers, 10 runs up to 16×16 and one modular run of 18×18 and 20×20
+pnpm benchmark:domicule   # domicule solvers, 10 runs up to 16×16 and one run of 18×18 and 20×20
 ```
 
 A run writes `environment.json` next to the timings and refuses to mix machines or Node.js versions in one month directory unless given `--force`. The site shows the newest directory that holds the largest board of every solver. Older runs stay in [`benchmarks/results`](benchmarks/results): March 2024 (machine not recorded) and April 2024 (100,000 runs per board on an Intel Core i7-8700).

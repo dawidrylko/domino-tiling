@@ -82,7 +82,7 @@ function isCompleteRun(run) {
     ...filesInt.map(fileName => resultFileName(fileName, lastInt)),
     ...filesBigInt.map(fileName => resultFileName(fileName, lastBigInt)),
     ...filesDomicule.map(fileName => resultFileName(fileName, { rowCount: 16, colCount: 16 })),
-    resultFileName('domiculeTilingSolver-Modular.js', { rowCount: 20, colCount: 20 }),
+    ...filesDomicule.map(fileName => resultFileName(fileName, { rowCount: 20, colCount: 20 })),
   ];
 
   return requiredFiles.every(file => fs.existsSync(path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, run, file)));
