@@ -14,3 +14,4 @@ king free w=22 p=- longdouble it=12 est=11.957226171597672629 t=9.5s
 king free w=22 p=- longdouble it=13 est=11.957226171427875433 t=9.6s
 king free w=22 p=- longdouble it=14 est=11.957226171396705777 t=9.4s
 king free w=22 p=- longdouble it=15 est=11.957226171390939144 t=10.2s
+king free w=22 p=- longdouble it=16 est=11.957226171389865897 t=9.6s
