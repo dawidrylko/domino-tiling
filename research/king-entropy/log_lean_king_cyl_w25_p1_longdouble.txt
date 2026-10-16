@@ -1,0 +1,1 @@
+king cyl w=25 p=1 longdouble it=0 est=14.301668793276151388 t=175.9s
