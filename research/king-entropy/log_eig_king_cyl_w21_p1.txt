@@ -1,0 +1,20 @@
+king cyl w=21 p=1 it=0 est=12.0138504233826904 t=4.08s
+king cyl w=21 p=1 it=1 est=11.8894085875280648 t=3.11s
+king cyl w=21 p=1 it=2 est=11.8773041051875801 t=3.37s
+king cyl w=21 p=1 it=3 est=11.8759285697287869 t=3.10s
+king cyl w=21 p=1 it=4 est=11.8757706156640737 t=3.41s
+king cyl w=21 p=1 it=5 est=11.8757524821399016 t=3.14s
+king cyl w=21 p=1 it=6 est=11.8757504014628097 t=3.24s
+king cyl w=21 p=1 it=7 est=11.8757501627789352 t=3.04s
+king cyl w=21 p=1 it=8 est=11.8757501354009563 t=3.64s
+king cyl w=21 p=1 it=9 est=11.8757501322607020 t=3.67s
+king cyl w=21 p=1 it=10 est=11.8757501319005190 t=2.58s
+king cyl w=21 p=1 it=11 est=11.8757501318592062 t=3.15s
+king cyl w=21 p=1 it=12 est=11.8757501318544669 t=2.90s
+king cyl w=21 p=1 it=13 est=11.8757501318539251 t=2.95s
+king cyl w=21 p=1 it=14 est=11.8757501318538612 t=3.59s
+king cyl w=21 p=1 it=15 est=11.8757501318538541 t=3.10s
+king cyl w=21 p=1 it=16 est=11.8757501318538541 t=3.46s
+king cyl w=21 p=1 it=17 est=11.8757501318538541 t=2.98s
+king cyl w=21 p=1 it=18 est=11.8757501318538541 t=3.59s
+{"lattice": "king", "bc": "cyl", "w": 21, "parity": 1, "log_lambda": 11.875750131853854, "per_site": 0.5655119110406597, "converged": true, "iterations": 19, "tol": 4e-15, "cw_log_lambda": [11.875750131853854, 11.875750131853854], "support": 1048576, "residual_l1": 1.5880422841924124e-16, "sec_per_iteration": 3.152218818664551, "wall": 66.1903727054596, "maxrss_mib": 587.19921875, "commit": "f4de76a", "cmd": "python3 cylw.py king cyl 21 1"}
