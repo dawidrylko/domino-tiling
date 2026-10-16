@@ -1,0 +1,2 @@
+# cmd: bash /tmp/claude-0/-home-user-domino-tiling/ea41c60c-86d6-5112-9432-cee6cbf53a30/scratchpad/run_ctrl.sh
+# exit=0 wall=21.4s user=16.4s maxrss=27MiB
