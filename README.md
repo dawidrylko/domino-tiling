@@ -2,8 +2,8 @@
 
 [![Continuous Integration](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml)
 [![Pages](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml)
-[![Site](https://img.shields.io/badge/Site_%26_notebooks-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
-[![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-e0a458?style=flat)](https://dawidrylko.com/domino-tiling/)
+[![Site](https://img.shields.io/badge/Site_%26_notebooks-dawidrylko.github.io-044cb6?style=flat)](https://dawidrylko.github.io/domino-tiling/)
+[![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-f09c17?style=flat)](https://dawidrylko.com/domino-tiling/)
 
 ## Abstract
 
