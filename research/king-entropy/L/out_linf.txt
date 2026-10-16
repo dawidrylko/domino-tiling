@@ -1,0 +1,65 @@
+Z(k, m) = Z(m, k) exactly for weights (2,2,1), (1,1,0), (4,4,3), 2 <= k, m <= 6
+float cell transfer = exact row transfer (m = 3..5, k <= 8)
+
+king (1, 1): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +3.54e-02  2q=6: +4.88e-03  2q=8: +2.60e-04  2q=10: +4.69e-05  2q=12: +3.99e-06  2q=14: +5.53e-07
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 7.25 18.80 5.54 11.76 7.21
+
+(1, 0.95): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +3.68e-02  2q=6: +4.44e-03  2q=8: +2.58e-04  2q=10: +4.06e-05  2q=12: +3.62e-06  2q=14: +4.62e-07
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 8.29 17.18 6.37 11.19 7.85
+
+(1, 0.9): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +3.80e-02  2q=6: +4.05e-03  2q=8: +2.53e-04  2q=10: +3.53e-05  2q=12: +3.26e-06  2q=14: +3.88e-07
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 9.38 16.02 7.17 10.83 8.40
+
+(1, 0.75): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +4.03e-02  2q=6: +3.13e-03  2q=8: +2.20e-04  2q=10: +2.37e-05  2q=12: +2.25e-06  2q=14: +2.32e-07
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 12.87 14.25 9.27 10.56 9.70
+
+(1, 0.5): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +4.04e-02  2q=6: +2.15e-03  2q=8: +1.48e-04  2q=10: +1.25e-05  2q=12: +1.08e-06  2q=14: +9.56e-08
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 18.84 14.48 11.85 11.55 11.32
+
+triangular (1, 0): a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +2.50e-02  2q=6: +8.79e-04  2q=8: +4.69e-05  2q=10: +2.82e-06  2q=12: +1.79e-07  2q=14: +1.17e-08
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 28.39 18.76 16.61 15.73 15.27
+
+equal x = 0.5: a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +5.96e-02  2q=6: +8.51e-03  2q=8: +1.13e-03  2q=10: +1.55e-04  2q=12: +2.15e-05  2q=14: +3.00e-06
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 7.01 7.50 7.33 7.21 7.16
+
+equal x = 1.25: a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +2.24e-02  2q=6: +1.11e-02  2q=8: +2.95e-05  2q=10: +1.87e-04  2q=12: +3.88e-06  2q=14: +3.32e-06
+   negative (< -1e-13): none;  ratios d_q/d_(q+1): 2.01 376.46 0.16 48.19 1.17
+
+equal x = 1.5: a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +1.33e-02  2q=6: +1.91e-02  2q=8: -6.24e-04  2q=10: +5.14e-04  2q=12: -1.45e-05  2q=14: +1.39e-05
+   negative (< -1e-13): [8, 12];  ratios d_q/d_(q+1): 0.70 -30.65 -1.21 -35.48 -1.04
+
+equal x = 2: a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +4.42e-03  2q=6: +3.63e-02  2q=8: -2.82e-03  2q=10: +1.81e-03  2q=12: -1.54e-04  2q=14: +8.88e-05
+   negative (< -1e-13): [8, 12];  ratios d_q/d_(q+1): 0.12 -12.87 -1.55 -11.80 -1.73
+
+equal x = 3: a_{2q} = log lambda_{2q}, second differences d_q (2q = 4..14)
+   2q=4: +4.12e-03  2q=6: +6.74e-02  2q=8: -8.87e-03  2q=10: +6.60e-03  2q=12: -9.77e-04  2q=14: +6.20e-04
+   negative (< -1e-13): [8, 12];  ratios d_q/d_(q+1): 0.06 -7.60 -1.34 -6.75 -1.58
+
+king (1, 1): max |a_k - bounds.json log_lambda_free[k]| over even k <= 16: 2.2e-16
+
+king (1, 1) from surface.json: d_q for 2q = 4..24 and ratios d_q/d_(q+1)
+   2q=4: 3.541e-02  2q=6: 4.881e-03  2q=8: 2.596e-04  2q=10: 4.689e-05  2q=12: 3.988e-06  2q=14: 5.527e-07  2q=16: 5.632e-08  2q=18: 6.964e-09  2q=20: 7.620e-10  2q=22: 9.004e-11  2q=24: 1.014e-11
+   ratios: 7.25 18.80 5.54 11.76 7.21 9.81 8.09 9.14 8.46 8.88
+   Prony fit on 2q = 12..18: roots +0.1146, -0.0730;  |oscillating / positive| term at 2q = 24: 0.008
+   Prony fit on 2q = 14..20: roots +0.1147, -0.0718;  |oscillating / positive| term at 2q = 24: 0.007
+   Prony fit on 2q = 16..22: roots +0.1147, -0.0725;  |oscillating / positive| term at 2q = 24: 0.007
+   Prony fit on 2q = 18..24: roots +0.1147, -0.0722;  |oscillating / positive| term at 2q = 24: 0.007
+
+exact (L) at 2q = 8 for equal diagonal weights, wide boards: Z(8, m)^2 vs Z(6, m) Z(10, m)
+  weights (wo, xl, xr) = (1, 1, 1) (x = 1): violations for m = 1..60: 0
+  weights (wo, xl, xr) = (4, 5, 5) (x = 1.25): violations for m = 1..60: 0
+  weights (wo, xl, xr) = (2, 3, 3) (x = 1.5): violations for m = 1..60: 26, first m = 35, all m >= 35 violate: True
+  weights (wo, xl, xr) = (1, 2, 2) (x = 2): violations for m = 1..60: 40, first m = 21, all m >= 21 violate: True
+  weights (wo, xl, xr) = (1, 3, 3) (x = 3): violations for m = 1..60: 42, first m = 19, all m >= 19 violate: True
+
+total time 12 s
