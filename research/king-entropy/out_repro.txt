@@ -1,0 +1,2 @@
+HEAD 167f49a; SHAs cited by session 1 missing from the repository: 11 of 11: d817805 9fc8b21 ff18169 2f65f6b 99cb918 5cfb175 49a8c11 f4de76a c7d22f4 c46657a 6377e1e
+[SAME] python3 estimate.py  vs out_estimate.txt  (sha1 3e8e523704f4)

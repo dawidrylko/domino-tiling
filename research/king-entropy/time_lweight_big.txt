@@ -1,0 +1,2 @@
+# cmd: python3 lweight.py big
+# exit=0 wall=183.2s user=175.4s maxrss=182MiB
