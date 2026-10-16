@@ -161,6 +161,14 @@ def main():
     core = [oddres[25][k] for k in ('G', 'PE', 'PE6', 'R1', 'R2', '2E') if k in oddres[25]]
     print(f'  odd W=25, models G, PE, PE6, R1, R2, 2E: min {mp.nstr(min(core), 17)}, max {mp.nstr(max(core), 17)},'
           f' spread {mp.nstr(max(core) - min(core), 3)}')
+    # combined recommendation: every model that passes its own backtest (|est(W) - est(W-2)| < 5e-16)
+    # on the two independent data sets (odd widths, even-width midpoints)
+    keep = [(n, k, r[W][k]) for n, r, W in (('odd', oddres, 25), ('mid', midres, 24)) for k in KEYS
+            if k in r[W] and k in r[W - 2] and abs(r[W][k] - r[W - 2][k]) < mpf('5e-16')]
+    kv = [v for *_, v in keep]
+    centre, half = (max(kv) + min(kv)) / 2, (max(kv) - min(kv)) / 2
+    print(f'  models passing their backtest (< 5e-16): {", ".join(f"{n} {k}" for n, k, _ in keep)}')
+    print(f'  their range [{mp.nstr(min(kv), 17)}, {mp.nstr(max(kv), 17)}]: centre {mp.nstr(centre, 17)}, half-width {mp.nstr(half, 2)}')
     print('  backtest, |s_model(W) - s_model(25)| for the odd sequence:')
     for k in ('G', 'PE', 'PE6', 'R1', 'R2', '2E', 'WY'):
         if all(k in oddres[W] for W in (19, 21, 23, 25)):
@@ -194,7 +202,12 @@ def main():
             if k in models(g, 25):
                 print(f'    {k}: {mp.nstr(models(g, 25)[k], 18)}')
 
-    json.dump(dict(odd={W: {k: str(v) for k, v in m.items()} for W, m in oddres.items()},
+    rmax = max([abs(x) / w for w, x in rnd.items()] or [mpf(0)])
+    rec = 3 * (half + rmax * sum(abs(v) for v in sens.values()))
+    print(f'\n== RECOMMENDATION: s = {mp.nstr(centre, 16)} +- {mp.nstr(rec, 1)}  (3 x (model half-width + rounding'
+          f' {mp.nstr(rmax, 2)} per site x sum|ds/df| {mp.nstr(sum(abs(v) for v in sens.values()), 3)}));'
+          f' session 1: +- 3.9e-15')
+    json.dump(dict(recommended=dict(s=str(centre), err=str(rec), half_width=str(half), rounding=str(rmax)), odd={W: {k: str(v) for k, v in m.items()} for W, m in oddres.items()},
                    mid={W: {k: str(v) for k, v in m.items()} for W, m in midres.items()},
                    sec0={W: {k: str(v) for k, v in m.items()} for W, m in s0res.items()},
                    sec1={W: {k: str(v) for k, v in m.items()} for W, m in s1res.items()},

@@ -141,3 +141,19 @@ for m in range(10, 14):
         n = sum(1 for q in range(1, len(E) - 1) if E[q - 1])
         line += f'{f"{len(bad)}/{n}" + (f"({bad[0]})" if bad else ""):>14}'
     print(line, flush=True)
+
+# python3 lweight.py big > out_lweight_big.txt : near-symmetric weights, wider strips, more rows
+import sys
+if sys.argv[1:] == ['big']:
+    KB = 80
+    BIG = [(10, 10, 9), (20, 20, 19), (1, 1, 1)]
+    print(f'\nnear-symmetric weights, m = 5..16, 2q <= {KB - 2}: violations/cases (first q)')
+    print('   m  ' + ''.join(f'{str(p):>14}' for p in BIG))
+    for m in range(5, 17):
+        line = f'  {m:2d}  '
+        for p in BIG:
+            E = counts_int(m, KB, *p)[0::2]
+            bad = [q for q in range(1, len(E) - 1) if E[q - 1] and E[q] ** 2 > E[q - 1] * E[q + 1]]
+            n = sum(1 for q in range(1, len(E) - 1) if E[q - 1])
+            line += f'{f"{len(bad)}/{n}" + (f"({bad[0]})" if bad else ""):>14}'
+        print(line, flush=True)

@@ -16,8 +16,8 @@ from mpmath import mp, mpf
 from errbar import models, KEYS
 
 mp.dps = 40
-S = mpf('0.56551191104132535')        # errbar.py: centre of the W = 25 model range (out_errbar.txt)
-DS = mpf('3e-16')                      # recommended error bar of s (REPORT-session2.md)
+S = mpf('0.5655119110413253')         # errbar.py RECOMMENDATION (out_errbar.txt)
+DS = mpf('6e-16')                       # its error bar
 
 b = json.load(open('bounds.json'))
 lam = {int(k): (mpf(x), 'bounds.json float64', 0) for k, x in b['log_lambda_free'].items()}
