@@ -23,7 +23,8 @@ r_w = r_∞ + c/w (+e/w²), dwa wykładniki, Wynn ε; to samo na środkach sekto
 skrajny i jedyny oblewa backtest (1.05e-15 przy W = 23; inne ≤ 1.1e-16). Modele zdające
 backtest (< 5e-16) na obu zbiorach: [0.5655119110413252, 0.5655119110413255]. Zaokrąglenia
 float64 zmierzone powtórką w longdouble (`lean.py king cyl w 1 longdouble`): ≤ 4.1e-17 na węzeł
-(w = 15…23; w = 25 w toku), Σ|∂s/∂f_w| = 1.49. Fity: ξ_odd = 0.93, b = −1.9, r_∞ = 8.3 (spadek
+(w = 15…25; w = 25: 3.1e-17), Σ|∂s/∂f_w| = 1.49; na samych wartościach longdouble w = 21, 23, 25
+modele dają 0.56551191104132531–2 (geometryczny 0.565511911041325226). Fity: ξ_odd = 0.93, b = −1.9, r_∞ = 8.3 (spadek
 r_w 13.4 → 9.99 to efekt w^b, nie zmiana ξ); 1/ξ_odd ≈ 1.07 ≈ szczelina transferu 1.083.
 
 **Rekomendacja: s = 0.5655119110413253 ± 6e-16** (3 × (połowa rozrzutu modeli + zaokrąglenia)).
