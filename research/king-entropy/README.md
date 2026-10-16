@@ -6,6 +6,9 @@ i.e. domicule tilings. Goal: the entropy per site
 Results and their provenance: [`REPORT-session1.md`](REPORT-session1.md); adversarial audit of
 those results: [`REPORT-session2.md`](REPORT-session2.md) (proofs in `PROOF-upper.md`,
 `PROOF-lower.md`, hypothesis (L) in `L-NOTE.md`).
+Paper draft: [`paper/main.pdf`](paper/main.pdf) (source `paper/main.tex`, every number mapped to
+its output file in [`paper/NUMBERS.md`](paper/NUMBERS.md)); session report:
+[`REPORT-session3.md`](REPORT-session3.md).
 
 All commands below are run from this directory (`research/king-entropy/`)
 with Python 3.13.
@@ -38,6 +41,7 @@ python3 -m pip install -r requirements.txt
 | `ltest.py` | exact (L) tests and Hankel (moment) tests on all `zex_*.json` |
 | `lparity.py`, `lspec.py`, `lweight.py` | path-parity form of (L), spectral obstructions, (L) under diagonal weights |
 | `repro.py` | re-runs session-1 scripts from a clean export of HEAD and compares outputs |
+| `paper/derived.py` | numbers of the paper that are simple functions of committed outputs; writes `paper/out_derived.txt` |
 
 ## Reproduce
 
@@ -84,4 +88,12 @@ python3 lparity.py > out_lparity.txt
 python3 lspec.py > out_lspec.txt
 python3 lweight.py > out_lweight.txt; python3 lweight.py big > out_lweight_big.txt
 python3 repro.py > out_repro.txt
+```
+
+Paper (session 3; needs a TeX distribution with `latexmk`, e.g. TeX Live with
+`texlive-latex-extra`):
+
+```sh
+python3 paper/derived.py > paper/out_derived.txt
+cd paper && latexmk -pdf main.tex
 ```
