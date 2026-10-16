@@ -155,7 +155,7 @@ code { background: var(--surface); border: 1px solid var(--border); border-radiu
     How many ways are there to cover a 2n&nbsp;×&nbsp;2n board with pieces that each cover two neighbouring cells?
     Dominoes join cells that share a side (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>; a chessboard has
     12,988,816 tilings), domicules may also join cells that share only a corner
-    (<a href="https://oeis.org/A239273">OEIS&nbsp;A239273</a>; 3,263,262,629,905). Both sequences are counted here up to
+    (<a href="https://oeis.org/A239273">OEIS&nbsp;A239273</a>; 3,263,262,629,905 tilings). Both sequences are counted here up to
     20&nbsp;×&nbsp;20, including a domicule term that is not in the OEIS yet.
   </p>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
@@ -230,7 +230,7 @@ code { background: var(--surface); border: 1px solid var(--border); border-radiu
     <p class="note">
       Mean wall-clock time of one solver process, <code>node &lt;solver&gt; -r R -c C</code>; on small boards most of it is
       Node.js start-up. Number keeps the count in a JavaScript number and stops at 10×10, beyond which the count exceeds
-      2<sup>53</sup>. BigInt keeps it exact. Formula evaluates the Kasteleyn and Fisher product as a resultant.
+      2<sup>53</sup>. BigInt counts exactly. Formula evaluates the product formula of Kasteleyn and Fisher as an exact resultant.
       <span class="environment"></span>
       Results: <a href="https://github.com/dawidrylko/domino-tiling/tree/master/__BENCHMARK_DIRECTORY__">__BENCHMARK_DIRECTORY__</a>.
       __OLDER_BENCHMARKS__
@@ -247,7 +247,7 @@ code { background: var(--surface); border: 1px solid var(--border); border-radiu
     </div>
     <p class="note">
       Mean wall-clock time of one solver process, <code>node &lt;solver&gt; -r R -c C</code>; on small boards most of it is
-      Node.js start-up. BigInt keeps the count exact. Modular counts modulo primes below 2<sup>31</sup> in parallel worker
+      Node.js start-up. BigInt counts exactly. Modular counts modulo primes below 2<sup>31</sup> in parallel worker
       threads, rebuilds the count with the Chinese remainder theorem and checks it against one more prime.
       <span class="environment"></span>
       Results: <a href="https://github.com/dawidrylko/domino-tiling/tree/master/__BENCHMARK_DIRECTORY__">__BENCHMARK_DIRECTORY__</a>.

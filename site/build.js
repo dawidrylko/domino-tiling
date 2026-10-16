@@ -22,8 +22,6 @@ const ASSETS = {
   'domino.svg': '.github/assets/domino.svg',
   'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
   'og-image.png': '.github/assets/og-image.png',
-  'domino-tiling-math.woff2': 'site/fonts/domino-tiling-math.woff2',
-  'OFL.txt': 'site/fonts/OFL.txt',
 };
 const AUTHOR = {
   '@type': 'Person',
