@@ -1,0 +1,14 @@
+king free w=24 p=- longdouble it=0 est=16.40878999944299402 t=42.7s
+king free w=24 p=- longdouble it=1 est=13.281982923753995943 t=40.0s
+king free w=24 p=- longdouble it=2 est=13.110986976027289208 t=39.8s
+king free w=24 p=- longdouble it=3 est=13.09112682704879753 t=40.5s
+king free w=24 p=- longdouble it=4 est=13.0886374220136714 t=39.6s
+king free w=24 p=- longdouble it=5 est=13.088304870886201594 t=40.2s
+king free w=24 p=- longdouble it=6 est=13.0882582201665058136 t=40.0s
+king free w=24 p=- longdouble it=7 est=13.0882512907409956 t=40.0s
+king free w=24 p=- longdouble it=8 est=13.088250207368083214 t=39.8s
+king free w=24 p=- longdouble it=9 est=13.088250030003151186 t=40.5s
+king free w=24 p=- longdouble it=10 est=13.088249999875327193 t=39.4s
+king free w=24 p=- longdouble it=11 est=13.0882499946095187645 t=40.2s
+king free w=24 p=- longdouble it=12 est=13.088249993669536682 t=41.0s
+king free w=24 p=- longdouble it=13 est=13.088249993499138382 t=41.1s

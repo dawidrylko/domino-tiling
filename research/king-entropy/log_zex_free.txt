@@ -295,3 +295,7 @@ king free m=22 K=24 prime 8/9 172.7s
 king free m=22 K=24 prime 9/9 174.0s
 done 1303s
 king free m=23 K=20 prime 1/8 160.3s
+king free m=23 K=20 prime 2/8 151.7s
+king free m=23 K=20 prime 3/8 150.6s
+king free m=23 K=20 prime 4/8 149.7s
+king free m=23 K=20 prime 5/8 153.4s
