@@ -15,6 +15,8 @@ const {
 } = require('../src/renderer');
 const crypto = require('crypto');
 const { createRandom } = require('../src/renderer/cftp');
+const fs = require('fs');
+const { buildReadmeImages } = require('../site/readme-images');
 const { testCasesBigInt, testCasesDomicule, testCasesDomiculeRectangles } = require('../data');
 
 const MAX_CELLS = 36;
@@ -579,6 +581,23 @@ function runEngravingContainmentTest({ tiling: fixed, ...options }) {
   return true;
 }
 
+function runReadmeImagesTest() {
+  const stale = Object.entries(buildReadmeImages()).filter(([file, svg]) => {
+    const target = path.join(__dirname, '..', file);
+    return !fs.existsSync(target) || fs.readFileSync(target, 'utf-8') !== svg;
+  });
+
+  if (stale.length) {
+    console.error(`Failed! ${stale.map(([file]) => file).join(', ')} out of date with the renderer; run pnpm readme:images.`);
+
+    return false;
+  }
+
+  console.log('Passed!');
+
+  return true;
+}
+
 function runDomiculeReachTest(testCase) {
   const random = createRandom(RANDOM_SEED);
   const seen = new Set();
@@ -673,6 +692,7 @@ function __main__() {
     runSuite('sheet style', styleTestCases, runStyleTest),
     runSuite('engraving containment', engravingContainmentTestCases, runEngravingContainmentTest),
     runSuite('domino output', [{ rowCount: 4, colCount: 4 }], runDominoOutputTest),
+    runSuite('readme images', [{ rowCount: 8, colCount: 8 }], runReadmeImagesTest),
     runSuite('command line', cliTestCases, runCliTest),
   ];
 

@@ -57,6 +57,7 @@
     "test:render": "node tests/renderTestRunner.js",
     "test:pari": "node tests/pariTestRunner.js",
     "test:site": "node tests/siteTestRunner.js",
-    "site:build": "node site/build.js"
+    "site:build": "node site/build.js",
+    "readme:images": "node site/readme-images.js"
   }
 }

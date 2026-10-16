@@ -143,6 +143,20 @@ pnpm render -r 4 -c 4 --domicule --all            # all 280 domicule tilings of 
 pnpm render -r 20 -c 20 --domicule --random -l 6  # six approximately uniform domicule tilings
 ```
 
+The gallery draws a tiling in three styles. Below are the same four 8×8 domicule tilings in each of them; `pnpm readme:images` regenerates the images, and `pnpm test:render` fails when they no longer match the renderer.
+
+**Blocks**, every piece as a bar:
+
+![Four 8×8 domicule tilings drawn as blocks](.github/assets/gallery-blocks.svg)
+
+**Dimer graph**, every piece as an edge between the centres of its two cells:
+
+![The same four tilings drawn as a dimer graph](.github/assets/gallery-dimer.svg)
+
+**Engraving**, outlined cells with diagonal pieces hatched along their direction:
+
+![The same four tilings drawn as an engraving](.github/assets/gallery-engraving.svg)
+
 `-l` limits the number of tilings (default 1000), `-o` skips tilings, `-i` draws one tiling by its 1-based number, `--random` samples, `--all` lifts the limit on boards with at most 100,000 tilings, `--ascii` prints instead of writing SVG. The command line numbers boards whose table has at most 4 million entries: dominoes up to 14×14, domicules up to 12×12. The [gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser, up to 18×18 for dominoes and 16×16 for domicules, with sampling above that.
 
 ## References
