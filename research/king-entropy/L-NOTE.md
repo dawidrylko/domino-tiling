@@ -59,8 +59,11 @@ deep in the asymptotic regime (constant ratio).
    triangular free strips (table above). **Arguments not using the left–right symmetry**:
    refuted by asymmetric diagonal weights (`lweight.py` → `out_lweight.txt`): with weight x on
    both diagonals (L) holds for every x ∈ {0, ¼, ½, 1, 2, 4, 10, 100} (m ≤ 9, 2q ≤ 38, exact);
-   with weights (x_dl, x_dr) = (1, ½) it fails from m = 5, (1, ¾) at m = 9 (first at 2q = 30),
-   and the larger-m rows of that file show where (1, 9/10) stands.
+   with weights (x_dl, x_dr) = (1, ½) it fails from m = 5 (14 of 19 q), (1, ¼), (1, 1/10), (1, 0) from
+   m = 5, (1, ¾) at m = 9 (5 of 19, first at 2q = 30). Not monotone in m: (1, ¾) has no violation
+   for m = 10…13 and (1, 9/10) none for m ≤ 13 (2q ≤ 38); the failures sit mostly on odd m and at
+   large q, i.e. they come from an oscillating (non-real or negatively weighted) subleading
+   eigenvalue, which never shows up with equal diagonal weights (`lspec.py`: μ₂ real, c₂ > 0).
 
 ## 3. Exact reformulations (both verified)
 
