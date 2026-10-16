@@ -1,0 +1,24 @@
+== A. exact integer ratios vs float64 power iteration (king cyl)
+  w=9 K<=90 (0s): exact-ratio log λ = 5.08959806451598795707165601622
+      last two exact-ratio estimates differ by 0.0
+      float64 sector-0 value      = 5.089598064515988   diff = -2.27e-16  per site 0.565510896057331995230184
+  w=11 K<=90 (0s): exact-ratio log λ = 6.22063006154760531244817199078
+      last two exact-ratio estimates differ by 0.0
+      float64 sector-0 value      = 6.220630061547605   diff = -1.96e-16  per site 0.5655118237770550284043793
+  w=12 K<=90 (1s): exact-ratio log λ = 6.78615716044941903555159926199
+      last two exact-ratio estimates differ by 0.0
+      float64 sector-0 value      = 6.786157160449419   diff = 2.66e-16  per site 0.5655130967041182529626333
+  w=13 K<=80 (2s): exact-ratio log λ = 7.3516547416583013887497243414
+      last two exact-ratio estimates differ by 2.69e-36
+      float64 sector-0 value      = 7.351654741658302   diff = 4.06e-16  per site 0.5655119032044847222115173
+== B. ARPACK eigs on the w=20 cylinder (full space, both sectors at once)
+  159 matvecs, 112s, maxrss 565 MiB
+  eigenvalue 8.165335909590489e+04 +0.00e+00j   log|.| = 11.310238237734923
+  eigenvalue 8.165335634155033e+04 +0.00e+00j   log|.| = 11.310238204002635
+  eigenvalue -2.765358982542040e+04 +0.00e+00j   log|.| = 10.227510829460620
+  eigenvalue -2.765358906932426e+04 +0.00e+00j   log|.| = 10.227510802118921
+  eigenvalue -2.673551927901631e+04 +0.00e+00j   log|.| = 10.193748270385388
+  eigenvalue -2.673551927901626e+04 +0.00e+00j   log|.| = 10.193748270385386
+  power iteration sectors: p0 11.310238237734925  p1 11.310238204002637
+  diff top two vs sectors: -1.78e-15 -1.78e-15
+  in-sector gap log(λ1/λ3) = 1.082727
