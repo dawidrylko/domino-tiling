@@ -24,3 +24,5 @@ king free w=24 p=- longdouble it=22 est=13.0882499934608053736 t=40.1s
 king free w=24 p=- longdouble it=23 est=13.088249993460805365 t=40.3s
 king free w=24 p=- longdouble it=24 est=13.088249993460805363 t=39.7s
 king free w=24 p=- longdouble it=25 est=13.088249993460805363 t=40.6s
+king free w=24 p=- longdouble it=26 est=13.088249993460805362 t=40.0s
+{"lattice": "king", "bc": "free", "w": 24, "parity": "-", "dtype": "longdouble", "converged": true, "iterations": 27, "tol": 3.1225022567582525e-18, "log_lambda": "13.088249993460805362284", "sec_per_iteration": 40.23580026626587, "wall": 1090.879205942154, "maxrss_mib": 2076.015625, "commit": "b6266b5", "cmd": "python3 lean.py king free 24 - longdouble"}
