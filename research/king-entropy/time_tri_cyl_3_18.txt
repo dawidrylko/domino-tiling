@@ -1,0 +1,2 @@
+# cmd: python3 -u tm2.py tri cyl 3 18
+# exit=0 wall=72.0s user=65.2s maxrss=130MiB

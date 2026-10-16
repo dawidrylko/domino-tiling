@@ -1,0 +1,2 @@
+# cmd: python3 -u tm2.py king free 1 18
+# exit=0 wall=63.9s user=58.9s maxrss=84MiB
