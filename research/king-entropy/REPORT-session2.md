@@ -36,8 +36,9 @@ efekt 1/w, nie zmiana ξ); 1/ξ_odd ≈ 1.07 ≈ szczelina transferu 1.083 (w = 
   PENDING_LCERT
 - **Kontrole: (L) nie jest ogólna.** Trójkątna, wolne pasy: 92 naruszenia / 319 (od m = 5,
   potwierdzone brute force: 210560² > 6475·6842465). Król z wagami ukośnych (1, ½): naruszenia
-  od m = 5; (1, ¾) przy m = 9. Równe wagi x ∈ [0, 100]: 0 naruszeń. Dowód musi używać
-  czegoś, czego nie ma przy (1, ½) — najpewniej symetrii lewo–prawo.
+  od m = 5; (1, ¾) przy m = 9. Równe wagi x ∈ [0, 100] i prawie równe (1, 0.9), (1, 0.95)
+  (m ≤ 16, 2q ≤ 78): 0 naruszeń. Dowód nie może być jednostajny w wagach; naturalny składnik:
+  symetria lewo–prawo (jej konieczność niewykazana).
 - Martwe drogi (z przeszkodą): RP; Hankel/ciąg momentów (ujemne minory od m = 3, μ zespolone
   lub ujemne w widmie T²); całkowita nieujemność (widmo nierzeczywiste); LGV (graf
   nieplanarny, niedwudzielny).

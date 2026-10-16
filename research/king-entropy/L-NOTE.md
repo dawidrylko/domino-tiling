@@ -7,8 +7,10 @@
 **Status: NIEROZSTRZYGNIĘTE.** No counterexample (exact, much larger range than session 1), no
 proof. Five proof routes closed with explicit obstructions; two exact reformulations; two
 control experiments showing that (L) is *not* a generic property: it fails on the triangular
-lattice and as soon as the two diagonals of the king lattice get unequal weights. A proof must
-use the left–right symmetry of the king lattice.
+lattice and when the two diagonals of the king lattice get clearly unequal weights ((1, ½),
+(1, ¾)), while equal weights x ∈ [0, 100] and near-equal (1, 0.9), (1, 0.95) survive. A proof
+cannot be uniform in the diagonal weights; the left–right symmetry is the natural ingredient
+(not shown to be necessary).
 
 ## 0. What is really needed: (L∞), much weaker than (L)
 
@@ -61,7 +63,8 @@ deep in the asymptotic regime (constant ratio).
    both diagonals (L) holds for every x ∈ {0, ¼, ½, 1, 2, 4, 10, 100} (m ≤ 9, 2q ≤ 38, exact);
    with weights (x_dl, x_dr) = (1, ½) it fails from m = 5 (14 of 19 q), (1, ¼), (1, 1/10), (1, 0) from
    m = 5, (1, ¾) at m = 9 (5 of 19, first at 2q = 30). Not monotone in m: (1, ¾) has no violation
-   for m = 10…13 and (1, 9/10) none for m ≤ 13 (2q ≤ 38); the failures sit mostly on odd m and at
+   for m = 10…13 (2q ≤ 38), and (1, 9/10), (1, 19/20) have none for m ≤ 16, 2q ≤ 78
+   (`python3 lweight.py big` → `out_lweight_big.txt`); the failures sit mostly on odd m and at
    large q, i.e. they come from an oscillating (non-real or negatively weighted) subleading
    eigenvalue, which never shows up with equal diagonal weights (`lspec.py`: μ₂ real, c₂ > 0).
 
