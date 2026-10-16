@@ -25,6 +25,7 @@ python3 -m pip install -r requirements.txt
 | `validate.py` | brute force, repo data, square-lattice closed forms, triangular Kasteleyn, free-strip ratios |
 | `crosscheck.py` | exact-integer ratios (w = 9..13) and ARPACK on the full w = 20 transfer vs the power iteration |
 | `bounds.py` | certified Fekete lower bounds, open-strip upper bounds, Kahn-Lovasz, Calkin-Wilf hypothesis checks |
+| `cw.py` | Calkin-Wilf hypothesis: RP obstruction, spectral measure, exact log-convexity tests, limit form, conditional bounds (see `CW-NOTE.md`) |
 | `estimate.py` | final estimate of s from all cylinders, Z2 splitting table and correlation length; writes `z2.json` |
 | `timed.py` | runs a command and appends wall time and peak RSS to stderr |
 
@@ -56,7 +57,8 @@ python3 timed.py python3 validate.py   > out_validate.txt   2> time_validate.txt
 python3 timed.py python3 crosscheck.py > out_crosscheck.txt 2> time_crosscheck.txt
 python3 timed.py python3 bounds.py 24  > out_bounds.txt     2> time_bounds.txt
 python3 estimate.py > out_estimate.txt
+python3 timed.py python3 cw.py > out_cw.txt 2> time_cw.txt   # needs bounds.json and z2.json
 ```
 
 Peak memory: about 1.1 GiB at w = 22, 2.2 GiB at w = 23, 4.3 GiB at w = 24
-and 8.5 GiB at w = 25 per `cylw.py` process.
+and 8.4 GiB at w = 25 per `cylw.py` process (`out_estimate.txt`, cost table).

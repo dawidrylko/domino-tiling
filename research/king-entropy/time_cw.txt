@@ -1,0 +1,2 @@
+# cmd: python3 -u cw.py
+# exit=0 wall=213.5s user=256.4s maxrss=1254MiB

@@ -1,0 +1,86 @@
+== A. reflection positivity of the natural cuts (horizontal mirror lines)
+  RP for a cut <=> its Gram matrix is PSD on the boundary states a half-board can realise.
+  m=2: min eig edge-cut M = +0.0000, vertex-cut V = -1.0000
+  m=3: min eig edge-cut M = -0.4142, vertex-cut V = -1.9319
+  m=4: min eig edge-cut M = -0.6180, vertex-cut V = -2.0953
+  m=5: min eig edge-cut M = -0.9909, vertex-cut V = -3.5417
+  m=6: min eig edge-cut M = -1.7842, vertex-cut V = -4.0489
+  m=3, q=3: g(A) for A = {0},{1},{2}: 10, 4, 10 (all > 0), so the M-eigenvector (1, -sqrt2, 1) with eigenvalue -0.4142 is a boundary functional of real top halves: RP fails.
+  Every reflection line of the king lattice either runs midway between rows/columns (a crossing
+  diagonal is mapped to the other diagonal: per single diagonal the kernel is [tau != tau'] with
+  eigenvalues +1, -1) or passes through vertices (row, column or diagonal line: a mirror vertex not
+  matched along the line is covered from exactly one side, kernel [U != D], again +1, -1). Diagonal
+  lines midway between vertex diagonals are not symmetries of Z^2.
+
+== B. spectral measure of Z(k, m) = sum_i c_i lambda_i^k, e0-visible part (|c_i| > 1e-9 c_1)
+  m= 2:    2 visible,   0 complex or c<0; largest such |lambda|/lambda_1 = 0.0000; leading correction lambda_2/lambda_1 = -0.5000 with c_2/c_1 = +0.500
+  m= 3:    6 visible,   2 complex or c<0; largest such |lambda|/lambda_1 = 0.1091; leading correction lambda_2/lambda_1 = -1.0000 with c_2/c_1 = +1.000
+  m= 4:    6 visible,   2 complex or c<0; largest such |lambda|/lambda_1 = 0.0763; leading correction lambda_2/lambda_1 = -0.3620 with c_2/c_1 = +2.120
+  m= 5:   16 visible,   4 complex or c<0; largest such |lambda|/lambda_1 = 0.0555; leading correction lambda_2/lambda_1 = -1.0000 with c_2/c_1 = +1.000
+  m= 6:   20 visible,   8 complex or c<0; largest such |lambda|/lambda_1 = 0.1589; leading correction lambda_2/lambda_1 = -0.4417 with c_2/c_1 = +0.573
+  m= 7:   72 visible,  40 complex or c<0; largest such |lambda|/lambda_1 = 0.1638; leading correction lambda_2/lambda_1 = -1.0000 with c_2/c_1 = +1.000
+  m= 8:   64 visible,  34 complex or c<0; largest such |lambda|/lambda_1 = 0.1917; leading correction lambda_2/lambda_1 = +0.4230 with c_2/c_1 = +0.189
+  m= 9:  270 visible, 176 complex or c<0; largest such |lambda|/lambda_1 = 0.1960; leading correction lambda_2/lambda_1 = -1.0000 with c_2/c_1 = +1.000
+  m=10:  270 visible, 185 complex or c<0; largest such |lambda|/lambda_1 = 0.2163; leading correction lambda_2/lambda_1 = -0.4408 with c_2/c_1 = +0.339
+  m=11:  940 visible, 692 complex or c<0; largest such |lambda|/lambda_1 = 0.2190; leading correction lambda_2/lambda_1 = -1.0000 with c_2/c_1 = +1.000
+  m=12: 1032 visible, 802 complex or c<0; largest such |lambda|/lambda_1 = 0.2308; leading correction lambda_2/lambda_1 = +0.4348 with c_2/c_1 = +0.067
+
+== C. exact-integer tests
+  m= 2 (k <= 64): log rho = 0.693147180559945
+  m= 3 (k <= 64): log rho = 1.202584877821518
+  m= 4 (k <= 64): log rho = 1.783572309976688
+  m= 5 (k <= 64): log rho = 2.342296744046262
+  m= 6 (k <= 64): log rho = 2.909568954808860
+  m= 7 (k <= 64): log rho = 3.474402633428798
+  m= 8 (k <= 64): log rho = 4.040116201188693
+  m= 9 (k <= 64): log rho = 4.605554533581811
+  m=10 (k <= 64): log rho = 5.171089434037283
+  m=11 (k <= 64): log rho = 5.736593216296747
+  m=12 (k <= 64): log rho = 6.302107750772459
+  m=13 (k <= 40): log rho = 6.867618749920259
+  m=14 (k <= 40): log rho = 7.433130960709923
+  m=15 (k <= 24): log rho = 7.998642768602407
+  m=16 (k <= 24): log rho = 8.564154713933842
+  m=17 (k <= 18): log rho = 9.129666613246451
+  m=18 (k <= 18): log rho = 9.695178528213944
+  m=19 (k <= 14): log rho = 10.260690437917331
+  m=20 (k <= 14): log rho = 10.826202349408474
+  (I1) Z(2q+p,m) <= rho_m^p Z(2q,m): 0 violations > 1e-12 in 1678 cases, 389 undecided within 1e-12
+  (I2) Z(2q,m)^2 <= Z(2q-2,m) Z(2q+2,m): 0 violations in 429 cases (exact)
+  (I3) Z(2j+1,m)^2 <= Z(2j-1,m) Z(2j+3,m), even m: 217 violations in 220 cases (exact); first: [(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10)]
+
+== D. the limit statement: f(k) = a_k - s k, a_k = log lambda_k (free strip, k rows)
+  s = 0.5655119110413253 +- 3.9e-15 (estimate.py); f(k) error from s: <= k * 3.9e-15
+  k= 8  f = -0.4839790871419
+  k= 9  f = -0.4840526657901
+  k=10  f = -0.4840305771579
+  k=11  f = -0.4840378051578
+  k=12  f = -0.4840351817234
+  k=13  f = -0.484036093617
+  k=14  f = -0.4840357985816
+  k=15  f = -0.4840358970175
+  k=16  f = -0.4840358627274
+  k=17  f = -0.4840358744561
+  k=18  f = -0.4840358705545
+  k=19  f = -0.4840358718678
+  k=20  f = -0.484035871418
+  k=21  f = -0.484035871571
+  k=22  f = -0.4840358715195
+  k=23  f = -0.4840358715369
+  k=24  f = -0.484035871531
+  even k: f decreasing True; odd k: f increasing True; every even f above every odd f: True
+  a_(2q) convex (increments a_(2q+2) - a_(2q) increasing, k=8..24): True; last increment 1.131023822071185 vs 2s = 1.131023822082651
+  132 CW candidates (2q <= 24, all p): max = 0.5655119110355926 at 2q=22, p=2; s - max = 5.73e-12  (> s error 3.9e-15: True)
+  (O) a_(k+1) - a_k >= s for odd k (k=3..23): min of a_(k+1) - a_k - s = 5.91e-12 at k=23  -> True
+  CW(p even) follows from (L) = log-convexity of q -> Z(2q, m) for every m: a_(2q) is then convex in q,
+  its increments increase to 2s. CW(p odd) follows from (L) and (O):
+  a_(2q+p) - a_(2q) = (a_(2q+p+1) - a_(2q)) - (a_(2q+p+1) - a_(2q+p)) <= (p+1)s - s.
+
+== E. conditional bounds: rigorous IF the stated hypothesis holds (certified lambdas, rounded down)
+   s >= (log lambda_{2q+p}^low - log lambda_{2q}^up) / p; p even needs (L), p odd needs (L) and (O)
+  2q=20 p=1: s >= 0.565511910887  given (L)+(O)  (log lambda_20 <= 10.82620234940897)
+  2q=20 p=2: s >= 0.56551191099  given (L)      (log lambda_20 <= 10.82620234940897)
+  2q=20 p=4: s >= 0.565511911012  given (L)      (log lambda_20 <= 10.82620234940897)
+  2q=22 p=1: s >= 0.565511911022  given (L)+(O)  (log lambda_22 <= 11.95722617139012)
+  2q=22 p=2: s >= 0.565511911035  given (L)      (log lambda_22 <= 11.95722617139012)
+  best bound given (L) alone: s >= 0.565511911035
