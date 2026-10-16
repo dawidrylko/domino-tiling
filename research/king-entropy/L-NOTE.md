@@ -16,9 +16,11 @@ cannot be uniform in the diagonal weights; the left–right symmetry is the natu
 
 The conditional bound uses only convexity of a_{2q} = log λ_{2q} (free strip of width 2q) for
 2q ≥ 22 (`PROOF-lower.md` §6). Call this **(L∞)**. (L) for all m implies (L∞) by m → ∞, not
-conversely. (L∞) checked on the float strip eigenvalues: second differences of a_{2q} are
-positive for 2q = 8 … 24 (9·10⁻¹¹ at 2q = 22, float error ~10⁻¹⁵; `surface.py` data, f(k)
-columns) — see `REPORT-session2.md` for k = 25, 26.
+conversely. (L∞) checked on the strip eigenvalues (`surface.py` → `surface.json`, f(k) column;
+longdouble for k = 14…24, float64 with Collatz–Wielandt bracket for k = 25, 26): the second
+differences Δ²a at 2q = 10, 12, …, 24 are 4.7e-5, 4.0e-6, 5.5e-7, 5.6e-8, 7.0e-9, 7.6e-10,
+9.0e-11, 1.0e-11 — positive, decaying geometrically (ratio ≈ 8.9 per step, i.e. a single positive
+exponential correction), float error ≲ 1e-15. So (L∞) holds for 2q ≤ 24; beyond is extrapolation.
 
 ## 1. Exact tests (`zexact.py` CRT counts → `ltest.py` → `out_ltest.txt`)
 
