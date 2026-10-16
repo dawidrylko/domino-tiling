@@ -1,6 +1,8 @@
 s = 0.5655119110413253  (out_errbar.txt)
 2s (per dimer) = 1.131023822082651
 exp(s) = 1.760348694041978,  exp(2s) = 3.098827524615297
+s - ds, s + ds = 0.5655119110413247, 0.5655119110413259 (digits shared by both ends are the ones quoted in paper/oeis-draft.txt)
+exp(s - ds), exp(s + ds) = 1.7603486940419768, 1.7603486940419789
 
 (L-infinity): second differences a(2q+2) - 2 a(2q) + a(2q-2) of a_k = log lambda_k, free strips
   2q= 4: 0.0354   sources bounds.json float64 | bounds.json float64

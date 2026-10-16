@@ -15,6 +15,10 @@ s = mpf('0.5655119110413253')            # out_errbar.txt, RECOMMENDATION
 print(f's = {mp.nstr(s, 16)}  (out_errbar.txt)')
 print(f'2s (per dimer) = {mp.nstr(2 * s, 16)}')
 print(f'exp(s) = {mp.nstr(exp(s), 16)},  exp(2s) = {mp.nstr(exp(2 * s), 16)}')
+ds = mpf('6e-16')                        # its error bar
+print(f's - ds, s + ds = {mp.nstr(s - ds, 16)}, {mp.nstr(s + ds, 16)} '
+      f'(digits shared by both ends are the ones quoted in paper/oeis-draft.txt)')
+print(f'exp(s - ds), exp(s + ds) = {mp.nstr(exp(s - ds), 17)}, {mp.nstr(exp(s + ds), 17)}')
 
 # second differences of a_k = log lambda_k (free strips); the s k part cancels
 f = {int(k): mpf(v) for k, v in surf['f'].items()}
