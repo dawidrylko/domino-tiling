@@ -1,74 +1,74 @@
-# Sesja 1 — entropia dimerów na grafie króla
+# Session 1 — dimer entropy on the king graph
 
-Gałąź `d/king-entropy`, katalog `research/king-entropy/`. Źródło każdej liczby: skrypt + argumenty
-+ commit kodu → plik wyjściowy w repo (commit z wynikiem w nawiasie).
+Branch `d/king-entropy`, directory `research/king-entropy/`. Source of every number: script + arguments
++ code commit → output file in the repo (commit with the result in parentheses).
 
-SHA w tym raporcie (i w `CW-NOTE.md`) podmienione w sesji 3 na obecne: pierwotne unieważniło przepisanie autorstwa; mapowanie po temacie commita (stare commity nadal widoczne na GitHubie), tabela w `paper/NUMBERS.md`; pola `commit` w plikach wyjściowych zostają stare.
+SHAs in this report (and in `CW-NOTE.md`) were replaced in session 3 by the current ones: the original ones were invalidated by an authorship rewrite; mapped by commit subject (the old commits are still visible on GitHub), table in `paper/NUMBERS.md`; the `commit` fields in output files keep the old values.
 
-## Wynik
+## Result
 
-**s = 0.565511911041325 ± 4·10⁻¹⁵** (na węzeł; na dimer 2s = 1.13102382208265, eˢ = 1.76034869404198).
+**s = 0.565511911041325 ± 4·10⁻¹⁵** (per site; per dimer 2s = 1.13102382208265, eˢ = 1.76034869404198).
 
-Metoda: cylindry króla szerokości w (periodyczne w poprzek, wolne wzdłuż), λ_w = wiodąca wartość
-własna transferu wierszowego, power iteration float64 na T² osobno w sektorach parzystości
-(`tm2.py`, w ≤ 19; `cylw.py`, w = 20…25, ten sam algorytm, kod transferu `tmfast.py` @106661e).
-Nieparzyste w rosną monotonicznie do s, iloraz kolejnych różnic r_w = 13.4 → 9.99. Ekstrapolacja
-geometryczna z w = 21, 23, 25: 0.5655119110413253; poprzednia trójka różni się o 1.1e-15, ogon przy
-spadku r do ⅔ dodałby 3.9e-15 (to jest pasek błędu). Niezależnie: środki sektorów parzystych w
-maleją do s z tym samym ilorazem ~10; ich ekstrapolacja (20, 22, 24) = 0.5655119110413256, różnica
-3.6e-16. Źródło: `python3 estimate.py` @76fc5e1 → `out_estimate.txt`, `z2.json` (73a0628).
-Poprzednie przejście (0.565511911 ± 1e-9) potwierdzone; teraz 6 cyfr więcej.
+Method: king cylinders of width w (periodic across, free along), λ_w = leading eigenvalue
+of the row transfer, float64 power iteration on T² separately in the parity sectors
+(`tm2.py`, w ≤ 19; `cylw.py`, w = 20…25, same algorithm, transfer code `tmfast.py` @106661e).
+Odd w increase monotonically to s, ratio of successive differences r_w = 13.4 → 9.99. Geometric
+extrapolation from w = 21, 23, 25: 0.5655119110413253; the previous triple differs by 1.1e-15, a tail with
+r dropping to ⅔ would add 3.9e-15 (this is the error bar). Independently: the midpoints of the even-w sectors
+decrease to s with the same ratio ~10; their extrapolation (20, 22, 24) = 0.5655119110413256, difference
+3.6e-16. Source: `python3 estimate.py` @76fc5e1 → `out_estimate.txt`, `z2.json` (73a0628).
+Previous pass (0.565511911 ± 1e-9) confirmed; now 6 more digits.
 
-## Ograniczenia rygorystyczne (`python3 bounds.py 24` @102b7e5 → `out_bounds.txt`, ee63b57)
+## Rigorous bounds (`python3 bounds.py 24` @102b7e5 → `out_bounds.txt`, ee63b57)
 
-| | wartość | dlaczego rygorystyczne |
+| | value | why rigorous |
 | --- | --- | --- |
-| dolne | **s ≥ 0.545343749727** (w = 24) | Fekete: wolne pasy obok siebie dają dopuszczalne pokrycie, Z(K, kw) ≥ Z(K, w)ᵏ ⇒ s ≥ log λ_w / w. λ_w² ≥ c z Collatza–Wielandta: v = iterat z pustego brzegu, więc supp v = supp T²ⁿe₀; T²v ≥ c·v ⇒ Z(2(n+K)) ≥ cᴷ·const. |
-| górne | **s ≤ 0.586216605404** (w = 24) | pasy z otwartymi bokami: pokrycie K×kw rozcina się na pasy + krawędzie przez cięcia; skrzyżowań między zbiorami A, B (\|Δr\| ≤ 1) jest ≤ F_{n+1} ≤ φⁿ (najniższa komórka A idzie do 1. lub 2. komórki B ⇒ M(n) ≤ M(n−1)+M(n−2)), więc Z(K, kw) ≤ W(K, w)ᵏ, W = pas, w którym komórka boczna może być „pokryta z zewnątrz” z wagą √φ. μ_w² ≤ C: A v ≤ C v składowo (zera też), v₀ > 0 ⇒ W(2K) ≤ Cᴷ. |
-| górne | s ≤ 0.662787681422 | Kahn–Lovász (dowód Alon–Friedland 2008): PM(G) ≤ ∏(d_v!)^{1/(2d_v)}, d_v ≤ 8. |
+| lower | **s ≥ 0.545343749727** (w = 24) | Fekete: free strips side by side give an admissible tiling, Z(K, kw) ≥ Z(K, w)ᵏ ⇒ s ≥ log λ_w / w. λ_w² ≥ c from Collatz–Wielandt: v = iterate from the empty boundary, so supp v = supp T²ⁿe₀; T²v ≥ c·v ⇒ Z(2(n+K)) ≥ cᴷ·const. |
+| upper | **s ≤ 0.586216605404** (w = 24) | strips with open sides: a K×kw tiling splits into strips + edges across the cuts; the number of crossings between sets A, B (\|Δr\| ≤ 1) is ≤ F_{n+1} ≤ φⁿ (the lowest cell of A goes to the 1st or 2nd cell of B ⇒ M(n) ≤ M(n−1)+M(n−2)), so Z(K, kw) ≤ W(K, w)ᵏ, W = strip in which a side cell may be "covered from outside" with weight √φ. μ_w² ≤ C: A v ≤ C v componentwise (zeros too), v₀ > 0 ⇒ W(2K) ≤ Cᴷ. |
+| upper | s ≤ 0.662787681422 | Kahn–Lovász (proof Alon–Friedland 2008): PM(G) ≤ ∏(d_v!)^{1/(2d_v)}, d_v ≤ 8. |
 
-Zaokrąglenia: wpis T²v to 2w kroków po ≤ 6 nieujemnych składników ⇒ błąd względny ≤ 12wu < 3.2e-14;
-certyfikaty × (1 ∓ 1e-12), wyniki zaokrąglane w dół/górę, wpisy subnormalne wykluczone (assert).
+Rounding: an entry of T²v is 2w steps of ≤ 6 nonnegative terms each ⇒ relative error ≤ 12wu < 3.2e-14;
+certificates × (1 ∓ 1e-12), results rounded down/up, subnormal entries excluded (assert).
 
-**Calkin–Wilf: warunek nie zachodzi, ale bound wygląda na prawdziwy** (`python3 cw.py` @0357d17 →
-`out_cw.txt`, `CW-NOTE.md`, 0cf6903). Dowód CW wymaga refleksyjnej dodatniości; tu zawodzi dla każdej
-prostej odbicia (T niesymetryczne: T[∅→{1}]=2, T[{1}→∅]=0; forma sklejenia M ma λ_min = 1−√2 przy m=3,
-z jawnym ujemnym funkcjonałem). Słabsza hipoteza **(L): q ↦ Z(2q, m) log-wypukłe dla każdego m**
-implikuje CW dla parzystych p — sprawdzona dokładnie (liczby całkowite): 0 naruszeń w 429
-przypadkach, m ≤ 20. Wszystkie 132 pary CW leżą poniżej s (najbliżej 5.7e-12). **Przy (L):
-s ≥ 0.565511911035** (certyfikowane λ₂₄, λ₂₂) — 11 cyfr; bez dowodu (L) to nie jest twierdzenie.
-Chessboard (górne z parzystych cylindrów) wymaga tej samej dodatniości — nie certyfikowane.
+**Calkin–Wilf: the condition does not hold, but the bound looks true** (`python3 cw.py` @0357d17 →
+`out_cw.txt`, `CW-NOTE.md`, 0cf6903). The CW proof needs reflection positivity; here it fails for every
+reflection line (T non-symmetric: T[∅→{1}]=2, T[{1}→∅]=0; the gluing form M has λ_min = 1−√2 at m=3,
+with an explicit negative functional). The weaker hypothesis **(L): q ↦ Z(2q, m) log-convex for every m**
+implies CW for even p — checked exactly (integers): 0 violations in 429
+cases, m ≤ 20. All 132 CW pairs lie below s (closest 5.7e-12). **Given (L):
+s ≥ 0.565511911035** (certified λ₂₄, λ₂₂) — 11 digits; without a proof of (L) this is not a theorem.
+Chessboard (upper bound from even cylinders) needs the same positivity — not certified.
 
-## Sygnał Z2 (parzyste cylindry, `estimate.py` → `z2.json`)
+## Z2 signal (even cylinders, `estimate.py` → `z2.json`)
 
 Δ_w = log λ_even − log λ_odd: w=10 1.52e-4, 14 5.12e-6, 18 1.79e-7, 22 6.39e-9, 24 1.21e-9.
-Lokalne ξ_w = 2/log(Δ_{w−2}/Δ_w) rośnie: 1.154 (w=10) → 1.205 (w=24). Fit log Δ = a − w/ξ + b log w,
-w = 10…24: **ξ = 1.232**, b = −0.43 (rms 9e-4); 1/ξ_w liniowo w 1/w: ξ_∞ = 1.235; czysty wykładnik
-daje 1.193 przy rms 1.5e-2 (zły model). Szczelina w sektorze (ARPACK, w=20): log(λ₁/|λ₃|) = 1.083.
+Local ξ_w = 2/log(Δ_{w−2}/Δ_w) increases: 1.154 (w=10) → 1.205 (w=24). Fit log Δ = a − w/ξ + b log w,
+w = 10…24: **ξ = 1.232**, b = −0.43 (rms 9e-4); 1/ξ_w linear in 1/w: ξ_∞ = 1.235; a pure exponential
+gives 1.193 with rms 1.5e-2 (wrong model). In-sector gap (ARPACK, w=20): log(λ₁/|λ₃|) = 1.083.
 
-## Co zwalidowane i jak
+## What was validated and how
 
-- Brute force (jawne grafy) = transfer: 90/90 plansz, king/tri/sq × free/cyl, w = 3…6, h = 1…4 (`validate.py` @73289ea).
-- Dane repo: kwadraty L ≤ 18, prostokąty i liczba 20×20 z README (użyta w `fitsq.py`) — dokładnie (CRT, 14 liczb pierwszych).
-- Kwadratowa: pasy wolne = ∏(a+√(1+a²)) i oba sektory cylindra = wzór fermionowy do < 1e-16; granica wzoru = G/π (2e-19), (f−G/π)w² → π/6. Fit samego TM z w ≤ 18 daje G/π ± 6e-8 — identyczne cyfry jak fit na dokładnym wzorze (ogranicza asymptotyka, nie TM).
-- Trójkątna: cylinder w=17 = całka Blocha z orientacji Kasteleyna (sprawdzonej |Pf| = liczba na 9 planszach) do 2.9e-15: **s_tri = 0.428594537464959**.
-- Wolne pasy w = 3, 4: a(n+1)/a(n) dla Z(3×2n) (A239265, bisekcja ⇒ λ₃²) i Z(4×n) (A239266) → λ_w do 1e-16.
-- float64 vs liczby dokładne (Z_cyl(K+2)/Z_cyl(K), w = 9…13): ≤ 4.1e-16 w log λ; ARPACK na pełnym transferze w=20: oba sektory do 1.8e-15 (`crosscheck.py` @a32a0fe). `tmfast.py` = `tm.py` bit w bit.
+- Brute force (explicit graphs) = transfer: 90/90 boards, king/tri/sq × free/cyl, w = 3…6, h = 1…4 (`validate.py` @73289ea).
+- Repo data: squares L ≤ 18, rectangles and the 20×20 count from the README (used in `fitsq.py`) — exactly (CRT, 14 primes).
+- Square: free strips = ∏(a+√(1+a²)) and both cylinder sectors = fermionic formula to < 1e-16; limit of the formula = G/π (2e-19), (f−G/π)w² → π/6. A fit of the TM alone with w ≤ 18 gives G/π ± 6e-8 — the same digits as a fit on the exact formula (limited by the asymptotics, not the TM).
+- Triangular: cylinder w=17 = Bloch integral from the Kasteleyn orientation (checked |Pf| = count on 9 boards) to 2.9e-15: **s_tri = 0.428594537464959**.
+- Free strips w = 3, 4: a(n+1)/a(n) for Z(3×2n) (A239265, bisection ⇒ λ₃²) and Z(4×n) (A239266) → λ_w to 1e-16.
+- float64 vs exact numbers (Z_cyl(K+2)/Z_cyl(K), w = 9…13): ≤ 4.1e-16 in log λ; ARPACK on the full transfer w=20: both sectors to 1.8e-15 (`crosscheck.py` @a32a0fe). `tmfast.py` = `tm.py` bit for bit.
 
-Koszt (`out_estimate.txt`; do 3 procesów naraz na 4 rdzeniach, zawsze 19 iteracji T², nawias CW
-domknięty do ulp): w=20 1.3 s/iter, 310 MiB; 21 3.3 s, 587 MiB; 22 6.8 s, 1.1 GiB; 23 16 s, 2.1 GiB;
+Cost (`out_estimate.txt`; up to 3 processes at once on 4 cores, always 19 iterations of T², CW bracket
+closed to ulp): w=20 1.3 s/iter, 310 MiB; 21 3.3 s, 587 MiB; 22 6.8 s, 1.1 GiB; 23 16 s, 2.1 GiB;
 24 31 s, 4.3 GiB; 25 67 s, 8.4 GiB (22.5 min).
 
 ## BLOCKED
 
-- Porównanie z OEIS A239265/A239266 i z literaturą — poza zakresem (bez sieci); sprawdzone tylko z własnymi liczbami dokładnymi i danymi repo.
-- w ≥ 26: z pomiarów ~17 GiB RAM > 15.7 GiB w kontenerze — nie uruchamiane.
-- `/usr/bin/time`: `No such file or directory` — zastąpione `timed.py`.
+- Comparison with OEIS A239265/A239266 and with the literature — out of scope (no network); checked only against our own exact numbers and the repo data.
+- w ≥ 26: from measurements ~17 GiB RAM > 15.7 GiB in the container — not run.
+- `/usr/bin/time`: `No such file or directory` — replaced by `timed.py`.
 
-## Pytania na następną sesję
+## Questions for the next session
 
-1. Udowodnić (L) (log-wypukłość Z(2q, m) w q). Daje rygorystyczne s ≥ 0.565511911035. Cauchy–Schwarz nie działa (forma M nieokreślona); potrzebna inna struktura (np. inwolucja odwracająca znak na parach pokryć).
-2. Lepsze rygorystyczne górne niż pasy otwarte (zbieżność ~0.5/w); albo górne analogiczne do (L).
-3. Postać poprawek nieparzystych w (r_w dryfuje, ~9.99 przy w=25) — związek z ξ_Z2 ≈ 1.23 i szczeliną 1.08.
-4. Granica f(k) = log λ_k − sk dla wolnych pasów: −2σ ≈ −0.4840358715 (energia powierzchniowa) — do artykułu.
-5. Lokalny przegląd literatury dla 0.565511911041325 i s_tri = 0.428594537464959.
+1. Prove (L) (log-convexity of Z(2q, m) in q). Gives the rigorous s ≥ 0.565511911035. Cauchy–Schwarz does not work (form M indefinite); another structure is needed (e.g. a sign-reversing involution on pairs of tilings).
+2. Better rigorous upper bound than open strips (convergence ~0.5/w); or an upper bound analogous to (L).
+3. Form of the odd-w corrections (r_w drifts, ~9.99 at w=25) — relation to ξ_Z2 ≈ 1.23 and the gap 1.08.
+4. Limit of f(k) = log λ_k − sk for free strips: −2σ ≈ −0.4840358715 (surface energy) — for the paper.
+5. Local literature survey for 0.565511911041325 and s_tri = 0.428594537464959.
