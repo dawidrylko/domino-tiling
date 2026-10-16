@@ -1,0 +1,2 @@
+# cmd: python3 lcert.py 26 30
+# exit=0 wall=2557.3s user=2517.0s maxrss=8223MiB
