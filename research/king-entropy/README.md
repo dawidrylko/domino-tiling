@@ -3,7 +3,9 @@
 Perfect matchings of the king's graph (square lattice plus both diagonals),
 i.e. domicule tilings. Goal: the entropy per site
 `s = lim log Z / N` to many digits, with rigorous bounds.
-Results and their provenance: [`REPORT-session1.md`](REPORT-session1.md).
+Results and their provenance: [`REPORT-session1.md`](REPORT-session1.md); adversarial audit of
+those results: [`REPORT-session2.md`](REPORT-session2.md) (proofs in `PROOF-upper.md`,
+`PROOF-lower.md`, hypothesis (L) in `L-NOTE.md`).
 
 All commands below are run from this directory (`research/king-entropy/`)
 with Python 3.13.
@@ -28,6 +30,14 @@ python3 -m pip install -r requirements.txt
 | `cw.py` | Calkin-Wilf hypothesis: RP obstruction, spectral measure, exact log-convexity tests, limit form, conditional bounds (see `CW-NOTE.md`) |
 | `estimate.py` | final estimate of s from all cylinders, Z2 splitting table and correlation length; writes `z2.json` |
 | `timed.py` | runs a command and appends wall time and peak RSS to stderr |
+| `zexact.py` | exact Z(k, m), k <= K, by CRT over 60-bit primes (session 2); writes `zex_*.json` |
+| `lean.py` | power iteration with two buffers, float64 or x87 extended precision; writes `lean_*.json` |
+| `audit_bounds.py` | exact audit of both strip bounds and of the float certificates (`PROOF-*.md`) |
+| `errbar.py` | alternative extrapolation models, backtests and rounding check for s |
+| `surface.py` | surface free energy sigma from free strips |
+| `ltest.py` | exact (L) tests and Hankel (moment) tests on all `zex_*.json` |
+| `lparity.py`, `lspec.py`, `lweight.py` | path-parity form of (L), spectral obstructions, (L) under diagonal weights |
+| `repro.py` | re-runs session-1 scripts from a clean export of HEAD and compares outputs |
 
 ## Reproduce
 
@@ -62,3 +72,16 @@ python3 timed.py python3 cw.py > out_cw.txt 2> time_cw.txt   # needs bounds.json
 
 Peak memory: about 1.1 GiB at w = 22, 2.2 GiB at w = 23, 4.3 GiB at w = 24
 and 8.4 GiB at w = 25 per `cylw.py` process (`out_estimate.txt`, cost table).
+
+Session 2 (each writes `out_<name>.txt`; `zexact.py`/`lean.py` runs as listed in `REPORT-session2.md`):
+
+```sh
+python3 audit_bounds.py > out_audit_bounds.txt
+python3 errbar.py > out_errbar.txt
+python3 surface.py > out_surface.txt
+python3 ltest.py > out_ltest.txt
+python3 lparity.py > out_lparity.txt
+python3 lspec.py > out_lspec.txt
+python3 lweight.py > out_lweight.txt; python3 lweight.py big > out_lweight_big.txt
+python3 repro.py > out_repro.txt
+```
