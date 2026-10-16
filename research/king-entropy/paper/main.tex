@@ -1,0 +1,681 @@
+\documentclass[11pt]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1.1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{microtype}
+\emergencystretch=2em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{problem}[theorem]{Open problem}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\fl}{\operatorname{fl}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\file}[1]{\texttt{#1}}
+
+\title{The dimer entropy of the king's graph}
+\author{Dawid Ry\l{}ko}
+\date{Draft, October 2026}
+
+\begin{document}
+
+\begin{abstract}
+We compute the entropy per site of the perfect matchings (dimer coverings) of the king's
+graph, the square lattice with both diagonals; equivalently, of the domicule tilings of
+rectangular boards counted in OEIS A239264 and A239273. Row transfer matrices on cylinders of
+circumference up to $25$, split by a conserved parity, give
+\[
+  s = 0.5655119110413253 \pm 6\cdot 10^{-16},
+\]
+with an error bar supported by several extrapolation models, backtests and an
+extended-precision check of the rounding. We prove $0.545343749727 \le s \le 0.586216605404$
+with computer-assisted Collatz--Wielandt certificates;
+the upper bound uses a Fibonacci bound for the matchings across a cut. We also give the surface
+free energy of a free edge, $\sigma = 0.242017935766251 \pm 9\cdot 10^{-15}$, and the
+exponential decay of the splitting between the two parity sectors, with decay length
+$\xi \approx 1.23$. Finally we state the conjecture that $q \mapsto Z(2q, m)$ is log-convex for
+every strip width $m$. It would raise the rigorous lower bound to $s \ge 0.565511911035$; it holds
+in all $1451$ cases we checked, but it fails on the triangular lattice and when the two diagonals
+carry clearly different weights.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+A \emph{domicule} is a pair of cells of the square grid that share a side or a corner. A domicule
+tiling of a $K \times L$ board is a partition of its cells into domicules; two diagonal domicules
+may cross inside a unit square, so the $2\times 2$ board has $3$ tilings. Equivalently, it is a
+perfect matching of the \emph{king's graph} on the board, the graph whose edges join cells at
+chessboard king distance $1$. The numbers $Z(K, L)$ of such tilings form the array
+A239264 of the OEIS \cite{oeisA239264}, and $Z(2n, 2n)$ is A239273 \cite{oeisA239273}; related
+entries such as A239265, A239268 and A243510 \cite{oeisA239265,oeisA239268,oeisA243510} record
+further exact counts. None of these entries gives the growth constant, i.e.\ the entropy per
+site
+\[
+  s = \lim_{K, L \to \infty} \frac{\log Z(K, L)}{KL}.
+\]
+
+For dominoes (the square lattice) $s$ is known exactly, $G/\pi$ with Catalan's constant $G$, by
+the Pfaffian method of Kasteleyn and of Temperley and Fisher \cite{kasteleyn1961,
+temperleyfisher1961}. Kasteleyn's method needs a Pfaffian orientation, which exists for planar
+graphs, and the triangular lattice (one diagonal per square) is planar and was solved in the
+same way \cite{fms2002}. The king's graph is not planar: the $5 \times 5$ board already has
+$72 > 3\cdot 25 - 6$ edges. No Pfaffian or determinantal solution of the king's dimer model is
+known. Sandvik and Moessner \cite{sandvikmoessner2006}, and before them Sandvik
+\cite{sandvik2003}, studied exactly this model (dimers on the nearest- and
+next-nearest-neighbour bonds of the square lattice) by Monte Carlo simulation; they note that it
+is not solvable by Kasteleyn's method and do not give its entropy. Wildeboer et
+al.\ \cite{wildeboer2026} solve a different, constrained dimer model on lattices with crossed
+plaquettes. Finch's errata \cite[\S 5.12]{finch2020errata} list a constant
+$1.34254\ldots 1.34265$ for the square lattice with ``crossed diagonal bonds''; it belongs to
+hard squares (independent sets of the king's graph), not to dimers. Series expansions for
+dimer and monomer--dimer problems go back to Nagle \cite{nagle1966} and Gaunt \cite{gaunt1969};
+we have only seen their abstracts, which do not mention the king lattice. To our knowledge no
+numerical value of $s$ has been published.
+
+\medskip\noindent\textbf{Results.}
+\begin{enumerate}
+\item $s = 0.5655119110413253 \pm 6\cdot10^{-16}$ (\S\ref{sec:value}), i.e.\ $2s = 1.131023822082651$
+  per dimer and $e^{s} = 1.760348694041978$. The error bar is not rigorous.
+\item Rigorously, $0.545343749727 \le s \le 0.586216605404$ (Theorem~\ref{thm:bounds}).
+\item The surface free energy of a free edge is $\sigma = 0.242017935766251 \pm 9\cdot10^{-15}$
+  (\S\ref{sec:surface}).
+\item On even cylinders the two parity sectors split by $\Delta_w \approx e^{-w/\xi}$,
+  $\xi \approx 1.23$; all finite-size corrections are exponentially small (\S\ref{sec:z2}),
+  in contrast with the critical square lattice.
+\item The conjecture (L) that $q \mapsto Z(2q, m)$ is log-convex would give the rigorous bound
+  $s \ge 0.565511911035$ (eleven correct digits). We give the evidence, the obstructions to the
+  standard proofs and two counterexamples in neighbouring models (\S\ref{sec:L}).
+\end{enumerate}
+The same code reproduces the exactly known entropies of the square and triangular lattices
+(\S\ref{sec:checks}). All scripts, outputs and the map from every number in this paper to the
+file it comes from are in the repository (\S\ref{sec:repro}).
+
+\section{Model, transfer matrix and parity sectors}\label{sec:model}
+
+\subsection{Definitions}
+The king's graph has vertex set $\Z^2$, and $(r, c) \sim (r', c')$ if
+$\max(|r - r'|, |c - c'|) = 1$. The board $B(K, L) = \{0, \dots, K-1\} \times \{0, \dots, L-1\}$
+has $K$ rows and $L$ columns; $Z(K, L)$ is the number of perfect matchings of the induced
+subgraph ($Z = 0$ if $KL$ is odd), and $Z(K, L) = Z(L, K)$. The cylinder of circumference
+$w \ge 3$ identifies column $c$ with $c + w$; its count is $Z_{\mathrm{cyl}}(K, w)$. Let
+\[
+  \bar s = \limsup \frac{\log Z(K, L)}{KL}, \qquad \underline s = \liminf \frac{\log Z(K, L)}{KL},
+\]
+over $K, L \to \infty$ with $KL$ even. That $\underline s = \bar s$ is standard for dimer models
+on $\Z^2$-periodic graphs (a sub/superadditivity argument); Theorem~\ref{thm:bounds} bounds
+$\underline s$ and $\bar s$ separately and does not use it.
+
+For a strip of width $k$, stacking boards gives $Z(2i + 2j, k) \ge Z(2i, k) Z(2j, k)$, so by
+Fekete's lemma \cite{fekete1923} the limit
+\begin{equation}\label{eq:lambda}
+  \lambda_k^2 = \lim_{j \to \infty} Z(2j, k)^{1/j} = \sup_j Z(2j, k)^{1/j}
+\end{equation}
+exists. We call $\lambda_k$ the growth rate of the free strip and write $a_k = \log \lambda_k$.
+Placing strips side by side gives $\lambda_{k_1 + k_2} \ge \lambda_{k_1}\lambda_{k_2}$, so
+$a_k/k \to s^* = \sup_k a_k/k$.
+
+\subsection{Transfer matrix}
+We scan a strip of width $w$ cell by cell in row-major order. A cell is either already covered,
+or it is matched to one of its later neighbours: right $(r, c+1)$, down-left $(r+1, c-1)$, down
+$(r+1, c)$ or down-right $(r+1, c+1)$, if that neighbour exists and is free. The state records
+the occupancy of the next $w + 2$ cells; on the cylinder the neighbours are taken modulo $w$ and
+one extra bit records the cell $(r+1, w-1)$ claimed by $(r, 0)$ through the wrap-around
+down-left edge. A row is $w$ cell steps, $T = T_{w-1}\cdots T_0$, and
+\[
+  Z(K, w) = e_0^{\top} T^K e_0,
+\]
+with $e_0$ the empty state. Between rows only the $w$ bits of the next row can be set, so $T$
+acts on $2^w$ states: the set $A \subseteq \{0, \dots, w-1\}$ of cells of the next row already
+covered from the current one. The implementation uses reshaped array views instead of index
+arrays and is bit-identical to a direct one.
+
+\subsection{Parity sectors}
+Let $A_r$ be the set of cells of row $r$ covered from row $r - 1$ and $h_r$ the number of
+dimers inside row $r$. Counting the cells of row $r$ gives $w = |A_r| + 2h_r + |A_{r+1}|$, so
+\[
+  |A_{r+1}| \equiv w - |A_r| \pmod 2.
+\]
+Hence $T^2$ preserves the parity $p$ of $|A|$; for even $w$ so does $T$, for odd $w$ the map $T$
+exchanges the two sectors and $T^2$ has the same nonzero spectrum on both. We write
+$\lambda^{(p)}_w$ for the square root of the leading eigenvalue of $T^2$ on sector $p$ of the
+cylinder, and $f_w^{(p)} = \log \lambda^{(p)}_w / w$. On the cylinder $|A|$ is the number of
+dimers crossing a closed loop around the axis, and for even $w$ its parity is conserved: this is
+the topological $\Z_2$ sector familiar from dimer models on non-bipartite lattices. For even $w$
+the two sector values differ, and they bracket $s$ in all our data: $f^{(0)}_w > s > f^{(1)}_w$.
+
+For free strips only the sector of $e_0$ enters $Z$, and the spectral radius of $T$ is not the
+growth rate $\lambda_w$ in general: for $w = 6, 10, 14, 18$ the other sector has the larger
+eigenvalue (e.g.\ $w = 6$: $\log\lambda = 2.909568954808860$ there, against
+$a_6 = 2.909403518708946$).
+
+\subsection{Computation}
+We use float64 power iteration on $T^2$ restricted to one sector, from a random positive start
+vector (fixed seed), normalised every step, stopped when the estimate of $\log \lambda$ changes
+by less than $4\cdot10^{-15}$ for three consecutive iterations (19 iterations for $w \ge 20$).
+Afterwards the Collatz--Wielandt bracket $\min_i (T^2 v)_i / v_i \le \lambda^2 \le \max_i (T^2
+v)_i / v_i$ over the support of $v$ is evaluated; for $w = 20, \dots, 25$ it closes to the last
+digit of $\log \lambda$. Widths $w \le 19$ take minutes; $w = 25$ (one sector suffices for odd
+$w$) works on vectors of $2^{28}$ doubles and needs $8.4$\,GiB and $22.5$ minutes on four cores.
+
+\section{The value of \texorpdfstring{$s$}{s}}\label{sec:value}
+
+\subsection{Data}
+Table~\ref{tab:odd} lists the odd cylinders. The values $f_w$ increase to $s$; the differences
+$d_w = f_w - f_{w-2}$ decay by a ratio $r_w = d_{w-2}/d_w$ that drifts from $13.4$ to $9.99$.
+The geometric (Aitken) estimate $s_w = f_w + d_w/(r_w - 1)$ settles at $0.5655119110413253$.
+For even $w$ the sector values bracket $s$:
+\[
+\begin{array}{rll}
+  w = 18: & [0.5655119060934878,\ 0.5655119160322841], \\
+  w = 20: & [0.5655119102001319,\ 0.5655119118867463], \\
+  w = 22: & [0.5655119108963251,\ 0.5655119111867462], \\
+  w = 24: & [0.5655119110160359,\ 0.5655119110666571], & \text{midpoint } 0.5655119110413465,
+\end{array}
+\]
+and the midpoints converge to $s$ at the same rate as the odd widths, from independent data.
+
+\begin{table}[ht]
+\caption{Odd cylinders: $f_w = \log\lambda_w / w$, $d_w = f_w - f_{w-2}$, $r_w = d_{w-2}/d_w$ and the
+geometric extrapolation $s_w$ (\file{out\_estimate.txt}).}\label{tab:odd}
+\begin{tabular}{rllrl}
+\toprule
+$w$ & $f_w$ & $d_w$ & $r_w$ & $s_w$ \\
+\midrule
+13 & 0.5655119032044848 & $7.943\cdot10^{-8}$  & 11.68 & 0.5655119106414456 \\
+15 & 0.5655119103137916 & $7.109\cdot10^{-9}$  & 11.172 & 0.5655119110126792 \\
+17 & 0.5655119109720268 & $6.582\cdot10^{-10}$ & 10.801 & 0.5655119110391899 \\
+19 & 0.5655119110345892 & $6.256\cdot10^{-11}$ & 10.521 & 0.56551191104116 \\
+21 & 0.5655119110406597 & $6.071\cdot10^{-12}$ & 10.306 & 0.5655119110413121 \\
+23 & 0.5655119110412587 & $5.989\cdot10^{-13}$ & 10.136 & 0.5655119110413242 \\
+25 & 0.5655119110413186 & $5.994\cdot10^{-14}$ &  9.992 & 0.5655119110413253 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Extrapolation models and error bar}
+The tail $s - f_W = \sum_{j \ge 1} d_{W + 2j}$ was extrapolated with seven models, each fitted
+on the last few widths: geometric (G, constant ratio $r_W$); $d_w = A e^{-w/\xi} w^b$ through
+three points (PE) or by least squares on six (PE6); $r_w = r_\infty + c/w$ (R1) and
+$r_w = r_\infty + c/w + e/w^2$ (R2); two exponentials by Prony's method (2E); and two variants of
+Wynn's $\varepsilon$ algorithm (WY). Each model was rerun with the data cut at $W = 19, 21, 23$
+(backtest), and the same models were applied to the even-width midpoints. Table~\ref{tab:models}
+shows the result.
+
+\begin{table}[ht]
+\caption{Estimates of $s$ by model: from the odd widths up to $W = 25$, from the even midpoints up
+to $W = 24$, and the backtest change $|s(23) - s(25)|$ on the odd widths (\file{out\_errbar.txt}).}
+\label{tab:models}
+\begin{tabular}{lllr}
+\toprule
+model & odd, $W = 25$ & midpoints, $W = 24$ & backtest \\
+\midrule
+G   & 0.5655119110413253 & 0.5655119110413256 & $1.05\cdot10^{-15}$ \\
+PE  & 0.5655119110413254 & 0.5655119110413253 & $3.13\cdot10^{-17}$ \\
+PE6 & 0.5655119110413254 & 0.5655119110413253 & $2.67\cdot10^{-17}$ \\
+R1  & 0.5655119110413254 & 0.5655119110413253 & $4.2\cdot10^{-18}$ \\
+R2  & 0.5655119110413254 & 0.5655119110413253 & $5.14\cdot10^{-17}$ \\
+2E  & 0.5655119110413254 & 0.5655119110413253 & $1.12\cdot10^{-16}$ \\
+WY  & 0.5655119110413254 & 0.5655119110413253 & $8.8\cdot10^{-17}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The geometric model is the only one that fails its backtest (it ignores the drift of $r_w$,
+which the PE fit attributes to a power prefactor: $\xi_{\mathrm{odd}} = 0.9324$, $b = -1.880$).
+The models that pass their backtest (change $< 5\cdot10^{-16}$) on either data set give
+\[
+  s \in [0.5655119110413252,\ 0.56551191104132547],
+\]
+with centre $0.56551191104132534$ and half-width $1.3\cdot10^{-16}$.
+
+\emph{Rounding.} We recomputed the odd cylinders $w = 15, 17, \dots, 25$ in x87 extended
+precision (64-bit mantissa). The float64 values differ by at most $4.1\cdot10^{-17}$ per site, and
+the extrapolation has sensitivity $\sum_w |\partial s_{\mathrm G} / \partial f_w| = 1.49$. On the
+extended-precision values alone the models give $0.56551191104132531$--$2$.
+
+\emph{Cross-checks of the float64 eigenvalues.} Exact integer ratios
+$Z_{\mathrm{cyl}}(K+2, w)/Z_{\mathrm{cyl}}(K, w)$ for $w = 9, 11, 12, 13$ agree with the power
+iteration to $4.1\cdot10^{-16}$ in $\log \lambda$, and ARPACK on the full $w = 20$ transfer
+reproduces both sector values to $1.8\cdot10^{-15}$.
+
+We take three times the sum of the model half-width and the propagated rounding:
+\[
+  \boxed{\,s = 0.5655119110413253 \pm 6\cdot10^{-16}\,}
+\]
+This is an estimate, not a bound. For comparison, the exact counts of the square boards up to
+$20\times20$ alone give about six digits (a fit $\log Z(L, L) = sL^2 + aL + b$ on $L = 16, 18, 20$
+gives $0.565512081672$).
+
+\section{Rigorous bounds}\label{sec:bounds}
+
+\begin{theorem}\label{thm:bounds}
+$0.545343749727 \le \underline s \le \bar s \le 0.586216605404$.
+\end{theorem}
+
+For comparison, the Kahn--Lov\'asz bound (the number of perfect matchings of a graph is at most
+$\prod_v (d_v!)^{1/(2 d_v)}$; unpublished by its authors, proved in \cite{alonfriedland2008}),
+with all degrees $d_v \le 8$, gives
+$\bar s \le \log(8!)/16 = 0.662787681422$.
+
+Both bounds of Theorem~\ref{thm:bounds} come from strips of width $w = 24$ and a numerical
+certificate whose validity does not depend on how it was found. Table~\ref{tab:bounds} shows how
+they improve with $w$. Since $\log \lambda_w / w = s + f(w)/w$ with $f(w) \to -2\sigma$
+(\S\ref{sec:surface}), the lower bound approaches $s$ like $2\sigma/w = 0.484/w$; the upper bound
+does like $0.497/w$.
+
+\begin{table}[ht]
+\caption{Certified bounds from strips of width $w$ (\file{out\_bounds.txt}).}\label{tab:bounds}
+\begin{tabular}{rll}
+\toprule
+$w$ & lower bound on $\underline s$ & upper bound on $\bar s$ \\
+\midrule
+4  & 0.445893077494 & 0.689765394232 \\
+8  & 0.505014525148 & 0.627626147026 \\
+12 & 0.525175645897 & 0.606921301094 \\
+16 & 0.53525966962  & 0.596568952598 \\
+20 & 0.54131011747  & 0.590357544276 \\
+24 & 0.545343749727 & 0.586216605404 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Lower bound}
+
+\begin{lemma}[superadditivity]\label{lem:super}
+For even $K$ and $L = kw + r$ with $0 \le r < w$: $Z(K, L) \ge Z(K, w)^k$.
+\end{lemma}
+\begin{proof}
+Perfect matchings of $k$ strips $B(K, w)$ placed side by side, completed by vertical dominoes in
+the last $r$ columns ($K$ is even), are distinct perfect matchings of $B(K, L)$.
+\end{proof}
+
+\begin{lemma}[Collatz--Wielandt, lower]\label{lem:cwlow}
+Let $A = T^2$ be the free-strip transfer of width $w$, so that $Z(2j, w) = (A^j e_0)_0$. Let
+$v \ge 0$ with $v_0 > 0$, $\supp v \subseteq \supp A^n e_0$ for some $n$, and $Av \ge c\,v$
+componentwise. Then $Z(2(n + j), w) \ge c^j v_0 / C'$ for all $j$, where
+$C' = \max_{i \in \supp v} v_i / (A^n e_0)_i < \infty$. In particular $\lambda_w^2 \ge c$.
+\end{lemma}
+\begin{proof}
+$v \le C' A^n e_0$ componentwise and $A \ge 0$, so
+$Z(2(n+j), w) = (A^j A^n e_0)_0 \ge (A^j v)_0 / C' \ge c^j v_0 / C'$.
+\end{proof}
+
+\begin{proof}[Proof of the lower bound]
+By Lemma~\ref{lem:super}, for even $K$,
+\[
+  \frac{\log Z(K, L)}{KL} \ge \frac{\lfloor L/w\rfloor}{L}\,\frac{\log Z(K, w)}{K}
+  \longrightarrow \frac{\log\lambda_w}{w} \qquad (K, L \to \infty);
+\]
+for odd $K$ (then $L$ is even) exchange the roles of the sides. So $\underline s \ge a_w / w$ for every $w$, and
+$\underline s \ge s^*$. The certificate of \S\ref{sec:float} gives
+$a_{24}/24 \ge \frac{1}{48}\log c_{24} \ge 0.545343749727$.
+\end{proof}
+
+\subsection{Upper bound}
+Cut $B(K, kw)$ into $k$ strips $S^{(1)}, \dots, S^{(k)}$ of width $w \ge 2$ (columns
+$jw, \dots, jw + w - 1$). King edges change the column by at most one, so every edge of a perfect
+matching $X$ lies inside a strip or joins column $jw - 1$ to column $jw$ (an edge across cut $j$).
+Let $A_j$ be the rows of the cells of column $jw - 1$ matched across cut $j$ (right side of
+$S^{(j)}$), $B_{j+1}$ the rows of the cells of column $jw$ matched across cut $j$ (left side of
+$S^{(j+1)}$), and $B_1 = A_k = \emptyset$. Let $N(B, A)$ be the number of perfect matchings of
+\[
+  B(K, w) \setminus \bigl(\{(b, 0) : b \in B\} \cup \{(a, w-1) : a \in A\}\bigr),
+\]
+and $M(A, B)$ the number of perfect matchings of the bipartite graph on $A \sqcup B$ with
+$a \sim b$ iff $|a - b| \le 1$.
+
+\begin{lemma}[cut identity]\label{lem:cut}
+$Z(K, kw) = \sum \prod_{j=1}^{k} N(B_j, A_j) \prod_{j=1}^{k-1} M(A_j, B_{j+1})$, the sum over all
+$A_1, B_2, A_2, \dots, B_k$ with $B_1 = A_k = \emptyset$.
+\end{lemma}
+\begin{proof}
+Since $w \ge 2$ the sets are well defined. The restriction of $X$ to strip $j$ is a perfect matching
+of $S^{(j)} \setminus (B_j \cup A_j)$, and its restriction to cut $j$ a perfect matching between
+$A_j$ and $B_{j+1}$; conversely every such tuple of pieces is a perfect matching of $B(K, kw)$.
+\end{proof}
+
+\begin{lemma}[crossing matchings]\label{lem:fib}
+If $|A| = |B| = n$ then $M(A, B) \le F_{n+1} \le \varphi^n$, where $F_1 = F_2 = 1$ are the
+Fibonacci numbers and $\varphi = (1 + \sqrt 5)/2$; $M(A, B) = 0$ if $|A| \ne |B|$.
+\end{lemma}
+\begin{proof}
+Let $a_1 < \dots < a_n$, $b_1 < \dots < b_n$ and $M(n) = \max M(A, B)$. \emph{$a_1$ is matched to
+$b_1$ or $b_2$}: if $a_1 \sim b_j$ with $j \ge 3$, then $b_1 \le b_3 - 2 \le a_1 - 1$, while every
+$a \ne a_1$ has $a \ge a_1 + 1 \ge b_1 + 2$, so $b_1$ has no partner. \emph{If $a_1 \sim b_2$},
+then $b_1 \le b_2 - 1 \le a_1$ needs a partner $a_i \ge a_1 + 1$ with $a_i \le b_1 + 1 \le a_1 + 1$,
+so $a_i = a_1 + 1$, $b_1 = a_1$, and the pair $a_2 b_1$ is forced. Thus every matching contains
+$a_1 b_1$ (the rest is a matching of $n - 1$ against $n - 1$ cells) or both $a_1 b_2$ and
+$a_2 b_1$ (the rest is $n-2$ against $n-2$), so $M(n) \le M(n-1) + M(n-2)$ with
+$M(0) = M(1) = 1$, i.e.\ $M(n) \le F_{n+1}$. Finally $F_{n+1} \le \varphi^n$ by induction.
+\end{proof}
+
+The bound is attained by $A = B$ an interval. Put $z = \sqrt\varphi$ and
+\[
+  W(K, w) = \sum_{A, B} N(B, A)\, z^{|A| + |B|},
+\]
+the weighted number of matchings of a strip in which a cell of the first or last column may be
+``covered from outside'' at weight $z$.
+
+\begin{lemma}[strip inequality]\label{lem:strip}
+$Z(K, kw) \le W(K, w)^k$.
+\end{lemma}
+\begin{proof}
+In Lemma~\ref{lem:cut} replace $M(A_j, B_{j+1})$ by $\varphi^n = z^{|A_j|} z^{|B_{j+1}|}$
+(Lemma~\ref{lem:fib}). The factor $z^{|A_j|}$ belongs to strip $j$ and $z^{|B_{j+1}|}$ to strip
+$j+1$, so each summand is at most $\prod_j N(B_j, A_j) z^{|B_j| + |A_j|}$. Dropping the constraints
+$|A_j| = |B_{j+1}|$ and $B_1 = A_k = \emptyset$ adds only nonnegative terms, and the sum
+factorises over the strips.
+\end{proof}
+
+The transfer of \S\ref{sec:model} computes $W$ when a cell in column $0$ or $w-1$ may also be
+covered from outside at weight $z$: $W(K, w) = e_0^\top T_z^K e_0$, $T_z \ge 0$.
+
+\begin{lemma}[Collatz--Wielandt, upper]\label{lem:cwup}
+If $A = T_z^2$, $v \ge 0$, $v_0 > 0$ and $Av \le Cv$ componentwise (including $(Av)_i = 0$
+where $v_i = 0$), then $W(2j, w) \le C^j$ for all $j$.
+\end{lemma}
+\begin{proof}
+$e_0 \le v/v_0$ and $A \ge 0$, so $A^j e_0 \le A^j v / v_0 \le C^j v / v_0$; take the entry $0$.
+\end{proof}
+
+\begin{proof}[Proof of the upper bound]
+Let $K, L \to \infty$ with $KL$ even. If $K$ is odd then $L$ is even and $Z(K, L) \le Z(K+1, L)$
+(add a row of horizontal dominoes), so we may take $K = 2j$. Write $L = kw + r$, $0 \le r < w$.
+Cutting off a last strip of width $r$ as in Lemma~\ref{lem:strip} gives
+$Z(K, L) \le W(K, w)^k W_r(K)$, where $W_r$ counts the configurations of a width-$r$ strip with
+weighted outside covers; crudely $W_r(K) \le (5 + 2z)^{Kr}$ (per cell: already covered, one of at
+most four later partners, or one of at most two outside covers). By Lemma~\ref{lem:cwup},
+\[
+  \frac{\log Z(K, L)}{KL} \le \frac{k}{L}\,\frac{\log C_w}{2} + \frac{w \log(5 + 2z)}{L}
+  \longrightarrow \frac{\log C_w}{2w}.
+\]
+The certificate of \S\ref{sec:float} at $w = 24$ gives $\bar s \le 0.586216605404$.
+\end{proof}
+
+\subsection{Floating-point certificates}\label{sec:float}
+The certificates use float64 vectors $v$ produced by power iteration; how $v$ was obtained does not
+matter. For the lower bound $v$ is the normalised iterate $A^n e_0$; floating point never creates a
+positive entry from an exact zero (all terms are nonnegative), so $\supp v \subseteq \supp A^n e_0$.
+The code computes $y = \fl(Av)$, asserts $v_0 > 0$, $v_i > 10^{-280}$ on $\supp v$ and (upper
+bound) $y_i = 0$ off $\supp v$, and sets
+\[
+  c = \min_{i \in \supp v} \fl(y_i / v_i)\,(1 - 10^{-12}), \qquad
+  C = \max_{i \in \supp v} \fl(y_i / v_i)\,(1 + 10^{-12}).
+\]
+Each cell step writes every entry as a sum of at most six nonnegative terms (already covered,
+outside cover times $z$, right, down-left, down, down-right), so over the $2w$ steps of $A$,
+$\fl(Av)_i \in (Av)_i\,[(1-u)^{12w}, (1+u)^{12w}]$ with $u = 2^{-53}$: a relative error of at most
+$12wu\,(1 + o(1)) = 3.2\cdot10^{-14}$ at $w = 24$, plus one rounding in the division. All weights
+are at least $1$ ($z$ is rounded up, so $T_{\fl(z)} \ge T_{\sqrt\varphi}$ entrywise) and the
+entries on the support exceed $10^{-280}$, so there is no underflow and a float entry vanishes iff
+the exact one does. Since $10^{-12} \gg 3.2\cdot10^{-14} + u$, the inequalities $Av \ge cv$ and
+$Av \le Cv$ hold exactly. The logarithms are taken with 30-digit arithmetic and the results are
+rounded outward to 12 decimals.
+
+\emph{Audit.} The following were checked in exact arithmetic: the cut identity and both strip
+inequalities on $58$ boards ($K \le 8$, $kw \le 12$); $\max M(A, B) = F_{n+1}$ for all $A, B$ in
+columns of length $m \le 11$, and the branching step for $m \le 8$; the transfer with weight $z$
+against brute force as a polynomial in $z$ ($162$ evaluations); and, for $w = 2, \dots, 12$, the
+float ratios against exact rational ratios for the same float vector ($|\text{float}/\text{exact}
+- 1| \le 1.7\cdot10^{-16}$). The test has power: with $z = 0$ the strip inequality fails on all
+$40$ boards with $k \ge 2$. On these small boards $z = 0.5$ would suffice; the weight $\sqrt\varphi$ is
+needed by the proof, not by the data.
+
+\section{Surface free energy}\label{sec:surface}
+For the free strip of width $k$, $\log Z(K, k) = K a_k + O(1)$, and
+\[
+  f(k) = a_k - s k \longrightarrow -2\sigma,
+\]
+where $\sigma$ is the free energy per unit length of a free edge. Even $k$ approach the limit from
+above, odd $k$ from below, and every even value lies above every odd one (Table~\ref{tab:surface};
+$a_k$ from extended-precision power iteration for $k = 14, \dots, 24$ and float64 with a
+Collatz--Wielandt bracket for $k = 25, 26$).
+
+\begin{table}[ht]
+\caption{$f(k) = \log\lambda_k - sk$ for free strips (\file{out\_surface.txt}).}\label{tab:surface}
+\begin{tabular}{rlrl}
+\toprule
+$k$ & $f(k)$ & $k$ & $f(k)$ \\
+\midrule
+19 & $-0.4840358718678495$ & 20 & $-0.4840358714180326$ \\
+21 & $-0.4840358715709653$ & 22 & $-0.4840358715195378$ \\
+23 & $-0.4840358715369125$ & 24 & $-0.4840358715310018$ \\
+25 & $-0.4840358715330068$ & 26 & $-0.4840358715323304$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The odd sequence converges cleanly (all models of \S\ref{sec:value} agree to $10^{-16}$); the even
+one carries two corrections, and only the two-exponential and Wynn models are stable under the
+backtest. The stable models give $-2\sigma \in [-0.4840358715325015, -0.4840358715325006]$; the
+error of $s$, multiplied by $k = 26$, dominates:
+\[
+  -2\sigma = -0.484035871532501 \pm 1.8\cdot10^{-14}, \qquad
+  \sigma = 0.242017935766251 \pm 9\cdot10^{-15}.
+\]
+The fit to the exact square boards in \S\ref{sec:value} has linear coefficient $a = -0.96808$
+(four free edges), consistent with $-4\sigma = -0.9680717$.
+
+\section{Parity splitting and correlation length}\label{sec:z2}
+For even $w$ let $\Delta_w = \log\lambda^{(0)}_w - \log\lambda^{(1)}_w$ and
+$\xi_w = 2/\log(\Delta_{w-2}/\Delta_w)$ (Table~\ref{tab:z2}). A pure exponential
+$\log\Delta_w = a - w/\xi$ fits $w = 10, \dots, 24$ poorly ($\xi = 1.1931$, rms $1.5\cdot10^{-2}$);
+with a power prefactor, $\log\Delta_w = a - w/\xi + b\log w$ gives $\xi = 1.2323$, $b = -0.433$,
+rms $9.3\cdot10^{-4}$, and extrapolating $1/\xi_w$ linearly in $1/w$ gives $\xi_\infty = 1.2351$.
+So $\xi \approx 1.23$.
+
+\begin{table}[ht]
+\caption{Splitting of the parity sectors on even cylinders (\file{out\_estimate.txt}).}\label{tab:z2}
+\begin{tabular}{rll@{\qquad}rll}
+\toprule
+$w$ & $\Delta_w$ & $\xi_w$ & $w$ & $\Delta_w$ & $\xi_w$ \\
+\midrule
+10 & $1.521094\cdot10^{-4}$ & 1.15438 & 18 & $1.788983\cdot10^{-7}$ & 1.19451 \\
+12 & $2.782917\cdot10^{-5}$ & 1.17750 & 20 & $3.373229\cdot10^{-8}$ & 1.19878 \\
+14 & $5.124578\cdot10^{-6}$ & 1.18201 & 22 & $6.389264\cdot10^{-9}$ & 1.20204 \\
+16 & $9.544544\cdot10^{-7}$ & 1.19001 & 24 & $1.214909\cdot10^{-9}$ & 1.20486 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Inside a sector the transfer has a gap: at $w = 20$ ARPACK gives $\log(\lambda_1/|\lambda_3|) =
+1.082727$ per row. The odd-width corrections behave like $e^{-w/\xi_{\mathrm{odd}}} w^b$ with
+$1/\xi_{\mathrm{odd}} \approx 1.07$, close to this gap. All finite-size corrections of the king's
+model are thus exponentially small, the behaviour of a non-critical (gapped) dimer liquid. On the
+square lattice, which is critical, the corrections are algebraic, $(f_w - G/\pi)w^2 \to \pi/6$, and the
+same transfer-matrix extrapolation from $w \le 18$ yields only $G/\pi \pm 6\cdot10^{-8}$.
+
+\section{Checks on solvable lattices}\label{sec:checks}
+The transfer code has a switch for the square lattice (no diagonals) and the triangular lattice
+(one diagonal). Against brute-force enumeration of perfect matchings it agrees on all $90$ boards
+tested (king, triangular and square; free strips and cylinders; $w = 3, \dots, 6$, $h = 1, \dots, 4$).
+It reproduces the exact domicule counts of the repository for all square boards up to
+$18\times18$, for rectangles, and the $20\times20$ count.
+
+\emph{Square lattice.} The free-strip growth rates agree with the product formula
+$\prod(a + \sqrt{1 + a^2})$ and both cylinder sectors with the free-fermion formula to $10^{-16}$.
+
+\emph{Triangular lattice.} The triangular lattice is planar, and we found a Pfaffian orientation
+by a sign pattern periodic modulo $2$, checked against the exact counts on small boards and by
+$|\mathrm{Pf}| = Z$ on the $8\times8$, $10\times10$ and $12\times12$ boards ($1848358752$,
+$1852300296658080$, $57261989986381118073728$). Averaging the logarithm of the Bloch determinant
+over a $32\times32$ and a $64\times64$ grid of momenta gives the same value,
+\[
+  s_{\mathrm{tri}} = 0.428594537464959,
+\]
+and the transfer matrix on the cylinder of circumference $17$ gives $0.428594537464956$, a
+difference of $2.9\cdot10^{-15}$. The triangular dimer model was solved in \cite{fms2002}; this
+check only tests our code.
+
+\section{A log-convexity conjecture}\label{sec:L}
+
+\subsection{Statement and consequence}
+\begin{conjecture}[L]\label{conj:L}
+For every width $m \ge 1$ and every $q \ge 1$,
+$Z(2q, m)^2 \le Z(2q - 2, m)\, Z(2q + 2, m)$.
+\end{conjecture}
+
+Only a much weaker statement about the strip growth rates is needed:
+
+\smallskip\noindent\textbf{(L$_\infty$)} $q \mapsto a_{2q} = \log\lambda_{2q}$ is convex on
+$2q \ge 22$, i.e.\ $a_{2q+2} - 2a_{2q} + a_{2q-2} \ge 0$ for $2q \ge 24$.
+
+\begin{proposition}\label{prop:cond}
+(L) implies (L$_\infty$), and (L$_\infty$) implies $\underline s \ge 0.565511911035$.
+\end{proposition}
+\begin{proof}
+Under (L), $q \mapsto m^{-1}\log Z(2q, m)$ is convex for each $m$; by $Z(2q, m) = Z(m, 2q)$ and
+\eqref{eq:lambda}, it tends to $a_{2q}$ along even $m$, and a pointwise limit of convex sequences
+is convex. Under (L$_\infty$) the increments $b_q = a_{2q+2} - a_{2q}$ are nondecreasing for
+$q \ge 11$; since $a_{2q}/(2q) \to s^*$, they increase to $2s^*$, so $s^* \ge b_{11}/2$, and
+$\underline s \ge s^*$ by the proof of the lower bound. Finally $b_{11} \ge \log\lambda_{24}^{\mathrm{low}}
+- \log\lambda_{22}^{\mathrm{up}}$, with the certified lower bound for $w = 24$ (\S\ref{sec:float},
+minus $10^{-14}$ for the float storage of the per-site value) and a certified upper bound
+$\log\lambda_{22} \le 11.95722617139012$ from Lemma~\ref{lem:cwup} with $z = 0$. This gives
+$0.565511911035$.
+\end{proof}
+
+The gap between this bound and the estimate of $s$ is $5.7\cdot10^{-12}$: all $132$ candidates
+$(a_{2q+p} - a_{2q})/p$ with $2q \le 22$, $2q + p \le 24$ lie below $s$, the largest being
+$0.5655119110355926$ ($2q = 22$, $p = 2$). This is the Calkin--Wilf form of the lower bound
+\cite{calkinwilf1998}, whose standard proof via reflection positivity does not apply here
+(\S\ref{sec:obstructions}). The second differences of $a_{2q}$ are positive and decay
+geometrically up to $2q = 24$: $4.69\cdot10^{-5}$, $3.99\cdot10^{-6}$, $5.53\cdot10^{-7}$,
+$5.63\cdot10^{-8}$, $6.96\cdot10^{-9}$, $7.62\cdot10^{-10}$, $9.0\cdot10^{-11}$, $1.01\cdot10^{-11}$
+at $2q = 10, 12, \dots, 24$; so (L$_\infty$) holds at its first instance $2q = 24$, and beyond
+that it is extrapolation.
+
+\subsection{Evidence}
+Table~\ref{tab:L} summarises the tests of (L): exact integer counts by a transfer modulo several
+$60$-bit primes and the Chinese remainder theorem, and for $m = 25, 26$ an x87 computation with a
+rigorous rounding bound (each cell step writes a sum of at most five nonnegative terms, so the
+computed $Z$ is within a factor $(1+u)^{5mk}$, $u = 2^{-64}$; the smallest certified margin is
+$1.237\cdot10^{-10}$). The margin $\log Z(2q-2) + \log Z(2q+2) - 2\log Z(2q)$ decreases
+monotonically in $q$ for every $m$, by a ratio tending to $0.16$--$0.20$; there is no dip at
+intermediate $q$ and nothing that shrinks with $m$.
+
+\begin{table}[ht]
+\caption{Tests of (L), $Z(2q)^2 \le Z(2q-2)Z(2q+2)$; the row range shrinks as $m$ grows
+(\file{out\_ltest.txt}, \file{out\_lcert\_m25.txt}, \file{out\_lcert\_m26.txt}).}\label{tab:L}
+\begin{tabular}{lllrr}
+\toprule
+lattice, boundary & widths $m$ & rows $2q$ & cases & violations \\
+\midrule
+king, free     & $2$--$24$  & $\le 120$ to $\le 20$ & 873 & 0 \\
+king, cylinder & $3$--$22$  & $\le 80$ to $\le 22$  & 550 & 0 \\
+king, free (x87, certified) & $25, 26$ & $\le 28$ & 28 & 0 \\
+square, free / cylinder     & $\le 12$ & $\le 60$ & 319 / 290 & 0 / 0 \\
+triangular, cylinder        & $\le 12$ & $\le 60$ & 290 & 0 \\
+triangular, free            & $\le 12$ & $\le 60$ & 319 & \textbf{92} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Counterexamples in neighbouring models}
+(L) is not a general property of dimer models. On free triangular strips it fails from $m = 5$ on:
+$Z(6, 5) = 6475$, $Z(8, 5) = 210560$, $Z(10, 5) = 6842465$ and
+$210560^2 - 6475\cdot6842465 = 30552725 > 0$ (confirmed by brute force). On the king's graph with
+weights on the two diagonals (exact, $2q \le 38$): equal weights $x \in \{0, \tfrac14, \tfrac12, 1,
+2, 4, 10, 100\}$ give no violation for $m \le 9$; the weights $(1, \tfrac12)$ fail from $m = 5$ on
+($14$ of $19$ values of $q$ at $m = 5$), $(1, \tfrac34)$ fails at $m = 9$ ($5$ of $19$, first at
+$2q = 30$), while $(1, \tfrac{9}{10})$ and $(1, \tfrac{19}{20})$ show no violation for $m \le 16$,
+$2q \le 78$. The violations sit mostly at odd $m$ and large $q$, i.e.\ they come from an
+oscillating subleading eigenvalue, which we never saw with equal diagonal weights. A proof of (L)
+therefore cannot be uniform in the diagonal weights; the left--right symmetry of the king's graph
+is the natural ingredient. (L) is also specific to even row counts: for even $m$,
+$j \mapsto Z(2j + 1, m)$ is log-\emph{concave} in $217$ of $220$ tested cases.
+
+\subsection{Obstructions to standard proofs}\label{sec:obstructions}
+\emph{Reflection positivity} fails for every reflection line of the king lattice. Between rows a
+reflection maps one diagonal to the other, and the gluing form $M(A, B)$ (the crossing matchings of
+\S\ref{sec:bounds}) is indefinite: its smallest eigenvalue is $1 - \sqrt2$ already for columns of
+length $m = 3$, and the eigenvector $(1, -\sqrt2, 1)$ on $A = \{0\}, \{1\}, \{2\}$ is realised by
+actual three-row half-boards (with weights $10, 4, 10$). Through a line of vertices the kernel is
+$[U \ne D]$ with eigenvalues $\pm1$. The transfer is not symmetric ($w = 3$:
+$T[\emptyset \to \{1\}] = 2$, $T[\{1\} \to \emptyset] = 0$).
+\emph{Moment sequences.} If $Z(2q, m)$ were a Stieltjes moment sequence, (L) would follow; but
+$e_0$-visible eigenvalues of $T^2$ are non-real or negative from $m = 3$ on (small, at most
+$0.047\,\lambda_1^2$ in modulus at $m = 10$), and the Hankel matrices have negative minors.
+\emph{Total nonnegativity} of the transfer fails for the same reason, and the
+Lindstr\"om--Gessel--Viennot lemma needs a planar path model that the crossing diagonals do not
+provide.
+
+\subsection{Reformulations}
+Superpose a matching $X$ of rows $[0, 2q)$ with a matching $Y$ of rows $[2, 2q+2)$ ($Z(2q)^2$
+pairs), or $X'$ of $[0, 2q+2)$ with $Y'$ of $[2, 2q)$ ($Z(2q+2)Z(2q-2)$ pairs). The union $H$ has
+degree one on the top rows $\{0, 1\}$ and the bottom rows $\{2q, 2q+1\}$ and degree two in between,
+so it consists of paths and even cycles. In the first case top--top and bottom--bottom paths have
+odd length and top--bottom (TB) paths even length; in the second all paths are odd. Each $H$ has
+$2^{c(H)}$ labelings, $c(H)$ the number of cycles of length at least four, so
+\[
+  Z(2q-2)Z(2q+2) - Z(2q)^2 = \sum_{H:\,t(H) \ge 1} 2^{c(H)}
+  \bigl([\text{all TB paths odd}] - [\text{all TB paths even}]\bigr),
+\]
+where $t(H)$ is the number of TB paths. We checked this identity pair by pair for small
+$(m, q)$ (up to $3.4\cdot10^{6}$ pairs). The odd configurations win separately for every $t$
+(e.g.\ $m = 5$, $q = 2$: $t = 2$: $1847660$ against $912656$; $t = 4$: $32616$ against $0$). So (L)
+asks for a sign-reversing injection that flips the parity of all top--bottom paths; by the
+counterexamples above it must use the geometry of the king lattice. Equivalently, cutting the
+board in the middle, (L) says that the indefinite form $M$ is positive semidefinite on the span of
+two boundary vectors $u_{q-1}, u_{q+1}$ of half-boards.
+
+\begin{problem}
+Prove (L), or at least (L$_\infty$), for the king's graph. Either would make the lower bound
+$s \ge 0.565511911035$ a theorem. Any proof must distinguish the king's graph from the triangular
+lattice and from the king's graph with unequal diagonal weights.
+\end{problem}
+
+\section{Reproducibility}\label{sec:repro}
+All code and outputs are in the repository
+\begin{center}
+\url{https://github.com/dawidrylko/domino-tiling},
+\end{center}
+branch \texttt{d/king-entropy}, directory \texttt{research/king-entropy/}. The scripts need
+Python~3.13 with numpy~2.5.3, mpmath~1.4.1 and scipy~1.18.1, as pinned in
+\file{requirements.txt}. Every number in this paper is listed in \file{paper/NUMBERS.md},
+with the committed output file it is read from and the command that wrote that file. The main commands, run from that directory:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+command & output \\
+\midrule
+\texttt{python3 tm2.py king cyl 3 13}, \texttt{\dots\ 14 19} & \file{sec\_king\_cyl\_*.json} \\
+\texttt{python3 cylw.py king cyl \textit{w} \textit{p}}, $w = 20, \dots, 25$ & \file{eig\_king\_cyl\_w*\_p*.json} \\
+\texttt{python3 estimate.py} & \file{out\_estimate.txt}, \file{z2.json} \\
+\texttt{python3 errbar.py} & \file{out\_errbar.txt} \\
+\texttt{python3 bounds.py 24} & \file{out\_bounds.txt}, \file{bounds.json} \\
+\texttt{python3 audit\_bounds.py} & \file{out\_audit\_bounds.txt} \\
+\texttt{python3 surface.py} & \file{out\_surface.txt} \\
+\texttt{python3 cw.py} & \file{out\_cw.txt} \\
+\texttt{python3 zexact.py \dots}; \texttt{python3 ltest.py} & \file{zex\_*.json}, \file{out\_ltest.txt} \\
+\texttt{python3 lcert.py 25 30}, \texttt{\dots\ 26 30} & \file{out\_lcert\_m25.txt}, \dots \\
+\texttt{python3 lweight.py} [\texttt{big}] & \file{out\_lweight*.txt} \\
+\texttt{python3 validate.py}; \texttt{python3 crosscheck.py} & \file{out\_validate.txt}, \dots \\
+\texttt{python3 paper/derived.py} & \file{paper/out\_derived.txt} \\
+\bottomrule
+\end{tabular}
+\end{center}
+The outputs were produced in a container with four cores and $15.7$\,GiB of memory. The widest
+runs dominate the cost: the cylinder $w = 25$ ($8.4$\,GiB, $22.5$ min), the certified bounds at
+$w = 24$ ($22$ min), and the certified (L) tests at $m = 26$ ($8.0$\,GiB, $43$ min). The script
+\file{repro.py} re-runs the first-round scripts from a clean export of the repository and
+compares their outputs byte for byte.
+
+\bibliographystyle{amsplain}
+\bibliography{refs}
+
+\end{document}
