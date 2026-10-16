@@ -1,1 +1,11 @@
 king cyl w=25 p=1 longdouble it=0 est=14.301668793276151388 t=175.9s
+king cyl w=25 p=1 longdouble it=1 est=14.154003193600832472 t=171.7s
+king cyl w=25 p=1 longdouble it=2 est=14.139642013342191188 t=170.5s
+king cyl w=25 p=1 longdouble it=3 est=14.138009550801871545 t=171.6s
+king cyl w=25 p=1 longdouble it=4 est=14.137822086827186614 t=174.2s
+king cyl w=25 p=1 longdouble it=5 est=14.137800565422491369 t=172.6s
+king cyl w=25 p=1 longdouble it=6 est=14.137798096012841122 t=171.1s
+king cyl w=25 p=1 longdouble it=7 est=14.137797812735755247 t=169.5s
+king cyl w=25 p=1 longdouble it=8 est=14.137797780242767853 t=169.1s
+king cyl w=25 p=1 longdouble it=9 est=14.137797776515822383 t=168.8s
+king cyl w=25 p=1 longdouble it=10 est=14.137797776088347068 t=172.4s
