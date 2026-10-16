@@ -1,0 +1,24 @@
+king free w=26 p=- float64 it=0 est=17.8296823856883 t=63.7s
+king free w=26 p=- float64 it=1 est=14.429262234654495 t=61.7s
+king free w=26 p=- float64 it=2 est=14.243757892989848 t=61.9s
+king free w=26 p=- float64 it=3 est=14.222349574203378 t=61.5s
+king free w=26 p=- float64 it=4 est=14.219684044948524 t=62.2s
+king free w=26 p=- float64 it=5 est=14.21933130821082 t=62.5s
+king free w=26 p=- float64 it=6 est=14.219282342222796 t=60.4s
+king free w=26 p=- float64 it=7 est=14.21927514722878 t=60.1s
+king free w=26 p=- float64 it=8 est=14.219274033395997 t=60.5s
+king free w=26 p=- float64 it=9 est=14.219273852537116 t=61.8s
+king free w=26 p=- float64 it=10 est=14.219273822008569 t=62.7s
+king free w=26 p=- float64 it=11 est=14.219273816696798 t=61.2s
+king free w=26 p=- float64 it=12 est=14.219273815751544 t=62.3s
+king free w=26 p=- float64 it=13 est=14.21927381558054 t=63.0s
+king free w=26 p=- float64 it=14 est=14.219273815549233 t=62.4s
+king free w=26 p=- float64 it=15 est=14.21927381554345 t=62.0s
+king free w=26 p=- float64 it=16 est=14.219273815542376 t=62.1s
+king free w=26 p=- float64 it=17 est=14.219273815542175 t=61.8s
+king free w=26 p=- float64 it=18 est=14.219273815542136 t=62.5s
+king free w=26 p=- float64 it=19 est=14.21927381554213 t=62.2s
+king free w=26 p=- float64 it=20 est=14.21927381554213 t=62.9s
+king free w=26 p=- float64 it=21 est=14.219273815542127 t=63.7s
+king free w=26 p=- float64 it=22 est=14.219273815542127 t=62.9s
+{"lattice": "king", "bc": "free", "w": 26, "parity": "-", "dtype": "float64", "converged": true, "iterations": 23, "tol": 6.927791673660977e-15, "log_lambda": "14.219273815542127437084", "sec_per_iteration": 62.1947979927063, "cw_log_lambda": ["14.219273815542127437084", "14.219273815542129213441"], "support_closed": true, "wall": 1513.0361740589142, "maxrss_mib": 8732.5703125, "commit": "2f3664b", "cmd": "python3 lean.py king free 26 - float64 cw"}
