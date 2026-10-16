@@ -10,3 +10,14 @@ king cyl w=25 p=1 longdouble it=8 est=14.137797780242767853 t=169.1s
 king cyl w=25 p=1 longdouble it=9 est=14.137797776515822383 t=168.8s
 king cyl w=25 p=1 longdouble it=10 est=14.137797776088347068 t=172.4s
 king cyl w=25 p=1 longdouble it=11 est=14.137797776039316482 t=169.3s
+king cyl w=25 p=1 longdouble it=12 est=14.137797776033692778 t=168.9s
+king cyl w=25 p=1 longdouble it=13 est=14.137797776033047752 t=173.9s
+king cyl w=25 p=1 longdouble it=14 est=14.137797776032973769 t=170.0s
+king cyl w=25 p=1 longdouble it=15 est=14.137797776032965284 t=169.3s
+king cyl w=25 p=1 longdouble it=16 est=14.13779777603296431 t=167.1s
+king cyl w=25 p=1 longdouble it=17 est=14.1377977760329641985 t=169.4s
+king cyl w=25 p=1 longdouble it=18 est=14.1377977760329641855 t=167.0s
+king cyl w=25 p=1 longdouble it=19 est=14.137797776032964184 t=167.1s
+king cyl w=25 p=1 longdouble it=20 est=14.137797776032964184 t=168.1s
+king cyl w=25 p=1 longdouble it=21 est=14.137797776032964184 t=169.6s
+{"lattice": "king", "bc": "cyl", "w": 25, "parity": 1, "dtype": "longdouble", "converged": true, "iterations": 22, "tol": 3.2526065174565133e-18, "log_lambda": "14.137797776032964183757", "sec_per_iteration": 169.536478638649, "wall": 3751.2298102378845, "maxrss_mib": 8258.73828125, "commit": "a76f8b5", "cmd": "python3 lean.py king cyl 25 1 longdouble"}

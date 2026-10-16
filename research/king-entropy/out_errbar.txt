@@ -37,6 +37,8 @@
   sec0 W=24: G 4.64e-13, PE -1.2e-14, PE6 -1.36e-13, R1 -2.46e-14, R2 2.27e-14, 2E 5.12e-14, WY 1.61e-14, WY- 1.71e-14
   sec1 W=24: G -4.31e-13, PE -5.74e-15, PE6 9.64e-15, R1 4.69e-15, R2 -1.78e-14, 2E -4.28e-14, WY -1.28e-14, WY- -1.29e-14
   odd W=25, models G, PE, PE6, R1, R2, 2E: min 0.56551191104132526, max 0.56551191104132537, spread 1.01e-16
+  models passing their backtest (< 5e-16): odd PE, odd PE6, odd R1, odd R2, odd 2E, odd WY, odd WY-, mid PE, mid R1, mid R2, mid 2E, mid WY, mid WY-
+  their range [0.5655119110413252, 0.56551191104132547]: centre 0.56551191104132534, half-width 1.3e-16
   backtest, |s_model(W) - s_model(25)| for the odd sequence:
     G   : W=19 1.65e-13, W=21 1.32e-14, W=23 1.05e-15
     PE  : W=19 2.27e-15, W=21 1.71e-16, W=23 3.13e-17
@@ -51,5 +53,14 @@
   w=17 p=1: float64 - longdouble = 2.15e-16 in log lambda, 1.27e-17 per site
   w=19 p=1: float64 - longdouble = 7.77e-16 in log lambda, 4.09e-17 per site
   w=21 p=1: float64 - longdouble = 1.83e-16 in log lambda, 8.71e-18 per site
+  w=23 p=1: float64 - longdouble = -5.72e-17 in log lambda, -2.49e-18 per site
+  w=25 p=1: float64 - longdouble = 7.63e-16 in log lambda, 3.05e-17 per site
   max per-site rounding error seen: 4.09e-17
   d s_G / d f_w: w=21 0.01237, w=23 -0.2472, w=25 1.235; sum |.| = 1.494
+  G estimate from the longdouble values of w = 21, 23, 25: 0.565511911041325226
+    PE: 0.56551191104132532
+    R1: 0.565511911041325322
+    R2: 0.565511911041325319
+    2E: 0.565511911041325314
+
+== RECOMMENDATION: s = 0.5655119110413253 +- 6.0e-16  (3 x (model half-width + rounding 4.1e-17 per site x sum|ds/df| 1.49)); session 1: +- 3.9e-15
