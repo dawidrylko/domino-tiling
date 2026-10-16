@@ -1,0 +1,36 @@
+  shift 2, m=2 q=1: Z(2q)^2 = 9, Z(2q+sh) Z(2q-sh) = 11; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 2 = sum_t>=1 (odd - even) = 2: True
+      t (TB paths): t=0: even 9, odd 9  t=2: even 0, odd 2
+  shift 2, m=2 q=2: Z(2q)^2 = 121, Z(2q+sh) Z(2q-sh) = 129; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 8 = sum_t>=1 (odd - even) = 8: True
+      t (TB paths): t=0: even 121, odd 121  t=2: even 0, odd 8
+  shift 2, m=2 q=3: Z(2q)^2 = 1849, Z(2q+sh) Z(2q-sh) = 1881; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 32 = sum_t>=1 (odd - even) = 32: True
+      t (TB paths): t=0: even 1849, odd 1849  t=2: even 0, odd 32
+  shift 2, m=2 q=4: Z(2q)^2 = 29241, Z(2q+sh) Z(2q-sh) = 29369; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 128 = sum_t>=1 (odd - even) = 128: True
+      t (TB paths): t=0: even 29241, odd 29241  t=2: even 0, odd 128
+  shift 2, m=3 q=1: Z(2q)^2 = 25, Z(2q+sh) Z(2q-sh) = 43; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 18 = sum_t>=1 (odd - even) = 18: True
+      t (TB paths): t=0: even 25, odd 25  t=2: even 0, odd 18
+  shift 2, m=3 q=2: Z(2q)^2 = 1849, Z(2q+sh) Z(2q-sh) = 2255; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 406 = sum_t>=1 (odd - even) = 406: True
+      t (TB paths): t=0: even 1655, odd 1655  t=2: even 194, odd 600
+  shift 2, m=3 q=3: Z(2q)^2 = 203401, Z(2q+sh) Z(2q-sh) = 212635; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 9234 = sum_t>=1 (odd - even) = 9234: True
+      t (TB paths): t=0: even 186191, odd 186191  t=2: even 17210, odd 26444
+  shift 2, m=4 q=1: Z(2q)^2 = 121, Z(2q+sh) Z(2q-sh) = 280; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 159 = sum_t>=1 (odd - even) = 159: True
+      t (TB paths): t=0: even 121, odd 121  t=2: even 0, odd 154  t=4: even 0, odd 5
+  shift 2, m=4 q=2: Z(2q)^2 = 78400, Z(2q+sh) Z(2q-sh) = 103565; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 25165 = sum_t>=1 (odd - even) = 25165: True
+      t (TB paths): t=0: even 61854, odd 61854  t=2: even 16546, odd 41586  t=4: even 0, odd 125
+  shift 2, m=5 q=2: Z(2q)^2 = 2442969, Z(2q+sh) Z(2q-sh) = 3410589; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = 967620 = sum_t>=1 (odd - even) = 967620: True
+      t (TB paths): t=0: even 1530313, odd 1530313  t=2: even 912656, odd 1847660  t=4: even 0, odd 32616
+
+control geometry, shift by one row (odd row counts, even m; Z(2j+1) is log-CONCAVE there):
+  shift 1, m=2 q=1: Z(2q)^2 = 9, Z(2q+sh) Z(2q-sh) = 5; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -4 = sum_t>=1 (odd - even) = -4: True
+      t (TB paths): t=0: even 5, odd 5  t=2: even 4, odd 0
+  shift 1, m=2 q=2: Z(2q)^2 = 121, Z(2q+sh) Z(2q-sh) = 105; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -16 = sum_t>=1 (odd - even) = -16: True
+      t (TB paths): t=0: even 105, odd 105  t=2: even 16, odd 0
+  shift 1, m=2 q=3: Z(2q)^2 = 1849, Z(2q+sh) Z(2q-sh) = 1785; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -64 = sum_t>=1 (odd - even) = -64: True
+      t (TB paths): t=0: even 1785, odd 1785  t=2: even 64, odd 0
+  shift 1, m=2 q=4: Z(2q)^2 = 29241, Z(2q+sh) Z(2q-sh) = 28985; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -256 = sum_t>=1 (odd - even) = -256: True
+      t (TB paths): t=0: even 28985, odd 28985  t=2: even 256, odd 0
+  shift 1, m=4 q=1: Z(2q)^2 = 121, Z(2q+sh) Z(2q-sh) = 43; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -78 = sum_t>=1 (odd - even) = -78: True
+      t (TB paths): t=0: even 29, odd 29  t=2: even 67, odd 14  t=4: even 25, odd 0
+  shift 1, m=4 q=2: Z(2q)^2 = 78400, Z(2q+sh) Z(2q-sh) = 67209; parities as claimed: True; labelings per H = 2^c: True; t=0 classes equal: True; D = -11191 = sum_t>=1 (odd - even) = -11191: True
+      t (TB paths): t=0: even 45525, odd 45525  t=2: even 32250, odd 21684  t=4: even 625, odd 0
+
+all checks passed: True

@@ -1,0 +1,2 @@
+# cmd: python3 lparity.py
+# exit=0 wall=297.5s user=266.0s maxrss=1173MiB
