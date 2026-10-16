@@ -21,10 +21,10 @@ def sha():
                           capture_output=True, text=True).stdout.strip()
 
 
-def main():
-    lat, bc, w, p = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
-    tol = float(sys.argv[5]) if len(sys.argv) > 5 else 4e-15
-    maxit = 400
+def sector_eig(lat, bc, w, p, tol=4e-15, maxit=400, log=None):
+    """Power iteration on T^2 restricted to parity sector p. Returns a dict."""
+    t0 = time.time()
+    commit = sha()
     nb = nbits(w, bc)
     pc = np.bitwise_count(np.arange(1 << w, dtype=np.uint64)) & 1
     rng = np.random.default_rng(7)
@@ -32,7 +32,6 @@ def main():
     v[: 1 << w] = (rng.random(1 << w) + 0.5) * (pc == p)
     v /= v.sum()
     hist, tit = [], []
-    t0 = time.time()
     ok = 0
     for it in range(maxit):
         t = time.time()
@@ -41,27 +40,33 @@ def main():
         v /= s
         hist.append(float(np.log(s) / 2))
         tit.append(time.time() - t)
-        print(f'{lat} {bc} w={w} p={p} it={it} est={hist[-1]:.16f} t={tit[-1]:.2f}s', flush=True)
+        if log:
+            print(f'{lat} {bc} w={w} p={p} it={it} est={hist[-1]:.16f} t={tit[-1]:.2f}s', file=log, flush=True)
         if it and abs(hist[-1] - hist[-2]) < tol:
             ok += 1
             if ok >= 3:
                 break
         else:
             ok = 0
-    converged = ok >= 3
     y = row(row(v, lat, bc, w), lat, bc, w)
     assert not y[1 << w:].any() and not v[1 << w:].any()
     sup = v > 0
     r = y[sup] / v[sup]
     lam2 = float(y.sum())                 # v sums to 1
-    res = float(np.abs(y / lam2 - v).sum())
-    out = dict(lattice=lat, bc=bc, w=w, parity=p, log_lambda=hist[-1], per_site=hist[-1] / w,
-               converged=converged, iterations=len(hist), tol=tol, history=hist,
-               cw_log_lambda=[float(np.log(r.min()) / 2), float(np.log(r.max()) / 2)],
-               support=int(sup.sum()), residual_l1=res,
-               sec_per_iteration=float(np.median(tit)), wall=time.time() - t0,
-               maxrss_mib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
-               commit=sha(), cmd='python3 cylw.py ' + ' '.join(sys.argv[1:]))
+    return dict(lattice=lat, bc=bc, w=w, parity=p, log_lambda=hist[-1], per_site=hist[-1] / w,
+                converged=ok >= 3, iterations=len(hist), tol=tol, history=hist,
+                cw_log_lambda=[float(np.log(r.min()) / 2), float(np.log(r.max()) / 2)],
+                support=int(sup.sum()), residual_l1=float(np.abs(y / lam2 - v).sum()),
+                sec_per_iteration=float(np.median(tit)), wall=time.time() - t0,
+                maxrss_mib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
+                commit=commit)
+
+
+def main():
+    lat, bc, w, p = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+    tol = float(sys.argv[5]) if len(sys.argv) > 5 else 4e-15
+    out = sector_eig(lat, bc, w, p, tol, log=sys.stdout)
+    out['cmd'] = 'python3 cylw.py ' + ' '.join(sys.argv[1:])
     print(json.dumps({k: out[k] for k in out if k != 'history'}), flush=True)
     json.dump(out, open(f'eig_{lat}_{bc}_w{w}_p{p}.json', 'w'), indent=1)
 
