@@ -1,0 +1,23 @@
+king cyl w=15 p=1 longdouble it=0 est=8.583784198597177457 t=0.1s
+king cyl w=15 p=1 longdouble it=1 est=8.492603948793755056 t=0.1s
+king cyl w=15 p=1 longdouble it=2 est=8.483805727691630495 t=0.1s
+king cyl w=15 p=1 longdouble it=3 est=8.482808060513902344 t=0.1s
+king cyl w=15 p=1 longdouble it=4 est=8.4826935095468252515 t=0.1s
+king cyl w=15 p=1 longdouble it=5 est=8.482680359085640358 t=0.1s
+king cyl w=15 p=1 longdouble it=6 est=8.482678850217966139 t=0.1s
+king cyl w=15 p=1 longdouble it=7 est=8.482678677132442621 t=0.1s
+king cyl w=15 p=1 longdouble it=8 est=8.4826786572790701954 t=0.1s
+king cyl w=15 p=1 longdouble it=9 est=8.482678655001899807 t=0.1s
+king cyl w=15 p=1 longdouble it=10 est=8.482678654740712175 t=0.1s
+king cyl w=15 p=1 longdouble it=11 est=8.482678654710754489 t=0.1s
+king cyl w=15 p=1 longdouble it=12 est=8.4826786547073184065 t=0.1s
+king cyl w=15 p=1 longdouble it=13 est=8.4826786547069242955 t=0.1s
+king cyl w=15 p=1 longdouble it=14 est=8.482678654706879092 t=0.1s
+king cyl w=15 p=1 longdouble it=15 est=8.482678654706873908 t=0.1s
+king cyl w=15 p=1 longdouble it=16 est=8.482678654706873313 t=0.1s
+king cyl w=15 p=1 longdouble it=17 est=8.482678654706873244 t=0.1s
+king cyl w=15 p=1 longdouble it=18 est=8.4826786547068732365 t=0.1s
+king cyl w=15 p=1 longdouble it=19 est=8.482678654706873236 t=0.1s
+king cyl w=15 p=1 longdouble it=20 est=8.482678654706873236 t=0.1s
+king cyl w=15 p=1 longdouble it=21 est=8.482678654706873236 t=0.1s
+{"lattice": "king", "bc": "cyl", "w": 15, "parity": 1, "dtype": "longdouble", "converged": true, "iterations": 22, "tol": 1.951563910473908e-18, "log_lambda": "8.482678654706873235675", "sec_per_iteration": 0.05863606929779053, "cw_log_lambda": ["8.482678654706873235675", "8.482678654706873235675"], "support_closed": true, "wall": 1.3984932899475098, "maxrss_mib": 51.28125, "commit": "54a78ac", "cmd": "python3 lean.py king cyl 15 1 longdouble cw"}
