@@ -148,6 +148,7 @@ computation from the listed values, done in `paper/derived.py` unless stated oth
 | --- | --- | --- |
 | 0.565511911035, 5.7·10⁻¹², 132 candidates, 0.5655119110355926 | `out_cw.txt` (sections D, E; 5.73e-12 rounded) | `cw.py` |
 | 4.69e-5 … 1.01e-11 (second differences) | `paper/out_derived.txt` | `paper/derived.py` (from `surface.json`) |
+| float error about 10⁻¹⁵ of those inputs | `L-NOTE.md` §0; Collatz-Wielandt spreads ≤ 1.6e-15 in `out_bounds.txt` | `bounds.py 24` |
 | 1.237·10⁻¹⁰ | `out_lcert_m25.txt` (2q = 28) | `lcert.py 25 30` |
 | ratio 0.16–0.20 | `out_ltest.txt` (`last ratio`, king free m ≥ 13: 0.1631 … 0.1945) | `ltest.py` |
 | Table 6 | `out_ltest.txt` (totals and K per m), `out_lcert_m25.txt`, `out_lcert_m26.txt` | `ltest.py`, `lcert.py` |
