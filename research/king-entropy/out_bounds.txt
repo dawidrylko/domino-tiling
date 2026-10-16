@@ -50,3 +50,27 @@
 21  0.589174418884    18  1.1e-15  (27s)
 22  0.588098850346    18  1.2e-15  (74s)
 23  0.587116809507    18  1.1e-15  (164s)
+24  0.586216605404    18  1.2e-15  (340s)
+
+BEST CERTIFIED: 0.545343749727 <= s <= 0.586216605404   (lower from w=24, upper from w=24)
+
+== Calkin-Wilf lower bound s >= (log lambda_{2q+p} - log lambda_{2q}) / p: its hypothesis
+The proof needs Z(2q+p, m) = <g, X g>, Z(2q, m) = <g, G g> with a symmetric gluing form G >= 0
+(for symmetric row transfer T: G = 1, g = T^q e0). Checks:
+  (a) w=3 free row transfer, state = cells of the row already covered: T[{} -> {1}] = 2, T[{1} -> {}] = 0; max|T - T^t| = 2  -> not symmetric
+  (b) column length m=2: min eig of edge-cut gluing M = +0.0000, of vertex-cut gluing V = -1.0000
+  (b) column length m=3: min eig of edge-cut gluing M = -0.4142, of vertex-cut gluing V = -1.9319
+  (b) column length m=4: min eig of edge-cut gluing M = -0.6180, of vertex-cut gluing V = -2.0953
+  (b) column length m=5: min eig of edge-cut gluing M = -0.9909, of vertex-cut gluing V = -3.5417
+  (b) column length m=6: min eig of edge-cut gluing M = -1.7842, of vertex-cut gluing V = -4.0489
+      M < 0 already for m=3 (the tridiagonal 1-1-1 block, 1 - sqrt 2): the diagonal crossing edges
+      are mapped to the other diagonal by the reflection, so neither natural cut is reflection positive.
+  (c) finite-size CW inequality Z(2q+p, m) <= lambda_m^p Z(2q, m), m=2..12, q=1..8, p=1..4: 0 violations in 352 cases (max of log LHS - log RHS = -2.567e-07)
+  CW candidates (log lambda_{2q+p} - log lambda_{2q})/p from free strips (NOT certified):
+    2q=20 p=1: 0.5655119108884
+    2q=20 p=2: 0.5655119109906
+    2q=20 p=3: 0.5655119110017
+    2q=20 p=4: 0.5655119110131
+    2q=22 p=1: 0.5655119110240
+    2q=22 p=2: 0.5655119110356
+  largest candidate 0.5655119110356; compare the cylinder estimate in out_estimate.txt

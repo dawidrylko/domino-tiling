@@ -1,0 +1,2 @@
+# cmd: python3 -u bounds.py 24
+# exit=0 wall=1326.3s user=1101.3s maxrss=3040MiB
