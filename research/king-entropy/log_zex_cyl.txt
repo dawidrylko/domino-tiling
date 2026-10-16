@@ -211,3 +211,4 @@ king cyl m=21 K=22 prime 7/8 134.5s
 king cyl m=21 K=22 prime 8/8 137.1s
 done 962s
 king cyl m=22 K=22 prime 1/8 318.1s
+king cyl m=22 K=22 prime 2/8 235.6s

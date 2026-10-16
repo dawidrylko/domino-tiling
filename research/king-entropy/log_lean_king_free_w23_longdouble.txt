@@ -18,3 +18,11 @@ king free w=23 p=- longdouble it=16 est=12.522738082413816529 t=19.9s
 king free w=23 p=- longdouble it=17 est=12.522738082413615807 t=19.9s
 king free w=23 p=- longdouble it=18 est=12.522738082413578136 t=19.1s
 king free w=23 p=- longdouble it=19 est=12.522738082413571043 t=19.0s
+king free w=23 p=- longdouble it=20 est=12.522738082413569703 t=19.0s
+king free w=23 p=- longdouble it=21 est=12.52273808241356945 t=18.9s
+king free w=23 p=- longdouble it=22 est=12.5227380824135694016 t=19.2s
+king free w=23 p=- longdouble it=23 est=12.522738082413569393 t=19.1s
+king free w=23 p=- longdouble it=24 est=12.522738082413569391 t=18.7s
+king free w=23 p=- longdouble it=25 est=12.522738082413569391 t=19.3s
+king free w=23 p=- longdouble it=26 est=12.52273808241356939 t=19.2s
+{"lattice": "king", "bc": "free", "w": 23, "parity": "-", "dtype": "longdouble", "converged": true, "iterations": 27, "tol": 2.992397996059992e-18, "log_lambda": "12.522738082413569390278", "sec_per_iteration": 19.282427310943604, "wall": 524.1510059833527, "maxrss_mib": 1051.89453125, "commit": "a045f8f", "cmd": "python3 lean.py king free 23 - longdouble"}
