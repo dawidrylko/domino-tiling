@@ -4,7 +4,7 @@
 (Z(k, m) = perfect matchings of the k × m king board). Session 1: (L) ⇒ Calkin–Wilf for even p
 ⇒ s ≥ 0.565511911035 (`CW-NOTE.md`, audited in `PROOF-lower.md` §6).
 
-**Status: NIEROZSTRZYGNIĘTE.** No counterexample (exact, much larger range than session 1), no
+**Status: UNRESOLVED.** No counterexample (exact, much larger range than session 1), no
 proof. Five proof routes closed with explicit obstructions; two exact reformulations; two
 control experiments showing that (L) is *not* a generic property: it fails on the triangular
 lattice and when the two diagonals of the king lattice get clearly unequal weights ((1, ½),

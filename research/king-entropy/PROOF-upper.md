@@ -5,7 +5,7 @@ Claim under audit (`REPORT-session1.md`, `bounds.py 24` → `out_bounds.txt`):
 > **s ≤ log(μ₂₄)/24 ≤ 0.586216605404**, where μ_w is the growth rate of a free strip of
 > width w whose side cells may be "covered from outside" with weight z = √φ.
 
-**Verdict: POTWIERDZONE (confirmed).** Every step below was checked; the two inequalities
+**Verdict: CONFIRMED.** Every step below was checked; the two inequalities
 the proof rests on were tested exactly on small boards and the float certificate was
 recomputed in exact rational arithmetic (`audit_bounds.py` → `out_audit_bounds.txt`,
 commit `0c53f27`, 0 failures). Caveats at the end (§8).

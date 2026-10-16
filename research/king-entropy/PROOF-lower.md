@@ -4,7 +4,7 @@ Claim under audit (`REPORT-session1.md`, `bounds.py 24` → `out_bounds.txt`):
 
 > **s ≥ log(λ₂₄)/24 ≥ 0.545343749727**, λ_w = growth rate of the free king strip of width w.
 
-**Verdict: POTWIERDZONE (confirmed).** Superadditivity is elementary; the float
+**Verdict: CONFIRMED.** Superadditivity is elementary; the float
 Collatz–Wielandt certificate was recomputed in exact rational arithmetic for w ≤ 12 and the
 rounding argument holds for every w (`audit_bounds.py` → `out_audit_bounds.txt`, commit
 `0c53f27`, 0 failures). Same notation as `PROOF-upper.md` §0.
@@ -65,7 +65,7 @@ Audited as well, because it is the number session 1 advertises:
   lower bound stored as a float in `bounds.json`) − 10⁻¹⁴ (covers the float storage,
   ≤ 24 · 0.5 ulp ≈ 1.3·10⁻¹⁵) and log λ₂₂^{up} from the upper Collatz–Wielandt certificate
   (`cw.growth_upper`, same rounding margin, `PROOF-upper.md` §5–6 with z = 0). **Correct.**
-- Status: conditional on an unproven hypothesis — NIEROZSTRZYGNIĘTE, see `L-NOTE.md`.
+- Status: conditional on an unproven hypothesis — UNRESOLVED, see `L-NOTE.md`.
 
 ## 7. Caveats
 
