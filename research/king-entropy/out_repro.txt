@@ -1,2 +1,8 @@
 HEAD 167f49a; SHAs cited by session 1 missing from the repository: 11 of 11: d817805 9fc8b21 ff18169 2f65f6b 99cb918 5cfb175 49a8c11 f4de76a c7d22f4 c46657a 6377e1e
 [SAME] python3 estimate.py  vs out_estimate.txt  (sha1 3e8e523704f4)
+[SAME] python3 cw.py        vs out_cw.txt  (sha1 a06bf6d1b669)
+[SAME] python3 bounds.py 16 vs out_bounds.txt, section "Fekete", w <= 16  (sha1 6f43b23ec44f)
+[SAME] python3 bounds.py 16 vs out_bounds.txt, section "open-strip", w <= 16  (sha1 a9aab9c832e2)
+[SAME] python3 cylw.py king cyl 20 0 vs eig_king_cyl_w20_p0.json: all 19 iterates bit-identical, log lambda = 11.310238237734925
+
+all reproduced: True
