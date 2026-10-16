@@ -1,0 +1,2 @@
+# cmd: bash /tmp/claude-0/-home-user-domino-tiling/ea41c60c-86d6-5112-9432-cee6cbf53a30/scratchpad/runL_free.sh
+# exit=0 wall=6135.4s user=5223.3s maxrss=1562MiB

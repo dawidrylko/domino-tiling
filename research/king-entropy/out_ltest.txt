@@ -21,7 +21,10 @@
   19  36    17   0          6.8    7.798e-13 (2q= 34)   True    0.1862    H0:-/10  H1:4/9
   20  36    17   0        7.197    7.777e-13 (2q= 34)   True    0.1859    H0:9/10  H1:4/9
   21  24    11   0        7.594     2.119e-8 (2q= 22)   True     0.174    H0:-/7  H1:4/6
-  total: 0 violations in 844 cases (exact integers)
+  22  24    11   0        7.992     2.128e-8 (2q= 22)   True    0.1737    H0:-/7  H1:4/6
+  23  20     9   0        8.389     7.347e-7 (2q= 18)   True    0.1636    H0:-/6  H1:4/5
+  24  20     9   0        8.786     7.416e-7 (2q= 18)   True    0.1631    H0:-/6  H1:4/5
+  total: 0 violations in 873 cases (exact integers)
 
 == king cyl: (L) exact, Z(2q)^2 <= Z(2q-2) Z(2q+2)
    m   K  cases viol  margin at 2q=2   min margin (at 2q)  decreasing  last ratio   Hankel minors: first negative/size
@@ -43,7 +46,9 @@
   18  40    19   0        6.434      4.8e-17 (2q= 38)   True    0.1147    H0:-/11  H1:8/10
   19  28    13   0         6.83    2.225e-11 (2q= 26)   True    0.1147    H0:-/8  H1:-/7
   20  28    13   0        7.226    2.342e-11 (2q= 26)   True    0.1147    H0:-/8  H1:-/7
-  total: 0 violations in 530 cases (exact integers)
+  21  22    10   0        7.622      1.63e-8 (2q= 20)   True    0.1147    H0:-/6  H1:-/6
+  22  22    10   0        8.018     1.708e-8 (2q= 20)   True    0.1147    H0:-/6  H1:-/6
+  total: 0 violations in 550 cases (exact integers)
 
 == tri free: (L) exact, Z(2q)^2 <= Z(2q-2) Z(2q+2)
    m   K  cases viol  margin at 2q=2   min margin (at 2q)  decreasing  last ratio   Hankel minors: first negative/size

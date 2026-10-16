@@ -310,3 +310,5 @@ king free m=24 K=20 prime 4/8 313.0s
 king free m=24 K=20 prime 5/8 313.0s
 king free m=24 K=20 prime 6/8 313.7s
 king free m=24 K=20 prime 7/8 317.9s
+king free m=24 K=20 prime 8/8 319.1s
+done 2521s
