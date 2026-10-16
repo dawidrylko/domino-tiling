@@ -15,3 +15,31 @@
 # m=25 k=15 Z~=0.0
 # m=25 k=16 Z~=6.00395095691296528187e+89
 # m=25 k=17 Z~=0.0
+# m=25 k=18 Z~=4.34453849898248561809e+101
+# m=25 k=19 Z~=0.0
+# m=25 k=20 Z~=3.14376800119118489739e+113
+# m=25 k=21 Z~=0.0
+# m=25 k=22 Z~=2.27487418542245146604e+125
+# m=25 k=23 Z~=0.0
+# m=25 k=24 Z~=1.64613058885857167937e+137
+# m=25 k=25 Z~=0.0
+# m=25 k=26 Z~=1.19116298529073574696e+149
+# m=25 k=27 Z~=0.0
+# m=25 k=28 Z~=8.61942101129021788434e+160
+# m=25 k=29 Z~=0.0
+# m=25 k=30 Z~=6.23713291098700149778e+172
+  m=25 2q=  2  computed margin log R =      9.18354   certified R - 1 >=      9735.0   (L) holds
+  m=25 2q=  4  computed margin log R =      1.06239   certified R - 1 >=       1.893   (L) holds
+  m=25 2q=  6  computed margin log R =     0.126263   certified R - 1 >=      0.1346   (L) holds
+  m=25 2q=  8  computed margin log R =    0.0102891   certified R - 1 >=     0.01034   (L) holds
+  m=25 2q= 10  computed margin log R =    0.0015978   certified R - 1 >=    0.001599   (L) holds
+  m=25 2q= 12  computed margin log R =  0.000199544   certified R - 1 >=   0.0001996   (L) holds
+  m=25 2q= 14  computed margin log R =   3.05432e-5   certified R - 1 >=    3.054e-5   (L) holds
+  m=25 2q= 16  computed margin log R =   4.60277e-6   certified R - 1 >=    4.603e-6   (L) holds
+  m=25 2q= 18  computed margin log R =   7.48604e-7   certified R - 1 >=    7.486e-7   (L) holds
+  m=25 2q= 20  computed margin log R =   1.24816e-7   certified R - 1 >=    1.248e-7   (L) holds
+  m=25 2q= 22  computed margin log R =   2.15523e-8   certified R - 1 >=    2.155e-8   (L) holds
+  m=25 2q= 24  computed margin log R =   3.79843e-9   certified R - 1 >=    3.798e-9   (L) holds
+  m=25 2q= 26  computed margin log R =  6.81369e-10   certified R - 1 >=   6.814e-10   (L) holds
+  m=25 2q= 28  computed margin log R =   1.2373e-10   certified R - 1 >=   1.237e-10   (L) holds
+  m=25: (L) certified for all 2 <= 2q <= 28: True   (1272s, commit c034c29)
