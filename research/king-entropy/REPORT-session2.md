@@ -32,8 +32,9 @@ r_w 13.4 → 9.99 to efekt w^b, nie zmiana ξ); 1/ξ_odd ≈ 1.07 ≈ szczelina 
 ## (L) (`L-NOTE.md`)
 
 - Dokładnie (`zexact.py` CRT → `ltest.py` @7b8647f → `out_ltest.txt`): **0/873** (wolne,
-  m = 2…24, 2q ≤ 120…20), **0/550** (cylindry, m = 3…22, 2q ≤ 80…22); m = 25 certyfikowane
-  w x87 ze ścisłym ograniczeniem zaokrągleń (`lcert.py 25 30`): 0/14, 2q ≤ 28; m = 26 w toku.
+  m = 2…24, 2q ≤ 120…20), **0/550** (cylindry, m = 3…22, 2q ≤ 80…22); m = 25, 26 certyfikowane
+  w x87 ze ścisłym ograniczeniem zaokrągleń (`lcert.py 25 30`, `lcert.py 26 30` @a0a07e9): 0/28,
+  2q ≤ 28 (najmniejszy margines 1.2e-10 vs błąd ≤ 1e-16).
   Margines maleje monotonicznie w q, iloraz → 0.16–0.20 (= μ₂/μ₁), minimum zawsze przy
   największym q: brak obszaru „podejrzanego”.
 - **Kontrole: (L) nie jest ogólna.** Trójkątna, wolne pasy: 92/319 naruszeń od m = 5 (brute
@@ -76,4 +77,4 @@ skaczą (backtest 1e-13), dwuwykładniczy i Wynn są stabilne. Modele zdające b
 audyt bounds 0c53f27; dowody fccfbe6, a04f90c; zexact 1eb72f5; lean 54a78ac; errbar 7434e24,
 825fa48; surface d022860, 5fd0976; ltest/kontrole 7b8647f, e83f6f2; lparity b96c1aa; L-NOTE
 cccfc9e, 83085bd; lspec cccfc9e; lweight f410768, 825fa48 (big: 606e3fa); repro 167f49a, 0924723; lcert
-a0a07e9, 7ede2fc.
+a0a07e9, 7ede2fc, 271a9d8; raport 50a1986, d822fa5.

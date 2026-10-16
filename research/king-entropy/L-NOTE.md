@@ -28,7 +28,7 @@ exponential correction), float error ≲ 1e-15. So (L∞) holds for 2q ≤ 24; b
 | --- | --- | --- | --- | --- |
 | king free | m = 2…12 / 13…16 / 17…20 / 21…22 / 23…24 | ≤ 120 / 60 / 36 / 24 / 20 | 873 | **0** |
 | king cylinder | m = 3…12 / 13…18 / 19…20 / 21…22 | ≤ 80 / 40 / 28 / 22 | 550 | **0** |
-| king free, certified float (`lcert.py`, x87, rigorous rounding bound) | m = 25 (26: see report) | ≤ 28 | 14 | **0** |
+| king free, certified float (`lcert.py`, x87, rigorous rounding bound) | m = 25, 26 | ≤ 28 | 28 | **0** (smallest certified margin 1.2e-10, rounding bound ~1e-16) |
 | square free / cyl (control, RP) | m ≤ 12 | ≤ 60 | 319 / 290 | 0 / 0 |
 | triangular cyl (control) | m ≤ 12 | ≤ 60 | 290 | 0 |
 | **triangular free (control)** | m ≤ 12 | ≤ 60 | 319 | **92** (from m = 5; brute-force confirmed: m = 5, Z(6), Z(8), Z(10) = 6475, 210560, 6842465, 210560² − 6475·6842465 = 30552725 > 0) |
