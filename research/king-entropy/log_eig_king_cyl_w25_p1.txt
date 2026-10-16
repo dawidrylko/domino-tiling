@@ -2,3 +2,7 @@ king cyl w=25 p=1 it=0 est=14.3016687932761517 t=71.11s
 king cyl w=25 p=1 it=1 est=14.1540031936008326 t=65.26s
 king cyl w=25 p=1 it=2 est=14.1396420133421916 t=68.27s
 king cyl w=25 p=1 it=3 est=14.1380095508018719 t=66.21s
+king cyl w=25 p=1 it=4 est=14.1378220868271871 t=68.95s
+king cyl w=25 p=1 it=5 est=14.1378005654224914 t=67.09s
+king cyl w=25 p=1 it=6 est=14.1377980960128404 t=66.53s
+king cyl w=25 p=1 it=7 est=14.1377978127357551 t=67.68s
