@@ -262,7 +262,7 @@ gives $0.565512081672$).
 
 \section{Rigorous bounds}\label{sec:bounds}
 
-\begin{theorem}\label{thm:bounds}
+\begin{theorem}[computer-assisted]\label{thm:bounds}
 $0.545343749727 \le \underline s \le \bar s \le 0.586216605404$.
 \end{theorem}
 
@@ -494,8 +494,8 @@ $w$ & $\Delta_w$ & $\xi_w$ & $w$ & $\Delta_w$ & $\xi_w$ \\
 
 Inside a sector the transfer has a gap: at $w = 20$ ARPACK gives $\log(\lambda_1/|\lambda_3|) =
 1.082727$ per row. The odd-width corrections behave like $e^{-w/\xi_{\mathrm{odd}}} w^b$ with
-$1/\xi_{\mathrm{odd}} \approx 1.07$, close to this gap. All finite-size corrections of the king's
-model are thus exponentially small, the behaviour of a non-critical (gapped) dimer liquid. On the
+$1/\xi_{\mathrm{odd}} \approx 1.07$, close to this gap. All finite-size corrections we see are
+exponentially small, as expected for a non-critical (gapped) dimer liquid. On the
 square lattice, which is critical, the corrections are algebraic, $(f_w - G/\pi)w^2 \to \pi/6$, and the
 same transfer-matrix extrapolation from $w \le 18$ yields only $G/\pi \pm 6\cdot10^{-8}$.
 
@@ -556,8 +556,9 @@ $0.5655119110355926$ ($2q = 22$, $p = 2$). This is the Calkin--Wilf form of the 
 (\S\ref{sec:obstructions}). The second differences of $a_{2q}$ are positive and decay
 geometrically up to $2q = 24$: $4.69\cdot10^{-5}$, $3.99\cdot10^{-6}$, $5.53\cdot10^{-7}$,
 $5.63\cdot10^{-8}$, $6.96\cdot10^{-9}$, $7.62\cdot10^{-10}$, $9.0\cdot10^{-11}$, $1.01\cdot10^{-11}$
-at $2q = 10, 12, \dots, 24$; so (L$_\infty$) holds at its first instance $2q = 24$, and beyond
-that it is extrapolation.
+at $2q = 10, 12, \dots, 24$ (from uncertified power iteration, float error about $10^{-15}$); so
+numerically (L$_\infty$) holds at its first instance $2q = 24$, and beyond that it is
+extrapolation.
 
 \subsection{Evidence}
 Table~\ref{tab:L} summarises the tests of (L): exact integer counts by a transfer modulo several
