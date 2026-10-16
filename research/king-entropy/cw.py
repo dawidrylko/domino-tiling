@@ -11,7 +11,7 @@ reflection positivity (RP). Sections:
  B. Spectral measure: Z(k, m) = sum_i c_i lambda_i^k. If every e0-visible
     eigenvalue were real with c_i >= 0 the finite-m inequality would hold for all q
     (sum_i c_i lambda_i^(2q) (lambda_i^p - rho^p) <= 0); list where this fails.
- C. Exact-integer tests (no rounding), m = 2..16:
+ C. Exact-integer tests (no rounding), m = 2..20:
     (I1) finite-m CW inequality with rho = max sector eigenvalue (float, margin 1e-12);
     (I2) log-convexity Z(2q, m)^2 <= Z(2q-2, m) Z(2q+2, m)  (integers, rigorous);
     (I3) the same for odd row counts, Z(2j+1, m) on even m.
@@ -106,8 +106,8 @@ print('\n== C. exact-integer tests')
 viol1, near1, n1 = [], 0, 0
 viol2, n2 = [], 0
 viol3, n3 = [], 0
-for m in range(2, 17):
-    K = 64 if m <= 12 else (40 if m <= 14 else 24)
+for m in range(2, 21):
+    K = 64 if m <= 12 else 40 if m <= 14 else 24 if m <= 16 else 18 if m <= 18 else 14
     v = np.zeros(1 << nbits(m, 'free'), dtype=object)
     v[:] = 0
     v[0] = 1
@@ -161,18 +161,25 @@ od = [k for k in sorted(a) if k % 2 and k >= 9]
 dec = all(a[x] - s * x > a[y] - s * y for x, y in zip(ev, ev[1:]))
 inc = all(a[x] - s * x < a[y] - s * y for x, y in zip(od, od[1:]))
 sep = min(a[x] - s * x for x in ev) > max(a[y] - s * y for y in od)
+inc2 = [a[y] - a[x] for x, y in zip(ev, ev[1:])]
+conv = all(u < v for u, v in zip(inc2, inc2[1:]))
 print(f'  even k: f decreasing {dec}; odd k: f increasing {inc}; every even f above every odd f: {sep}')
+print(f'  a_(2q) convex (increments a_(2q+2) - a_(2q) increasing, k=8..{ev[-1]}): {conv};'
+      f' last increment {mp.nstr(inc2[-1], 16)} vs 2s = {mp.nstr(2 * s, 16)}')
 cand = [((a[q2 + p] - a[q2]) / p, q2, p) for q2 in sorted(a) if q2 % 2 == 0 and q2 >= 2
         for p in range(1, 25) if q2 + p in a]
 worst = max(cand)
 print(f'  {len(cand)} CW candidates (2q <= {max(ev)}, all p): max = {mp.nstr(worst[0], 16)} at 2q={worst[1]}, p={worst[2]};'
       f' s - max = {mp.nstr(s - worst[0], 3)}  (> s error {mp.nstr(ds, 2)}: {s - worst[0] > ds})')
-odd_base = max(((a[k + 1] - a[k]), k) for k in sorted(a) if k % 2 and k + 1 in a)
-print(f'  contrast, odd base (not a CW pair): max (a_(k+1) - a_k) = {mp.nstr(odd_base[0], 16)} at k={odd_base[1]},'
-      f' exceeds s by {mp.nstr(odd_base[0] - s, 3)}')
+oddinc = [(a[k + 1] - a[k] - s, k) for k in sorted(a) if k % 2 and k + 1 in a]
+print(f'  (O) a_(k+1) - a_k >= s for odd k (k={oddinc[0][1]}..{oddinc[-1][1]}): min of a_(k+1) - a_k - s ='
+      f' {mp.nstr(min(oddinc)[0], 3)} at k={min(oddinc)[1]}  -> {all(x > ds * (k + 1) for x, k in oddinc)}')
+print('  CW(p even) follows from (L) = log-convexity of q -> Z(2q, m) for every m: a_(2q) is then convex in q,')
+print('  its increments increase to 2s. CW(p odd) follows from (L) and (O):')
+print('  a_(2q+p) - a_(2q) = (a_(2q+p+1) - a_(2q)) - (a_(2q+p+1) - a_(2q+p)) <= (p+1)s - s.')
 json.dump(dict(spectral=spec, I1=dict(cases=n1, violations=viol1, undecided=near1),
                I2=dict(cases=n2, violations=viol2), I3=dict(cases=n3, violations=viol3),
-               limit=dict(even_decreasing=dec, odd_increasing=inc, separated=sep,
+               limit=dict(even_convex=conv, even_decreasing=dec, odd_increasing=inc, separated=sep,
                           max_candidate=str(worst[0]), at=worst[1:], s=str(s), s_err=str(ds))),
           open('cw.json', 'w'), indent=1, default=str)
 
@@ -197,8 +204,8 @@ def growth_upper(w, maxit=80, tol=4e-15):
     return (log(mpf(float((y[sup] / v[sup]).max()))) + log(1 + mpf(1e-12))) / 2
 
 
-print('\n== E. conditional bound: IF the CW limit inequality holds, then rigorously')
-print('   s >= (log lambda_{2q+p}^low - log lambda_{2q}^up) / p   (certified lambdas, rounded down)')
+print('\n== E. conditional bounds: rigorous IF the stated hypothesis holds (certified lambdas, rounded down)')
+print('   s >= (log lambda_{2q+p}^low - log lambda_{2q}^up) / p; p even needs (L), p odd needs (L) and (O)')
 # certified log lambda_w lower bounds; bounds.json stores them as floats, so give back 1e-14
 low = {int(k): mpf(x) * int(k) - mpf('1e-14') for k, x in b['lower'].items()}
 best_c = None
@@ -207,6 +214,9 @@ for q2 in (20, 22):
     for p in (1, 2, 4):
         if q2 + p in low:
             c = (low[q2 + p] - up_) / p
-            print(f'  2q={q2} p={p}: s >= {mp.nstr(mp.floor(c * 10**12) / 10**12, 14)}   (log lambda_{q2} <= {mp.nstr(up_, 16)})')
-            best_c = c if best_c is None else max(best_c, c)
-print(f'  best conditional lower bound: s >= {mp.nstr(mp.floor(best_c * 10**12) / 10**12, 14)}')
+            hyp = '(L)' if p % 2 == 0 else '(L)+(O)'
+            print(f'  2q={q2} p={p}: s >= {mp.nstr(mp.floor(c * 10**12) / 10**12, 14)}  given {hyp:8s}'
+                  f' (log lambda_{q2} <= {mp.nstr(up_, 16)})')
+            if p % 2 == 0:
+                best_c = c if best_c is None else max(best_c, c)
+print(f'  best bound given (L) alone: s >= {mp.nstr(mp.floor(best_c * 10**12) / 10**12, 14)}')
