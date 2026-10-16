@@ -9,3 +9,4 @@ king cyl w=25 p=1 longdouble it=7 est=14.137797812735755247 t=169.5s
 king cyl w=25 p=1 longdouble it=8 est=14.137797780242767853 t=169.1s
 king cyl w=25 p=1 longdouble it=9 est=14.137797776515822383 t=168.8s
 king cyl w=25 p=1 longdouble it=10 est=14.137797776088347068 t=172.4s
+king cyl w=25 p=1 longdouble it=11 est=14.137797776039316482 t=169.3s
