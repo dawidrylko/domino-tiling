@@ -4,6 +4,7 @@ Status: draft for discussion. The digits come from a numerical estimate with a
 non-rigorous error bar (+-6e-16); the rigorous bounds only fix the first digit.
 OEIS editors may want rigorous digits before accepting a constant; decide that
 before submitting. Every number below is in paper/NUMBERS.md.
+The author's name is written with the HTML entity &#322; (l with stroke), which OEIS renders.
 
 %I A000000 (number to be assigned)
 %S A000000 5,6,5,5,1,1,9,1,1,0,4,1,3,2
@@ -16,11 +17,11 @@ before submitting. Every number below is in paper/NUMBERS.md.
 %C A000000 The surface free energy of a free edge is sigma = 0.242017935766251 +- 9*10^-15, so log(A239264(h,w)) = s*h*w - sigma*(2*h + 2*w) + o(h + w) is expected.
 %F A000000 s = lim_{w->oo} log(lambda_w)/w, where lambda_w is the growth rate of the number of domicule tilings of a strip of width w (lambda_w^2 = lim_{j->oo} A239264(2*j,w)^(1/j)).
 %e A000000 0.56551191104132...
-%H A000000 Dawid Ryłko, <a href="https://github.com/dawidrylko/domino-tiling/tree/d/king-entropy/research/king-entropy">Transfer-matrix scripts, outputs and paper draft</a> (branch d/king-entropy, directory research/king-entropy).
-%H A000000 Dawid Ryłko, <a href="https://github.com/dawidrylko/domino-tiling/blob/d/king-entropy/research/king-entropy/paper/main.pdf">The dimer entropy of the king's graph</a>, draft, 2026.
+%H A000000 Dawid Ry&#322;ko, <a href="https://github.com/dawidrylko/domino-tiling/tree/d/king-entropy/research/king-entropy">Transfer-matrix scripts, outputs and paper draft</a> (branch d/king-entropy, directory research/king-entropy).
+%H A000000 Dawid Ry&#322;ko, <a href="https://github.com/dawidrylko/domino-tiling/blob/d/king-entropy/research/king-entropy/paper/main.pdf">The dimer entropy of the king's graph</a>, draft, 2026.
 %H A000000 Anders W. Sandvik and R. Moessner, <a href="https://doi.org/10.1103/PhysRevB.73.144504">Correlations and confinement in nonplanar two-dimensional dimer models</a>, Phys. Rev. B 73 (2006), 144504 (same model, Monte Carlo; no entropy given).
 %Y A000000 Cf. A239264, A239273.
 %Y A000000 Cf. A004003 (domino tilings of the 2n X 2n square).
 %K A000000 nonn,cons,more
 %O A000000 0,1
-%A A000000 Dawid Ryłko, Oct 2026
+%A A000000 Dawid Ry&#322;ko, Oct 2026
