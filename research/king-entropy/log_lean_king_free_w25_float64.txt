@@ -18,3 +18,7 @@ king free w=25 p=- float64 it=16 est=13.653761904500373 t=29.3s
 king free w=25 p=- float64 it=17 est=13.653761904500172 t=30.1s
 king free w=25 p=- float64 it=18 est=13.653761904500135 t=29.9s
 king free w=25 p=- float64 it=19 est=13.653761904500127 t=29.4s
+king free w=25 p=- float64 it=20 est=13.653761904500126 t=29.4s
+king free w=25 p=- float64 it=21 est=13.653761904500126 t=32.2s
+king free w=25 p=- float64 it=22 est=13.653761904500126 t=29.2s
+{"lattice": "king", "bc": "free", "w": 25, "parity": "-", "dtype": "float64", "converged": true, "iterations": 23, "tol": 6.661338147750939e-15, "log_lambda": "13.653761904500125723416", "sec_per_iteration": 29.495705127716064, "cw_log_lambda": ["13.653761904500125723416", "13.653761904500125723416"], "support_closed": true, "wall": 724.7498049736023, "maxrss_mib": 4380.51171875, "commit": "9f88f22", "cmd": "python3 lean.py king free 25 - float64 cw"}
