@@ -58,8 +58,10 @@ def up(x, d=12):
     return mp.nstr(ceil(x * 10**d) / 10**d, d + 2)
 
 
-def certify(w, z, upper, tol=1e-15, maxit=600):
-    """Power iteration of A = T_z^2 from e0, then the Collatz-Wielandt certificate."""
+def certify(w, z, upper, tol=4e-15, maxit=80):
+    """Power iteration of A = T_z^2 from e0, then the Collatz-Wielandt certificate.
+
+    The stopping rule only affects how tight the certificate is, not its validity."""
     v = np.zeros(1 << nbits(w, 'free'))
     v[0] = 1.0
     hist, nsup = [], 0
