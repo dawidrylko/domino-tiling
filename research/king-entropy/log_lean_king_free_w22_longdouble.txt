@@ -15,3 +15,14 @@ king free w=22 p=- longdouble it=13 est=11.957226171427875433 t=9.6s
 king free w=22 p=- longdouble it=14 est=11.957226171396705777 t=9.4s
 king free w=22 p=- longdouble it=15 est=11.957226171390939144 t=10.2s
 king free w=22 p=- longdouble it=16 est=11.957226171389865897 t=9.6s
+king free w=22 p=- longdouble it=17 est=11.9572261713896652105 t=9.6s
+king free w=22 p=- longdouble it=18 est=11.95722617138962754 t=9.3s
+king free w=22 p=- longdouble it=19 est=11.957226171389620446 t=9.7s
+king free w=22 p=- longdouble it=20 est=11.957226171389619107 t=9.3s
+king free w=22 p=- longdouble it=21 est=11.957226171389618853 t=9.3s
+king free w=22 p=- longdouble it=22 est=11.957226171389618805 t=9.3s
+king free w=22 p=- longdouble it=23 est=11.957226171389618795 t=9.1s
+king free w=22 p=- longdouble it=24 est=11.957226171389618794 t=9.2s
+king free w=22 p=- longdouble it=25 est=11.957226171389618794 t=8.9s
+king free w=22 p=- longdouble it=26 est=11.957226171389618794 t=9.3s
+{"lattice": "king", "bc": "free", "w": 22, "parity": "-", "dtype": "longdouble", "converged": true, "iterations": 27, "tol": 2.8622937353617316e-18, "log_lambda": "11.957226171389618793635", "sec_per_iteration": 9.40485954284668, "wall": 255.62239241600037, "maxrss_mib": 539.9921875, "commit": "dc2c22a", "cmd": "python3 lean.py king free 22 - longdouble"}
