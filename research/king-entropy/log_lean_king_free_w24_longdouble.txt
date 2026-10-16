@@ -12,3 +12,11 @@ king free w=24 p=- longdouble it=10 est=13.088249999875327193 t=39.4s
 king free w=24 p=- longdouble it=11 est=13.0882499946095187645 t=40.2s
 king free w=24 p=- longdouble it=12 est=13.088249993669536682 t=41.0s
 king free w=24 p=- longdouble it=13 est=13.088249993499138382 t=41.1s
+king free w=24 p=- longdouble it=14 est=13.0882499934679006 t=40.9s
+king free w=24 p=- longdouble it=15 est=13.088249993462126464 t=41.0s
+king free w=24 p=- longdouble it=16 est=13.0882499934610524814 t=40.8s
+king free w=24 p=- longdouble it=17 est=13.0882499934608517575 t=40.1s
+king free w=24 p=- longdouble it=18 est=13.088249993460814099 t=40.0s
+king free w=24 p=- longdouble it=19 est=13.088249993460807012 t=41.1s
+king free w=24 p=- longdouble it=20 est=13.0882499934608056745 t=40.3s
+king free w=24 p=- longdouble it=21 est=13.088249993460805422 t=40.5s
