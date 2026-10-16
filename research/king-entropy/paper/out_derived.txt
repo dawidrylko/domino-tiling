@@ -1,0 +1,49 @@
+s = 0.5655119110413253  (out_errbar.txt)
+2s (per dimer) = 1.131023822082651
+exp(s) = 1.760348694041978,  exp(2s) = 3.098827524615297
+
+(L-infinity): second differences a(2q+2) - 2 a(2q) + a(2q-2) of a_k = log lambda_k, free strips
+  2q= 4: 0.0354   sources bounds.json float64 | bounds.json float64
+  2q= 6: 0.00488   sources bounds.json float64 | bounds.json float64
+  2q= 8: 0.00026   sources bounds.json float64 | bounds.json float64
+  2q=10: 4.69e-5   sources bounds.json float64 | bounds.json float64
+  2q=12: 3.99e-6   sources bounds.json float64 | lean_king_free_w14_p-_longdouble.json @b96c1aa
+  2q=14: 5.53e-7   sources bounds.json float64 | lean_king_free_w16_p-_longdouble.json @b96c1aa
+  2q=16: 5.63e-8   sources lean_king_free_w14_p-_longdouble.json @b96c1aa | lean_king_free_w18_p-_longdouble.json @cccfc9e
+  2q=18: 6.96e-9   sources lean_king_free_w16_p-_longdouble.json @b96c1aa | lean_king_free_w20_p-_longdouble.json @f410768
+  2q=20: 7.62e-10   sources lean_king_free_w18_p-_longdouble.json @cccfc9e | lean_king_free_w22_p-_longdouble.json @dc2c22a
+  2q=22: 9.0e-11   sources lean_king_free_w20_p-_longdouble.json @f410768 | lean_king_free_w24_p-_longdouble.json @b6266b5
+  2q=24: 1.01e-11   sources lean_king_free_w22_p-_longdouble.json @dc2c22a | lean_king_free_w26_p-_float64.json @2f3664b
+
+f(k) = log lambda_k - s k, free strips (surface.json)
+  k=18: -0.4840358705545159
+  k=19: -0.4840358718678495
+  k=20: -0.4840358714180326
+  k=21: -0.4840358715709653
+  k=22: -0.4840358715195378
+  k=23: -0.4840358715369125
+  k=24: -0.4840358715310018
+  k=25: -0.4840358715330068
+  k=26: -0.4840358715323304
+
+certified w=24: lower 0.5453437497275, upper 0.5862166054033
+  s - lower = 0.02017,  upper - s = 0.0207
+  w=12: w*(s - lower_w) = 0.484, w*(upper_w - s) = 0.4969
+  w=16: w*(s - lower_w) = 0.484, w*(upper_w - s) = 0.4969
+  w=20: w*(s - lower_w) = 0.484, w*(upper_w - s) = 0.4969
+  w=24: w*(s - lower_w) = 0.484, w*(upper_w - s) = 0.4969
+Kahn-Lovasz log(8!)/16 = 0.6627876814216
+12 w u at w=24: 3.197e-14
+-4 sigma = -0.9680717431
+tri free m=5: Z(6), Z(8), Z(10) = 6475, 210560, 6842465; Z(8)^2 - Z(6) Z(10) = 30552725
+king 3x3: V = 9, E = 20, 3V - 6 = 21
+king 4x4: V = 16, E = 42, 3V - 6 = 42
+king 5x5: V = 25, E = 72, 3V - 6 = 69
+
+king cylinders, log(lambda_w)/w (eig_*.json, float64; sector 1 for odd w)
+  w=20: p0 0.5655119118867462  p1 0.5655119102001318
+  w=21: p0 0.5655119110406597  p1 0.5655119110406597
+  w=22: p0 0.5655119111867463  p1 0.5655119108963251
+  w=23: p1 0.5655119110412586
+  w=24: p0 0.5655119110666571  p1 0.5655119110160359
+  w=25: p1 0.5655119110413186
