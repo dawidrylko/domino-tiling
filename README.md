@@ -2,8 +2,8 @@
 
 [![Continuous Integration](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/ci.yml)
 [![Pages](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml/badge.svg)](https://github.com/dawidrylko/domino-tiling/actions/workflows/pages.yml)
-[![Site](https://img.shields.io/badge/Site_%26_notebooks-dawidrylko.github.io-4f7cac?style=flat)](https://dawidrylko.github.io/domino-tiling/)
-[![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-e0a458?style=flat)](https://dawidrylko.com/domino-tiling/)
+[![Site](https://img.shields.io/badge/Site_%26_notebooks-dawidrylko.github.io-044cb6?style=flat)](https://dawidrylko.github.io/domino-tiling/)
+[![Blog post](https://img.shields.io/badge/Blog_post_%28PL%29-dawidrylko.com-f09c17?style=flat)](https://dawidrylko.com/domino-tiling/)
 
 ## Abstract
 
@@ -126,7 +126,7 @@ Benchmarks:
 
 ```sh
 pnpm benchmark            # domino solvers, results in benchmarks/results/<year-month>
-pnpm benchmark:domicule   # domicule solvers, 10 runs up to 16×16 and one modular run of 18×18 and 20×20
+pnpm benchmark:domicule   # domicule solvers, 10 runs up to 16×16 and one run of 18×18 and 20×20
 ```
 
 A run writes `environment.json` next to the timings and refuses to mix machines or Node.js versions in one month directory unless given `--force`. The site shows the newest directory that holds the largest board of every solver. Older runs stay in [`benchmarks/results`](benchmarks/results): March 2024 (machine not recorded) and April 2024 (100,000 runs per board on an Intel Core i7-8700).
@@ -142,6 +142,20 @@ pnpm render -r 20 -c 20 --random -l 12            # 12 uniformly random tilings 
 pnpm render -r 4 -c 4 --domicule --all            # all 280 domicule tilings of a 4×4 board
 pnpm render -r 20 -c 20 --domicule --random -l 6  # six approximately uniform domicule tilings
 ```
+
+The gallery draws a tiling in three styles. Below are the same four 8×8 domicule tilings in each of them; `pnpm readme:images` regenerates the images, and `pnpm test:render` fails when they no longer match the renderer.
+
+**Blocks**, every piece as a bar:
+
+![Four 8×8 domicule tilings drawn as blocks](.github/assets/gallery-blocks.svg)
+
+**Dimer graph**, every piece as an edge between the centres of its two cells:
+
+![The same four tilings drawn as a dimer graph](.github/assets/gallery-dimer.svg)
+
+**Engraving**, outlined cells with diagonal pieces hatched along their direction:
+
+![The same four tilings drawn as an engraving](.github/assets/gallery-engraving.svg)
 
 `-l` limits the number of tilings (default 1000), `-o` skips tilings, `-i` draws one tiling by its 1-based number, `--random` samples, `--all` lifts the limit on boards with at most 100,000 tilings, `--ascii` prints instead of writing SVG. The command line numbers boards whose table has at most 4 million entries: dominoes up to 14×14, domicules up to 12×12. The [gallery](https://dawidrylko.github.io/domino-tiling/) does the same in the browser, up to 18×18 for dominoes and 16×16 for domicules, with sampling above that.
 

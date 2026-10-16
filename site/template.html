@@ -120,13 +120,6 @@ nav.tabs a[aria-current="page"] { color: var(--fg); border-color: var(--accent);
 .sheet .engraving .cd { fill: color-mix(in srgb, var(--ed) 9%, var(--paper-h)); }
 .sheet .engraving .ca { fill: color-mix(in srgb, var(--ea) 9%, var(--paper-h)); }
 .sheet .engraving .d { stroke: var(--ed); } .sheet .engraving .a { stroke: var(--ea); }
-.formula { margin: 0 0 24px; overflow-x: auto; }
-@font-face { font-family: "Domino Tiling Math"; src: url(domino-tiling-math.woff2) format("woff2"); }
-.formula math { font-family: "Domino Tiling Math", "STIX Two Math", "Cambria Math", "Latin Modern Math", math; font-size: 1.3em; margin: 0 0 8px; }
-.formula figcaption { color: var(--muted); }
-.formula figcaption p { margin: 0 0 12px; }
-.formula figcaption p:last-child { margin-bottom: 0; }
-@media (max-width: 640px) { .formula math { font-size: 1.05em; } }
 .sheet svg { display: block; max-width: 100%; height: auto; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -134,26 +127,16 @@ th:first-child, td:first-child { text-align: left; }
 th { color: var(--muted); font-weight: 600; font-size: 13px; }
 .table-wrap { overflow-x: auto; }
 @media (max-width: 720px) {
-  #benchmark .table-wrap table { display: block; }
-  #benchmark .table-wrap tbody { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; }
-  #benchmark .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  #benchmark .table-wrap tr { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); grid-template-columns: subgrid; row-gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  #benchmark .table-wrap td { padding: 0; border: 0; text-align: left; white-space: normal; }
-  #benchmark .table-wrap td::before { content: attr(data-label); display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
-  #benchmark .table-wrap td:last-child { grid-area: 1 / 3; }
+  .bench .table-wrap table { display: block; }
+  .bench .table-wrap tbody { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 16px; }
+  .bench .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .bench .table-wrap tr { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); grid-template-columns: subgrid; row-gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .bench .table-wrap td { padding: 0; border: 0; text-align: left; white-space: normal; }
+  .bench .table-wrap td::before { content: attr(data-label); display: block; color: var(--muted); font-weight: 600; font-size: 13px; }
+  .bench .table-wrap td:last-child { grid-area: 1 / 3; }
 }
 .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
-.sequences td, .sequences th { white-space: normal; vertical-align: top; }
-.sequences td:nth-child(n+3) { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; word-break: break-all; }
-.sequences td:nth-child(2) { white-space: nowrap; }
-.badge { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font: 600 11px/1.6 system-ui, sans-serif; word-break: normal; }
-.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0 0 28px; }
-.notes a { display: block; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--fg); text-decoration: none; }
-.notes a:hover { border-color: var(--accent); }
-.notes strong { display: block; margin-bottom: 2px; }
-.notes span { color: var(--muted); font-size: 13px; }
 .table-title { font-size: 15px; margin: 0 0 8px; }
-.note + .table-title { margin-top: 28px; }
 code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
 [hidden] { display: none !important; }
 .intro { color: var(--muted); margin: 0 0 20px; overflow-wrap: anywhere; }
@@ -169,51 +152,18 @@ code { background: var(--surface); border: 1px solid var(--border); border-radiu
 <main>
   __SITE_HEADER__
   <p class="intro">
-    How many ways are there to cover a 2n&nbsp;×&nbsp;2n board with pieces that each cover two neighbouring cells, and what
-    does any one of those coverings look like? With dominoes, which join cells that share a side, the answer is
-    <a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>: a chessboard has 12,988,816 tilings. With domicules, which may
-    also join cells that share only a corner, it is <a href="https://oeis.org/A239273">OEIS&nbsp;A239273</a>, and the
-    chessboard has 3,263,262,629,905. Both sequences, counted here up to 20&nbsp;×&nbsp;20:
+    How many ways are there to cover a 2n&nbsp;×&nbsp;2n board with pieces that each cover two neighbouring cells?
+    Dominoes join cells that share a side (<a href="https://oeis.org/A004003">OEIS&nbsp;A004003</a>; a chessboard has
+    12,988,816 tilings), domicules may also join cells that share only a corner
+    (<a href="https://oeis.org/A239273">OEIS&nbsp;A239273</a>; 3,263,262,629,905 tilings). Both sequences are counted here up to
+    20&nbsp;×&nbsp;20, including a domicule term that is not in the OEIS yet.
   </p>
-  <div class="table-wrap sequences">
-    <table>
-      <thead><tr><th>n</th><th>Board</th><th><a href="https://oeis.org/A004003">A004003</a> (dominoes)</th><th><a href="https://oeis.org/A239273">A239273</a> (domicules)</th></tr></thead>
-      <tbody>__SEQUENCE_ROWS__</tbody>
-    </table>
-  </div>
-  <p class="note">__SEQUENCE_NOTE__</p>
-  <figure class="formula">
-    <math display="block">
-      <mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo>
-      <mo>=</mo>
-      <munderover><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
-      <munderover><mo>∏</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
-      <mrow>
-        <mo>(</mo>
-        <mn>4</mn><msup><mi>cos</mi><mn>2</mn></msup><mo>&#x2061;</mo>
-        <mfrac><mrow><mi>j</mi><mi>π</mi></mrow><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac>
-        <mo>+</mo>
-        <mn>4</mn><msup><mi>cos</mi><mn>2</mn></msup><mo>&#x2061;</mo>
-        <mfrac><mrow><mi>k</mi><mi>π</mi></mrow><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac>
-        <mo>)</mo>
-      </mrow>
-    </math>
-    <figcaption>
-      <p>
-        The product formula for A004003, found in 1961 by <a href="https://doi.org/10.1016/0031-8914(61)90063-5">Kasteleyn</a>
-        and by <a href="https://doi.org/10.1103/PhysRev.124.1664">Fisher</a>. The project evaluates it exactly as a resultant
-        of two integer polynomials and counts domicule tilings by dynamic programming.
-      </p>
-    </figcaption>
-  </figure>
-  <nav class="notes" aria-label="Notes">
-__NOTES_NAV__
-  </nav>
   <noscript><p class="intro">The gallery needs JavaScript. The benchmark results are also available in the
     <a href="https://github.com/dawidrylko/domino-tiling/tree/master/benchmarks/results">repository</a>.</p></noscript>
   <nav class="tabs">
     <a href="#gallery" data-tab="gallery">Gallery</a>
-    <a href="#benchmark" data-tab="benchmark">Benchmark</a>
+    <a href="#benchmark" data-tab="benchmark">Benchmark: dominoes</a>
+    <a href="#benchmark-domicule" data-tab="benchmark-domicule">Benchmark: domicules</a>
   </nav>
 
   <section id="gallery">
@@ -269,35 +219,39 @@ __NOTES_NAV__
     <div class="sheet" id="sheet"></div>
   </section>
 
-  <section id="benchmark" hidden>
+  <section id="benchmark" class="bench" hidden>
     <h2 class="table-title">Dominoes (A004003)</h2>
     <div class="table-wrap">
       <table role="table" id="domino-benchmark">
-        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">Number (avg)</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Formula (avg)</th><th role="columnheader">Runs</th></tr></thead>
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">Number</th><th role="columnheader">BigInt</th><th role="columnheader">Formula</th><th role="columnheader">Runs</th></tr></thead>
         <tbody id="benchmark-rows" role="rowgroup"></tbody>
       </table>
     </div>
     <p class="note">
-      Average wall-clock time of a full solver process (<code>node &lt;solver&gt; -r R -c C</code>), as stored in
-      <a href="https://github.com/dawidrylko/domino-tiling/tree/master/__BENCHMARK_DIRECTORY__">__BENCHMARK_DIRECTORY__</a>.
-      For small boards most of the time is Node.js start-up. The Number solver stops at 10×10, because from 12×12 on
-      its result exceeds 2<sup>53</sup> and is no longer exact.
-      <span id="environment"></span>
+      Mean wall-clock time of one solver process, <code>node &lt;solver&gt; -r R -c C</code>; on small boards most of it is
+      Node.js start-up. Number keeps the count in a JavaScript number and stops at 10×10, beyond which the count exceeds
+      2<sup>53</sup>. BigInt counts exactly. Formula evaluates the product formula of Kasteleyn and Fisher as an exact resultant.
+      <span class="environment"></span>
+      Results: <a href="https://github.com/dawidrylko/domino-tiling/tree/master/__BENCHMARK_DIRECTORY__">__BENCHMARK_DIRECTORY__</a>.
       __OLDER_BENCHMARKS__
-      Re-run with <code>pnpm benchmark</code> and rebuild the site to refresh this table.
+      Re-run with <code>pnpm benchmark</code>.
     </p>
+  </section>
+  <section id="benchmark-domicule" class="bench" hidden>
     <h2 class="table-title">Domicules (A239273)</h2>
     <div class="table-wrap">
       <table role="table" id="domicule-benchmark">
-        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">BigInt (avg)</th><th role="columnheader">Modular (avg)</th><th role="columnheader">Runs</th></tr></thead>
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Board</th><th role="columnheader">Tilings</th><th role="columnheader">BigInt</th><th role="columnheader">Modular</th><th role="columnheader">Runs</th></tr></thead>
         <tbody id="domicule-benchmark-rows" role="rowgroup"></tbody>
       </table>
     </div>
     <p class="note">
-      Same machine and Node.js version as above. The BigInt solver keeps exact counts; the modular one counts modulo
-      primes below 2<sup>31</sup> in parallel worker threads, rebuilds the result with the Chinese remainder theorem and
-      checks it against one more prime. 18×18 and 20×20 were measured once, with the modular solver only. Re-run with
-      <code>pnpm benchmark:domicule</code>.
+      Mean wall-clock time of one solver process, <code>node &lt;solver&gt; -r R -c C</code>; on small boards most of it is
+      Node.js start-up. BigInt counts exactly. Modular counts modulo primes below 2<sup>31</sup> in parallel worker
+      threads, rebuilds the count with the Chinese remainder theorem and checks it against one more prime.
+      <span class="environment"></span>
+      Results: <a href="https://github.com/dawidrylko/domino-tiling/tree/master/__BENCHMARK_DIRECTORY__">__BENCHMARK_DIRECTORY__</a>.
+      Re-run with <code>pnpm benchmark:domicule</code>.
     </p>
   </section>
   __SITE_FOOTER__
@@ -428,7 +382,7 @@ function parseHash() {
   const board = DATA.boards.find(b => b.id === boardId) || DATA.boards.find(b => b.id === DATA.defaultBoard);
 
   return {
-    tab: tab === 'benchmark' ? 'benchmark' : 'gallery',
+    tab: ['benchmark', 'benchmark-domicule'].includes(tab) ? tab : 'gallery',
     board,
     page: board.mode === 'pages' ? clamp(parseBigInt(page) || ONE, ONE, pageCount(board)) : ONE,
     highlight: parseBigInt(highlight),
@@ -574,6 +528,7 @@ function render() {
   });
   $('gallery').hidden = state.tab !== 'gallery';
   $('benchmark').hidden = state.tab !== 'benchmark';
+  $('benchmark-domicule').hidden = state.tab !== 'benchmark-domicule';
 
   if (state.tab === 'gallery') {
     renderGallery(state);
@@ -654,7 +609,9 @@ $('domicule-benchmark-rows').innerHTML = DATA.domiculeBenchmark
 
 if (DATA.environment) {
   const { date, node, cpu, platform, cores, memory } = DATA.environment;
-  $('environment').textContent = `Measured on ${date} with Node.js ${node} on ${cpu} (${platform}, ${cores} cores, ${memory}).`;
+  document.querySelectorAll('.environment').forEach(
+    span => (span.textContent = `Measured with Node.js ${node} on ${cpu} (${platform}, ${cores} cores, ${memory}); last run ${date}.`),
+  );
 }
 
 function visibleLabel(number) {

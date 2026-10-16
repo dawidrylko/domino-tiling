@@ -51,12 +51,13 @@
   "scripts": {
     "start": "node benchmarks/benchmarkRunner.js -n 1000 -m 7",
     "benchmark": "node benchmarks/benchmarkRunner.js -n 1000 -m 7 && node benchmarks/benchmarkRunner.js -n 1000 -o 7 --only dominoTilingSolver-Formula.js && node benchmarks/benchmarkRunner.js -n 10 -m 2 -o 7 --only dominoTilingSolver-BigInt.js && node benchmarks/benchmarkRunner.js -n 1 -o 9 --only dominoTilingSolver-BigInt.js",
-    "benchmark:domicule": "node benchmarks/benchmarkRunner.js --domicule -n 10 -m 9 && node benchmarks/benchmarkRunner.js --domicule -n 1 -o 9 --only domiculeTilingSolver-Modular.js",
+    "benchmark:domicule": "node benchmarks/benchmarkRunner.js --domicule -n 10 -m 9 && node benchmarks/benchmarkRunner.js --domicule -n 1 -o 9 --only domiculeTilingSolver-Modular.js && node benchmarks/benchmarkRunner.js --domicule -n 1 -o 9 --only domiculeTilingSolver-BigInt.js",
     "test": "node tests/testRunner.js -m 7",
     "render": "node src/dominoTilingRenderer.js",
     "test:render": "node tests/renderTestRunner.js",
     "test:pari": "node tests/pariTestRunner.js",
     "test:site": "node tests/siteTestRunner.js",
-    "site:build": "node site/build.js"
+    "site:build": "node site/build.js",
+    "readme:images": "node site/readme-images.js"
   }
 }

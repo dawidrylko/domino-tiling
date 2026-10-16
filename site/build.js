@@ -22,8 +22,6 @@ const ASSETS = {
   'domino.svg': '.github/assets/domino.svg',
   'apple-touch-icon.png': '.github/assets/apple-touch-icon.png',
   'og-image.png': '.github/assets/og-image.png',
-  'domino-tiling-math.woff2': 'site/fonts/domino-tiling-math.woff2',
-  'OFL.txt': 'site/fonts/OFL.txt',
 };
 const AUTHOR = {
   '@type': 'Person',
@@ -56,7 +54,6 @@ const DOMICULE_BOARDS = [
 ];
 const DEFAULT_BOARD = '4x4';
 const REPOSITORY_BLOB_URL = 'https://github.com/dawidrylko/domino-tiling/blob/master';
-const SEQUENCE_TERMS = 10;
 const NOTE_SUMMARIES = {
   method: 'How the tilings are counted, numbered and sampled, and how every number is checked.',
   a004003: 'Notebook: domino tilings by three methods, the resultant and the running time.',
@@ -83,7 +80,7 @@ function isCompleteRun(run) {
     ...filesInt.map(fileName => resultFileName(fileName, lastInt)),
     ...filesBigInt.map(fileName => resultFileName(fileName, lastBigInt)),
     ...filesDomicule.map(fileName => resultFileName(fileName, { rowCount: 16, colCount: 16 })),
-    resultFileName('domiculeTilingSolver-Modular.js', { rowCount: 20, colCount: 20 }),
+    ...filesDomicule.map(fileName => resultFileName(fileName, { rowCount: 20, colCount: 20 })),
   ];
 
   return requiredFiles.every(file => fs.existsSync(path.join(ROOT_DIRECTORY, BENCHMARK_ROOT, run, file)));
@@ -310,23 +307,6 @@ function buildSitemap(notes) {
   ].join('\n');
 }
 
-async function buildSequenceRows() {
-  const rows = [];
-
-  for (let n = 0; n <= SEQUENCE_TERMS; n++) {
-    const side = 2 * n;
-    const domino = countTilings({ rowCount: side, colCount: side });
-    const domicule = await countDomiculeTilings({ rowCount: side, colCount: side });
-    const published = testCasesDomicule.some(t => t.rowCount === side && t.colCount === side);
-
-    rows.push(
-      `<tr><td>${n}</td><td>${side}×${side}</td><td>${domino}</td><td>${domicule}${published ? '' : '<span class="badge">new</span>'}</td></tr>`,
-    );
-  }
-
-  return rows.join('');
-}
-
 function resolveNoteLink(target, notes) {
   if (/^[a-z]+:/.test(target) || target.startsWith('#')) {
     return target;
@@ -417,17 +397,13 @@ async function __main__() {
     environment: readEnvironment(BENCHMARK_DIRECTORY),
   };
   const notes = listNotes();
-  const renderedNotes = await buildNotes(notes, {
+  await buildNotes(notes, {
     root: ROOT_DIRECTORY,
     benchmark: data.benchmark,
     benchmarkRun: `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`,
     domiculeBenchmark: data.domiculeBenchmark,
     countDomicule: board => countDomiculeTilings(board).then(BigInt),
   });
-  const sequenceRows = await buildSequenceRows();
-  const notesNav = renderedNotes
-    .map(({ slug, title }) => `    <a href="notes/${slug}.html"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(NOTE_SUMMARIES[slug] || '')}</span></a>`)
-    .join('\n');
   const readScripts = files => files.map(file => fs.readFileSync(path.join(ROOT_DIRECTORY, file), 'utf-8')).join('\n');
   const scripts = readScripts(BROWSER_SCRIPTS);
   const workerSource = readScripts(WORKER_SCRIPTS);
@@ -441,13 +417,6 @@ async function __main__() {
     .replace(/__BENCHMARK_DIRECTORY__/g, `${BENCHMARK_ROOT}/${BENCHMARK_RUN}`)
     .replace('__OLDER_BENCHMARKS__', () => buildOlderBenchmarks())
     .replace(/__DOMICULE_SWEEPS__/g, DOMICULE_SWEEPS.toLocaleString('en-US'))
-    .replace('__SEQUENCE_ROWS__', () => sequenceRows)
-    .replace(
-      '__SEQUENCE_NOTE__',
-      'Terms marked <span class="badge">new</span> are not in the OEIS yet; they are counted with the modular solver when this page is built and checked against an extra prime. ' +
-        'The <a href="notes/a239273.html">A239273 notebook</a> shows the computation.',
-    )
-    .replace('__NOTES_NAV__', () => notesNav)
     .replace('__CHROME_CSS__', () => CHROME_CSS)
     .replace('__SITE_HEADER__', () => renderHeader({ root: '', current: 'home', notes }))
     .replace('__SITE_FOOTER__', () => renderFooter());
