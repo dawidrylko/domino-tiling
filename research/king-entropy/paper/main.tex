@@ -45,10 +45,12 @@ with computer-assisted Collatz--Wielandt certificates;
 the upper bound uses a Fibonacci bound for the matchings across a cut. We also give the surface
 free energy of a free edge, $\sigma = 0.242017935766251 \pm 9\cdot 10^{-15}$, and the
 exponential decay of the splitting between the two parity sectors, with decay length
-$\xi \approx 1.23$. Finally we state the conjecture that $q \mapsto Z(2q, m)$ is log-convex for
-every strip width $m$. It would raise the rigorous lower bound to $s \ge 0.565511911035$; it holds
-in all $1451$ cases we checked, but it fails on the triangular lattice and when the two diagonals
-carry clearly different weights.
+$\xi \approx 1.23$. Finally we conjecture that the logarithm of the growth rate of the free strip
+of width $2q$ is convex in $q$ for $2q \ge 22$; this would raise the rigorous lower bound to
+$s \ge 0.565511911035$, and it holds numerically up to $2q = 24$. The stronger log-convexity of
+$q \mapsto Z(2q, m)$ holds in all $1451$ cases we checked, but it is not a structural property:
+it fails on the triangular lattice, under arbitrarily small asymmetric changes of the diagonal
+weights, and for equal diagonal weights $x = 3/2, 2, 3$.
 \end{abstract}
 
 \maketitle
@@ -96,9 +98,12 @@ numerical value of $s$ has been published.
 \item On even cylinders the two parity sectors split by $\Delta_w \approx e^{-w/\xi}$,
   $\xi \approx 1.23$; all finite-size corrections are exponentially small (\S\ref{sec:z2}),
   in contrast with the critical square lattice.
-\item The conjecture (L) that $q \mapsto Z(2q, m)$ is log-convex would give the rigorous bound
-  $s \ge 0.565511911035$ (eleven correct digits). We give the evidence, the obstructions to the
-  standard proofs and two counterexamples in neighbouring models (\S\ref{sec:L}).
+\item The conjecture (L$_\infty$) that $q \mapsto \log\lambda_{2q}$ is convex for $2q \ge 22$
+  would give the rigorous bound $s \ge 0.565511911035$ (eleven correct digits). The stronger
+  log-convexity (L) of $q \mapsto Z(2q, m)$ holds in every case we tested at unit weights, but
+  we show that it is not structural: it fails for diagonal weights $(1, \tfrac{9}{10})$ and for
+  equal diagonal weights $x = \tfrac32, 2, 3$, and a Krein-signature argument for the left--right
+  symmetry explains why (\S\ref{sec:L}).
 \end{enumerate}
 The same code reproduces the exactly known entropies of the square and triangular lattices
 (\S\ref{sec:checks}). All scripts, outputs and the map from every number in this paper to the
@@ -521,26 +526,19 @@ and the transfer matrix on the cylinder of circumference $17$ gives $0.428594537
 difference of $2.9\cdot10^{-15}$. The triangular dimer model was solved in \cite{fms2002}; this
 check only tests our code.
 
-\section{A log-convexity conjecture}\label{sec:L}
+\section{A convexity conjecture for the strip growth rates}\label{sec:L}
 
 \subsection{Statement and consequence}
-\begin{conjecture}[L]\label{conj:L}
-For every width $m \ge 1$ and every $q \ge 1$,
-$Z(2q, m)^2 \le Z(2q - 2, m)\, Z(2q + 2, m)$.
+\begin{conjecture}[L$_\infty$]\label{conj:Linf}
+For the king's graph, $q \mapsto a_{2q} = \log\lambda_{2q}$ is convex on $2q \ge 22$, i.e.\
+$a_{2q+2} - 2a_{2q} + a_{2q-2} \ge 0$ for $2q \ge 24$.
 \end{conjecture}
 
-Only a much weaker statement about the strip growth rates is needed:
-
-\smallskip\noindent\textbf{(L$_\infty$)} $q \mapsto a_{2q} = \log\lambda_{2q}$ is convex on
-$2q \ge 22$, i.e.\ $a_{2q+2} - 2a_{2q} + a_{2q-2} \ge 0$ for $2q \ge 24$.
-
 \begin{proposition}\label{prop:cond}
-(L) implies (L$_\infty$), and (L$_\infty$) implies $\underline s \ge 0.565511911035$.
+(L$_\infty$) implies $\underline s \ge 0.565511911035$.
 \end{proposition}
 \begin{proof}
-Under (L), $q \mapsto m^{-1}\log Z(2q, m)$ is convex for each $m$; by $Z(2q, m) = Z(m, 2q)$ and
-\eqref{eq:lambda}, it tends to $a_{2q}$ along even $m$, and a pointwise limit of convex sequences
-is convex. Under (L$_\infty$) the increments $b_q = a_{2q+2} - a_{2q}$ are nondecreasing for
+Under (L$_\infty$) the increments $b_q = a_{2q+2} - a_{2q}$ are nondecreasing for
 $q \ge 11$; since $a_{2q}/(2q) \to s^*$, they increase to $2s^*$, so $s^* \ge b_{11}/2$, and
 $\underline s \ge s^*$ by the proof of the lower bound. Finally $b_{11} \ge \log\lambda_{24}^{\mathrm{low}}
 - \log\lambda_{22}^{\mathrm{up}}$, with the certified lower bound for $w = 24$ (\S\ref{sec:float},
@@ -553,25 +551,47 @@ The gap between this bound and the estimate of $s$ is $5.7\cdot10^{-12}$: all $1
 $(a_{2q+p} - a_{2q})/p$ with $2q \le 22$, $2q + p \le 24$ lie below $s$, the largest being
 $0.5655119110355926$ ($2q = 22$, $p = 2$). This is the Calkin--Wilf form of the lower bound
 \cite{calkinwilf1998}, whose standard proof via reflection positivity does not apply here
-(\S\ref{sec:obstructions}). The second differences of $a_{2q}$ are positive and decay
-geometrically up to $2q = 24$: $4.69\cdot10^{-5}$, $3.99\cdot10^{-6}$, $5.53\cdot10^{-7}$,
+(\S\ref{sec:obstructions}). The unconditional bound of Theorem~\ref{thm:bounds} remains
+$\underline s \ge 0.545343749727$.
+
+\emph{Evidence for (L$_\infty$).} The second differences of $a_{2q}$ are positive at every
+$2q = 4, 6, \dots, 24$ and decay geometrically: $4.69\cdot10^{-5}$, $3.99\cdot10^{-6}$, $5.53\cdot10^{-7}$,
 $5.63\cdot10^{-8}$, $6.96\cdot10^{-9}$, $7.62\cdot10^{-10}$, $9.0\cdot10^{-11}$, $1.01\cdot10^{-11}$
 at $2q = 10, 12, \dots, 24$ (from uncertified power iteration, float error about $10^{-15}$); so
 numerically (L$_\infty$) holds at its first instance $2q = 24$, and beyond that it is
-extrapolation.
+extrapolation. A Prony fit of these differences finds two modes, a positive one $0.1147^q$ (the
+transfer gap, $e^{-2\cdot1.083}$) and an alternating one $(-0.072)^q$; their ratio is $0.007$ at
+$2q = 24$ and shrinks by a factor $0.63$ per step, stable over four fitting windows. The
+convexity is robust to breaking the left--right symmetry: with diagonal weights $(1, x)$ for
+$x = 0.95, 0.9, 0.75, 0.5$ and on the triangular lattice ($x = 0$) all second differences up to
+$2q = 14$ are positive. It is not robust in the size of equal diagonal weights
+(\S\ref{sec:notstructural}): for $x = \tfrac32, 2, 3$ on both diagonals it fails at $2q = 8$ and $2q = 12$.
 
-\subsection{Evidence}
-Table~\ref{tab:L} summarises the tests of (L): exact integer counts by a transfer modulo several
-$60$-bit primes and the Chinese remainder theorem, and for $m = 25, 26$ an x87 computation with a
-rigorous rounding bound (each cell step writes a sum of at most five nonnegative terms, so the
-computed $Z$ is within a factor $(1+u)^{5mk}$, $u = 2^{-64}$; the smallest certified margin is
-$1.237\cdot10^{-10}$). The margin $\log Z(2q-2) + \log Z(2q+2) - 2\log Z(2q)$ decreases
-monotonically in $q$ for every $m$, by a ratio tending to $0.16$--$0.20$; there is no dip at
-intermediate $q$ and nothing that shrinks with $m$.
+\subsection{The stronger finite statement (L)}
+For unit weights we also observed
+\[
+  \text{(L)}\qquad Z(2q, m)^2 \le Z(2q - 2, m)\, Z(2q + 2, m) \quad\text{for all } m, q \ge 1 .
+\]
+(L) implies (L$_\infty$): it makes $q \mapsto m^{-1}\log Z(2q, m)$ convex for each $m$; by
+$Z(2q, m) = Z(m, 2q)$ and \eqref{eq:lambda} this tends to $a_{2q}$ along even $m$, and a
+pointwise limit of convex sequences is convex. Table~\ref{tab:L} summarises the tests of (L):
+exact integer counts by a transfer modulo several $60$-bit primes and the Chinese remainder
+theorem, and for $m = 25, 26$ an x87 computation with a rigorous rounding bound (each cell step
+writes a sum of at most five nonnegative terms, so the computed $Z$ is within a factor
+$(1+u)^{5mk}$, $u = 2^{-64}$; the smallest certified margin is $1.237\cdot10^{-10}$). So (L) holds
+on free strips of width $m \le 26$ and on cylinders of circumference $m \le 22$ in the stated
+row ranges. The margin $\log Z(2q-2) + \log Z(2q+2) - 2\log Z(2q)$ decreases monotonically in $q$
+for every $m$, by a ratio tending to $0.16$--$0.20$; there is no dip at intermediate $q$ and
+nothing that shrinks with $m$.
+
+We do \emph{not} conjecture (L). It is a numerical observation at unit weights, not a structural
+property of the model: the next subsection shows that it fails under arbitrarily small
+perturbations of the diagonal weights that break the left--right symmetry, and for equal
+diagonal weights $x = \tfrac32, 2, 3$, which keep it.
 
 \begin{table}[ht]
-\caption{Tests of (L), $Z(2q)^2 \le Z(2q-2)Z(2q+2)$; the row range shrinks as $m$ grows
-(\file{out\_ltest.txt}, \file{out\_lcert\_m25.txt}, \file{out\_lcert\_m26.txt}).}\label{tab:L}
+\caption{Tests of (L), $Z(2q)^2 \le Z(2q-2)Z(2q+2)$, at unit weights; the row range shrinks as
+$m$ grows (\file{out\_ltest.txt}, \file{out\_lcert\_m25.txt}, \file{out\_lcert\_m26.txt}).}\label{tab:L}
 \begin{tabular}{lllrr}
 \toprule
 lattice, boundary & widths $m$ & rows $2q$ & cases & violations \\
@@ -586,26 +606,64 @@ triangular, free            & $\le 12$ & $\le 60$ & 319 & \textbf{92} \\
 \end{tabular}
 \end{table}
 
-\subsection{Counterexamples in neighbouring models}
-(L) is not a general property of dimer models. On free triangular strips it fails from $m = 5$ on:
+\subsection{Why (L) is not structural}\label{sec:notstructural}
+\emph{Triangular lattice.} On free triangular strips (L) fails from $m = 5$ on:
 $Z(6, 5) = 6475$, $Z(8, 5) = 210560$, $Z(10, 5) = 6842465$ and
-$210560^2 - 6475\cdot6842465 = 30552725 > 0$ (confirmed by brute force). On the king's graph with
-weights on the two diagonals (exact, $2q \le 38$): equal weights $x \in \{0, \tfrac14, \tfrac12, 1,
-2, 4, 10, 100\}$ give no violation for $m \le 9$; the weights $(1, \tfrac12)$ fail from $m = 5$ on
-($14$ of $19$ values of $q$ at $m = 5$), $(1, \tfrac34)$ fails at $m = 9$ ($5$ of $19$, first at
-$2q = 30$), while $(1, \tfrac{9}{10})$ and $(1, \tfrac{19}{20})$ show no violation for $m \le 16$,
-$2q \le 78$. The violations sit mostly at odd $m$ and large $q$, i.e.\ they come from an
-oscillating subleading eigenvalue, which we never saw with equal diagonal weights. A proof of (L)
-therefore cannot be uniform in the diagonal weights; the left--right symmetry of the king's graph
-is the natural ingredient. (L) is also specific to even row counts: for even $m$,
-$j \mapsto Z(2j + 1, m)$ is log-\emph{concave} in $217$ of $220$ tested cases.
+$210560^2 - 6475\cdot6842465 = 30552725 > 0$ (confirmed by brute force).
+
+\emph{The left--right symmetry and its Krein signature.} Give the orthogonal edges weight $1$ and
+the two diagonals weights $x_{\mathrm{dl}}, x_{\mathrm{dr}}$. The reflection $J\colon c \mapsto m - 1 - c$
+of a strip of width $m$ exchanges the two diagonals, so it is a symmetry exactly when
+$x_{\mathrm{dl}} = x_{\mathrm{dr}}$. Write the row transfer as $T = HM$, with $H$ the horizontal
+dimers inside a row and $M$ the crossing kernel. Then $H = H^{\mathsf T} = JHJ$ and, for
+\emph{any} diagonal weights, $M^{\mathsf T} = JMJ$; so $G = JM$ is symmetric and $GT$ is symmetric,
+i.e.\ $T$ is self-adjoint for the indefinite form $G$. If $r_j$ is the right eigenvector of a simple
+real eigenvalue, its weight in $Z(k, m) = (T^k)_{00}$ is
+\[
+  c_j = \frac{r_j(0)^2}{r_j^{\mathsf T} G\, r_j},
+\]
+so the sign of $c_j$ is the Krein signature of $r_j$. (Checked in exact arithmetic for $m \le 7$
+and five weight sets, and against a direct eigendecomposition for $m \le 9$, relative error
+$7\cdot10^{-13}$.) With equal weights the empty state is $J$-even, $Z$ sees only the $J$-even
+sector, and there $G = M$; on the $J$-odd sector $G = -M$. Under the perturbation $(1, 1 - \varepsilon)$
+the top $J$-odd level, which is $M$-positive, becomes visible with a \emph{negative} weight
+$-K\varepsilon^2$ ($K = 0.70, 1.31, 1.63$ at $m = 4, 5, 8$, constant for
+$\varepsilon = 10^{-3}, \dots, 3\cdot10^{-2}$). Wherever that level lies above the leading visible
+$J$-even level ($m = 4$ and $m = 8$ among $m \le 11$), (L) must fail for large $q$, and it does
+(exact): the weights $(1, \tfrac{9}{10})$ violate (L) at $m = 4$ from $2q = 56$, at $m = 8$ from
+$2q = 86$ and at $m = 12$ from $2q = 112$, and $(1, \tfrac{19}{20})$ at $m = 8$ from $2q = 118$; the
+onsets agree exactly with those predicted from the spectrum. Earlier tests of these weights
+($m \le 16$, $2q \le 78$) had stopped just short of them. Clearly unequal weights fail much
+earlier: $(1, \tfrac12)$ from $m = 5$ on ($14$ of $19$ values of $q$ at $m = 5$, $2q \le 38$),
+$(1, \tfrac34)$ at $m = 9$ ($5$ of $19$, first at $2q = 30$). Restoring the symmetry restores (L)
+in every tested case: the symmetrised transfer $H(M + M^{\mathsf T})/2$ has no violation, including
+all cases above where $HM$ fails.
+
+\emph{Equal weights are not enough.} With equal weights $x$ on both diagonals (L) holds for
+$x \in \{0, \tfrac14, \tfrac12, 1, 2, 4, 10, 100\}$ on narrow strips ($m \le 9$, $2q \le 38$), but
+not on wide ones. Exactly, $Z(8, m)^2 > Z(6, m)\,Z(10, m)$ for every $m$ with $35 \le m \le 60$
+at $x = \tfrac32$, $21 \le m \le 60$ at $x = 2$ and $19 \le m \le 60$ at $x = 3$, while $x = 1$
+and $x = \tfrac54$ give no violation at $2q = 8$ for $m \le 60$. These are the finite-width traces of a
+failure of (L$_\infty$) itself: the second difference of $a_{2q}$ at $2q = 8$ is $-6.2\cdot10^{-4}$
+at $x = \tfrac32$ and $-2.8\cdot10^{-3}$ at $x = 2$, and the differences alternate in sign. In the
+language of the Prony fit above, the alternating mode, which at $x = 1$ is $0.007$ of the positive
+one at $2q = 24$, is already comparable to it at $x = \tfrac54$ (ratios of consecutive second
+differences $2.0$, $376$, $0.16$, $48$) and dominates at $x = \tfrac32, 2, 3$. So the symmetry $J$ is
+necessary for (L) but not sufficient, and at $x = 1$ both (L) and (L$_\infty$) are quantitative
+facts: $x = 1$ lies below a transition $x^* \le \tfrac32$. Any proof has to see this, which rules
+out arguments that are uniform in the weights.
+
+(L) is also specific to even row counts: for even $m$, $j \mapsto Z(2j + 1, m)$ is
+log-\emph{concave} in $217$ of $220$ tested cases.
 
 \subsection{Obstructions to standard proofs}\label{sec:obstructions}
 \emph{Reflection positivity} fails for every reflection line of the king lattice. Between rows a
 reflection maps one diagonal to the other, and the gluing form $M(A, B)$ (the crossing matchings of
 \S\ref{sec:bounds}) is indefinite: its smallest eigenvalue is $1 - \sqrt2$ already for columns of
 length $m = 3$, and the eigenvector $(1, -\sqrt2, 1)$ on $A = \{0\}, \{1\}, \{2\}$ is realised by
-actual three-row half-boards (with weights $10, 4, 10$). Through a line of vertices the kernel is
+actual three-row half-boards (with weights $10, 4, 10$). This vector is $J$-even, so restricting
+to the sector that $Z$ sees does not help: on the $J$-even sector $M$ has $1, 1, 3, 8, 20, 34, 93,
+186$ negative eigenvalues for $m = 3, \dots, 10$. Through a line of vertices the kernel is
 $[U \ne D]$ with eigenvalues $\pm1$. The transfer is not symmetric ($w = 3$:
 $T[\emptyset \to \{1\}] = 2$, $T[\{1\} \to \emptyset] = 0$).
 \emph{Moment sequences.} If $Z(2q, m)$ were a Stieltjes moment sequence, (L) would follow; but
@@ -613,9 +671,11 @@ $e_0$-visible eigenvalues of $T^2$ are non-real or negative from $m = 3$ on (sma
 $0.047\,\lambda_1^2$ in modulus at $m = 10$), and the Hankel matrices have negative minors.
 \emph{Total nonnegativity} of the transfer fails for the same reason, and the
 Lindstr\"om--Gessel--Viennot lemma needs a planar path model that the crossing diagonals do not
-provide.
+provide. \emph{Interlacing} of the strip spectra would need a Hermitian structure, or a Pontryagin
+space of small negative index, but $G$ has exponentially many negative directions. Monotonicity of
+the gap gives the decay rate of the second differences, not their sign.
 
-\subsection{Reformulations}
+\subsection{Reformulations of (L)}
 Superpose a matching $X$ of rows $[0, 2q)$ with a matching $Y$ of rows $[2, 2q+2)$ ($Z(2q)^2$
 pairs), or $X'$ of $[0, 2q+2)$ with $Y'$ of $[2, 2q)$ ($Z(2q+2)Z(2q-2)$ pairs). The union $H$ has
 degree one on the top rows $\{0, 1\}$ and the bottom rows $\{2q, 2q+1\}$ and degree two in between,
@@ -629,15 +689,19 @@ $2^{c(H)}$ labelings, $c(H)$ the number of cycles of length at least four, so
 where $t(H)$ is the number of TB paths. We checked this identity pair by pair for small
 $(m, q)$ (up to $3.4\cdot10^{6}$ pairs). The odd configurations win separately for every $t$
 (e.g.\ $m = 5$, $q = 2$: $t = 2$: $1847660$ against $912656$; $t = 4$: $32616$ against $0$). So (L)
-asks for a sign-reversing injection that flips the parity of all top--bottom paths; by the
-counterexamples above it must use the geometry of the king lattice. Equivalently, cutting the
-board in the middle, (L) says that the indefinite form $M$ is positive semidefinite on the span of
-two boundary vectors $u_{q-1}, u_{q+1}$ of half-boards.
+asks for a sign-reversing injection that flips the parity of all top--bottom paths; by
+\S\ref{sec:notstructural} it would have to depend on the size of the diagonal weight. Cut-and-swap
+involutions below the first row where the two boundaries agree (plainly or after the reflection
+$J$) do pair off part of the configurations, but the unmatched remainder does not shrink with $q$.
+Equivalently, cutting the board in the middle, (L) says that the indefinite form $M$ is positive
+semidefinite on the span of two boundary vectors $u_{q-1}, u_{q+1}$ of half-boards.
 
 \begin{problem}
-Prove (L), or at least (L$_\infty$), for the king's graph. Either would make the lower bound
-$s \ge 0.565511911035$ a theorem. Any proof must distinguish the king's graph from the triangular
-lattice and from the king's graph with unequal diagonal weights.
+Prove (L$_\infty$) for the king's graph; this would make the lower bound $s \ge 0.565511911035$
+a theorem. A proof must distinguish unit diagonal weights from equal weights $x = \tfrac32, 2, 3$,
+where (L$_\infty$) fails. The only route we see is a computer-assisted proof of the asymptotics
+of the strip free energy $a_{2q}$, with the leading finite-size correction controlled to relative
+accuracy about $0.6$ for every $2q \ge 22$.
 \end{problem}
 
 \section{Reproducibility}\label{sec:repro}
@@ -665,6 +729,7 @@ command & output \\
 \texttt{python3 zexact.py \dots}; \texttt{python3 ltest.py} & \file{zex\_*.json}, \file{out\_ltest.txt} \\
 \texttt{python3 lcert.py 25 30}, \texttt{\dots\ 26 30} & \file{out\_lcert\_m25.txt}, \dots \\
 \texttt{python3 lweight.py} [\texttt{big}] & \file{out\_lweight*.txt} \\
+\texttt{python3 symmetry.py}, \texttt{linf.py}, \texttt{involution.py} (in \file{L/}) & \file{L/out\_*.txt} \\
 \texttt{python3 validate.py}; \texttt{python3 crosscheck.py} & \file{out\_validate.txt}, \dots \\
 \texttt{python3 paper/derived.py} & \file{paper/out\_derived.txt} \\
 \bottomrule
