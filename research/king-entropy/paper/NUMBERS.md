@@ -67,7 +67,7 @@ computation from the listed values, done in `paper/derived.py` unless stated oth
 | 0.545343749727, 0.586216605404 | certified bounds, w = 24 | `out_bounds.txt` (BEST CERTIFIED) | `bounds.py 24` |
 | 0.242017935766251 ± 9·10⁻¹⁵ | σ | `out_surface.txt` (RESULT; 9.2e-15 rounded) | `surface.py` |
 | ξ ≈ 1.23 | splitting length | `out_estimate.txt` (fits 1.2323, 1.2351; rounded) | `estimate.py` |
-| 0.565511911035 | bound given (L) | `out_cw.txt` (section E) | `cw.py` |
+| 0.565511911035 | bound given (L∞) | `out_cw.txt` (section E) | `cw.py` |
 | 1451 | (L) cases checked on the king's graph | 873 + 550 (`out_ltest.txt` totals) + 14 + 14 (`out_lcert_m25.txt`, `out_lcert_m26.txt`, 2q = 2…28) | `ltest.py`, `lcert.py` |
 | A239264, A239273, A239265, A239268, A243510 | OEIS ids | literature (`refs.bib`) | — |
 | 72 > 3·25 − 6 | edges of the 5×5 king graph | `paper/out_derived.txt` | `paper/derived.py` |
@@ -142,7 +142,7 @@ computation from the listed values, done in `paper/derived.py` unless stated oth
 | 1848358752, 1852300296658080, 57261989986381118073728 | `out_validate.txt` (section 4) | `validate.py` |
 | 0.428594537464959, 0.428594537464956, 2.9·10⁻¹⁵ | `out_validate.txt` (section 4) | `validate.py` |
 
-### Section 8 (conjecture (L))
+### Section 8 (conjecture (L∞); (L) observed, not structural)
 
 | number | file | script |
 | --- | --- | --- |
@@ -161,6 +161,18 @@ computation from the listed values, done in `paper/derived.py` unless stated oth
 | 0.047 | `out_lspec.txt` (m = 10, 0.0468; rounded) | `lspec.py` |
 | 3.4·10⁶ pairs | `out_lparity.txt` (m = 5, q = 2: 3410589 pairs) | `lparity.py` |
 | 1847660, 912656, 32616 | `out_lparity.txt` | `lparity.py` |
+| Prony modes 0.1147, −0.072, ratio 0.007 at 2q = 24, factor 0.63 per step, four windows | `L/out_linf.txt` (king (1, 1) from surface.json; 0.0718…0.0730; 0.0722/0.1147) | `L/linf.py` |
+| (L∞) positive to 2q = 14 for (1, 0.95), (1, 0.9), (1, 0.75), (1, 0.5), triangular (1, 0) | `L/out_linf.txt` | `L/linf.py` |
+| x = 3/2: −6.2·10⁻⁴; x = 2: −2.8·10⁻³ (2q = 8); negatives at 2q = 8, 12; x = 5/4 ratios 2.0, 376, 0.16, 48 | `L/out_linf.txt` | `L/linf.py` |
+| Z(8, m)² > Z(6, m)Z(10, m) for 35 ≤ m ≤ 60 (x = 3/2), 21 ≤ m ≤ 60 (x = 2), 19 ≤ m ≤ 60 (x = 3); none for x = 1, 5/4, m ≤ 60 | `L/out_linf.txt` (last block) | `L/linf.py` |
+| T = HM, M^T = JMJ, G = JM, m ≤ 7, five weight sets; 7·10⁻¹³ (m ≤ 9) | `L/out_symmetry.txt` (A, B; 7.1e-13) | `L/symmetry.py` |
+| K = 0.70, 1.31, 1.63 (m = 4, 5, 8), ε = 10⁻³ … 3·10⁻² | `L/out_symmetry.txt` (C; −0.695 … −0.713, −1.306 … −1.351, −1.628 … −1.664) | `L/symmetry.py` |
+| J-odd level above at m = 4, 8 among m ≤ 11 | `L/out_symmetry.txt` (B) | `L/symmetry.py` |
+| (1, 9/10): m = 4, 8, 12 from 2q = 56, 86, 112; (1, 19/20): m = 8 from 2q = 118; predicted onsets equal | `L/out_symmetry.txt` (D1; (10, 10, 9), (20, 20, 19)) | `L/symmetry.py` |
+| symmetrised H(M + M^T)/2: no violation | `L/out_symmetry.txt` (D2) | `L/symmetry.py` |
+| negative index of M on the J-even sector 1, 1, 3, 8, 20, 34, 93, 186 (m = 3…10) | `L/out_symmetry.txt` (E) | `L/symmetry.py` |
+| cut-and-swap remainder does not shrink with q | `L/out_involution.txt` | `L/involution.py` |
+| relative accuracy about 0.6 for a certified tail | `L/REPORT-session3b.md` (item 6, ((1−r)/(1+r))² ≈ 0.63) | — |
 
 ### Section 9 (reproducibility)
 
