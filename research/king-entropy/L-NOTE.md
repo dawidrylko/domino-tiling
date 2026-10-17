@@ -12,6 +12,14 @@ lattice and when the two diagonals of the king lattice get clearly unequal weigh
 cannot be uniform in the diagonal weights; the left–right symmetry is the natural ingredient
 (not shown to be necessary).
 
+> **Erratum (2026-10-17).** The claims above that equal diagonal weights x ∈ [0, 100] and the
+> near-equal weights (1, 0.9), (1, 0.95) "survive", and that the oscillating eigenvalue "never shows up
+> with equal diagonal weights", are false beyond the tested range. (1, 9/10) violates (L) at m = 4, 8, 12
+> from 2q = 56, 86, 112 and (1, 19/20) at m = 8 from 2q = 118; equal weights x = 3/2, 2, 3 violate (L)
+> at 2q = 8 for every m ≥ 35, 21, 19 respectively (checked to m = 60), and (L∞) itself fails there.
+> The left–right symmetry is necessary (Krein signature of the J-odd sector) but not sufficient.
+> See `L/REPORT-session3b.md`.
+
 ## 0. What is really needed: (L∞), much weaker than (L)
 
 The conditional bound uses only convexity of a_{2q} = log λ_{2q} (free strip of width 2q) for
@@ -70,6 +78,9 @@ deep in the asymptotic regime (constant ratio).
    (`python3 lweight.py big` → `out_lweight_big.txt`); the failures sit mostly on odd m and at
    large q, i.e. they come from an oscillating (non-real or negatively weighted) subleading
    eigenvalue, which never shows up with equal diagonal weights (`lspec.py`: μ₂ real, c₂ > 0).
+
+   *Erratum (2026-10-17): false for larger m or q; see the erratum under the status paragraph
+   and `L/REPORT-session3b.md`.*
 
 ## 3. Exact reformulations (both verified)
 

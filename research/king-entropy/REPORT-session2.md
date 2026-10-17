@@ -41,6 +41,9 @@ r_w 13.4 → 9.99 is an effect of w^b, not a change of ξ); 1/ξ_odd ≈ 1.07 �
   force: 210560² > 6475·6842465). King with diagonal weights (1, ½): violations from m = 5, (1, ¾) at
   m = 9; equal weights x ∈ [0, 100] and nearly equal (1, 0.9), (1, 0.95) up to m = 16: 0. A proof cannot
   be uniform in the weights; natural ingredient: the left–right symmetry.
+  *Erratum (2026-10-17): "equal weights x ∈ [0, 100] and nearly equal (1, 0.9), (1, 0.95): 0" holds
+  only in the tested range. (1, 9/10) fails at m = 4, 8, 12 from 2q = 56, 86, 112; equal weights
+  x = 3/2, 2, 3 fail at 2q = 8 for all m ≥ 35, 21, 19 (checked to m = 60). See `L/REPORT-session3b.md`.*
 - Dead ends (with obstruction): RP; moment sequence/Hankel PSD (negative minors from m = 3, μ complex
   or negative in the spectrum of T², `lspec.py`); total nonnegativity (non-real spectrum); LGV.
 - New, verified reformulations: (R1) D_q = Σ_H 2^c([top–bottom paths all
