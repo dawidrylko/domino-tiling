@@ -1,0 +1,85 @@
+A. exact structure: T = H M, H = H^T = JHJ, M^T = JMJ, G = JM symmetric, G T symmetric
+  m=1: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=2: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=3: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=4: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=5: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=6: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  m=7: (1, 1, 1): ok  (2, 2, 1): ok  (4, 4, 3): ok  (10, 10, 9): ok  (1, 1, 0): ok
+  J-even block: Z(k) = (T_+^k)[0][0], T_+ in the orbit basis f_O = sum_{s in O} e_s, k <= 30, equal weights
+  m = 1..10: identical (528 J-even vs 496 J-odd states at m = 10)
+
+B. weights c_j = r_j(0)^2 / (r_j^T G r_j) and sector levels (float64)
+  m = 2..9, weights (1,1,1), (1,1,1/2), (1,1,0.9): max |c_formula - c_eig| / max|c| = 7.1e-13
+
+  equal weights, A = T^2: leading subleading levels mu/mu_1 per sector; tags: J-parity,
+  |s|-parity class (even m only; e0 lives in class e), sign of r^T M r; "vis" = e0-visible
+  m  top visible J-even subleading        top J-odd level in e0-reachable class   J-odd above?
+  3  0.18516 (M-sign +, c/c1 = +2.046)        0.09025 (M-sign +, |c| = 2e-33)          no
+  4  0.13105 (M-sign +, c/c1 = +2.120)        0.16457 (M-sign +, |c| = 3e-32)          YES
+  5  0.18652 (M-sign +, c/c1 = +0.260)        0.17218 (M-sign +, |c| = 6e-34)          no
+  6  0.19507 (M-sign +, c/c1 = +0.573)        0.16362 (M-sign +, |c| = 6e-32)          no
+  7  0.18799 (M-sign +, c/c1 = +0.831)        0.18586 (M-sign +, |c| = 7e-31)          no
+  8  0.17892 (M-sign +, c/c1 = +0.189)        0.19267 (M-sign +, |c| = 5e-30)          YES
+  9  0.19045 (M-sign +, c/c1 = +0.166)        0.19016 (M-sign +, |c| = 5e-30)          no
+ 10  0.19431 (M-sign +, c/c1 = +0.339)        0.18546 (M-sign +, |c| = 6e-31)          no
+ 11  0.19230 (M-sign +, c/c1 = +0.411)        0.19226 (M-sign +, |c| = 6e-28)          no
+
+C. homotopy (1, 1 - eps): weight of the descendant of the top J-odd level, followed by continuation
+   from eps = 0 in steps of 1e-3 (relative to the leading weight c_1; +-lambda pairs summed for odd m)
+  m=4, J-odd level mu/mu1 = 0.16457:  eps=1e-03: mu/mu1 = 0.16457, c/c1 = -6.95e-07 (/eps^2 = -0.695)  eps=3e-03: mu/mu1 = 0.16458, c/c1 = -6.26e-06 (/eps^2 = -0.696)  eps=1e-02: mu/mu1 = 0.16458, c/c1 = -7.00e-05 (/eps^2 = -0.700)  eps=3e-02: mu/mu1 = 0.16458, c/c1 = -6.42e-04 (/eps^2 = -0.713)
+  m=5, J-odd level mu/mu1 = 0.17218:  eps=1e-03: mu/mu1 = 0.17217, c/c1 = -1.31e-06 (/eps^2 = -1.306)  eps=3e-03: mu/mu1 = 0.17214, c/c1 = -1.18e-05 (/eps^2 = -1.309)  eps=1e-02: mu/mu1 = 0.17206, c/c1 = -1.32e-04 (/eps^2 = -1.320)  eps=3e-02: mu/mu1 = 0.17181, c/c1 = -1.22e-03 (/eps^2 = -1.351)
+  m=8, J-odd level mu/mu1 = 0.19267:  eps=1e-03: mu/mu1 = 0.19263, c/c1 = -1.63e-06 (/eps^2 = -1.628)  eps=3e-03: mu/mu1 = 0.19256, c/c1 = -1.47e-05 (/eps^2 = -1.631)  eps=1e-02: mu/mu1 = 0.19230, c/c1 = -1.64e-04 (/eps^2 = -1.639)  eps=3e-02: mu/mu1 = 0.19154, c/c1 = -1.50e-03 (/eps^2 = -1.664)
+
+D1. exact (L) for near-symmetric weights (orthogonal, x_dl, x_dr); predicted onset from the
+    visible spectrum: first q where sum_j (c_j/c_1) rho_j^(q-1) (1 - rho_j)^2 < 0, rho_j = mu_j/mu_1
+  m= 4 (1, 1, 1)     2q <= 398: violations   0/199, first 2q =    -   predicted first 2q = -   J-odd level above (table B): yes
+  m= 4 (10, 10, 9)   2q <= 398: violations 172/199, first 2q =   56   predicted first 2q = 56   J-odd level above (table B): yes
+  m= 8 (1, 1, 1)     2q <= 258: violations   0/129, first 2q =    -   predicted first 2q = -   J-odd level above (table B): yes
+  m= 8 (10, 10, 9)   2q <= 198: violations  57/99, first 2q =   86   predicted first 2q = 86   J-odd level above (table B): yes
+  m= 8 (20, 20, 19)  2q <= 258: violations  71/129, first 2q =  118   predicted first 2q = 118   J-odd level above (table B): yes
+  m= 6 (10, 10, 9)   2q <= 298: violations   0/149, first 2q =    -   predicted first 2q = -   J-odd level above (table B): no
+  m=12 (1, 1, 1)     2q <= 138: violations   0/69, first 2q =    -   predicted first 2q = n/a (m > 10)   J-odd level above (table B): n/a
+  m=12 (10, 10, 9)   2q <= 138: violations  14/69, first 2q =  112   predicted first 2q = n/a (m > 10)   J-odd level above (table B): n/a
+
+D2. exact (L) for the J-symmetrised transfer T_s = H (M + M^T)/2 (counts scaled by 2^k)
+    vs the original asymmetric transfer T = H M; entry = violations/cases (first 2q)
+   m         (2, 2, 1) T     (2, 2, 1) T_s       (4, 4, 3) T     (4, 4, 3) T_s       (1, 1, 0) T     (1, 1, 0) T_s     (10, 10, 9) T   (10, 10, 9) T_s
+   3                0/19              0/19              0/19              0/19              0/19              0/19              0/19              0/19
+   4                0/19              0/19              0/19              0/19              0/19              0/19              0/19              0/19
+   5          14/19 (12)              0/19              0/19              0/19          9/19 (8)              0/19              0/19              0/19
+   6                0/19              0/19              0/19              0/19          8/19 (8)              0/19              0/19              0/19
+   7                0/19              0/19              0/19              0/19          6/19 (8)              0/19              0/19              0/19
+   8           2/19 (36)              0/19              0/19              0/19          6/19 (8)              0/19        57/99 (86)              0/99
+   9          11/19 (18)              0/19         5/19 (30)              0/19         10/19 (8)              0/19              0/19              0/19
+
+D3. exact (L) for J-orbit counts: F = J-symmetric tilings, Z_+ = (Z+F)/2 orbits, Z_- = (Z-F)/2
+  F checked against brute force on (k, m) in {2,4,6} x {2..6} (small boards)
+  odd m: F(k, m) = Z(k, (m-1)/2) (middle column forced vertical), checked m = 3..11, k <= 30
+   m   K    F         Z_+       Z_-
+   2   80  0/39      0/39      0/39    
+   3   80  0/39      0/39      1/39(2) 
+   4   80  0/39      0/39      39/39(2)
+   5   80  0/39      0/39      1/39(2) 
+   6   80  0/39      0/39      1/39(2) 
+   7   80  0/39      0/39      1/39(2) 
+   8   80  0/39      0/39      1/39(2) 
+   9   80  0/39      0/39      1/39(2) 
+  10   40  0/19      0/19      1/19(2) 
+  11   40  0/19      0/19      1/19(2) 
+  12   40  0/19      0/19      1/19(2) 
+
+E. inertia of the crossing kernel M (equal weights) on the J-even / J-odd sectors (float64)
+   m  (pos, neg, zero) on J-even   (pos, neg, zero) on J-odd    [J-odd pos = neg. index of G = JM there]
+   2  (3, 0, 0)                   (0, 0, 1)                 
+   3  (5, 1, 0)                   (2, 0, 0)                 
+   4  (9, 1, 0)                   (4, 2, 0)                 
+   5  (14, 3, 3)                  (8, 2, 2)                 
+   6  (28, 8, 0)                  (19, 9, 0)                
+   7  (52, 20, 0)                 (38, 18, 0)               
+   8  (90, 34, 12)                (69, 36, 15)              
+   9  (179, 93, 0)                (154, 86, 0)              
+  10  (342, 186, 0)               (303, 193, 0)             
+  m = 3, one particle: M = [[1,1,0],[1,1,1],[0,1,1]], J-even vector (1, -sqrt 2, 1) has M-norm 4(1 - sqrt 2) < 0
+
+total time 187 s
