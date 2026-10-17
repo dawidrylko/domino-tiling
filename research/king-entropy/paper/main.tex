@@ -16,6 +16,9 @@
 \usepackage{url}
 \usepackage{microtype}
 \emergencystretch=2em
+% The bibliography first uses OT1 lmr at 9pt in math mode; selecting it once in text
+% lets microtype set it up before that, avoiding a pdfTeX font-expansion warning.
+\AtBeginDocument{\sbox0{\footnotesize\fontencoding{OT1}\selectfont x}}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -607,8 +610,8 @@ perturbations of the diagonal weights that break the left--right symmetry, and f
 diagonal weights $x = \tfrac32, 2, 3$, which keep it.
 
 \begin{table}[ht]
-\caption{Tests of (L), $Z(2q)^2 \le Z(2q-2)Z(2q+2)$, at unit weights; the row range shrinks as
-$m$ grows (\file{out\_ltest.txt}, \file{out\_lcert\_m25.txt}, \file{out\_lcert\_m26.txt}).}\label{tab:L}
+\caption{Tests of (L), $Z(2q)^2 \le Z(2q-2)Z(2q+2)$, at unit weights (\file{out\_ltest.txt},
+\file{out\_lcert\_m25.txt}, \file{out\_lcert\_m26.txt}); the row range shrinks as $m$ grows.}\label{tab:L}
 \begin{tabular}{lllrr}
 \toprule
 lattice, boundary & widths $m$ & rows $2q$ & cases & violations \\
